@@ -58,12 +58,14 @@ Options::Options(QObject *parent) :
     qDebug() << path;
     if ( path.size() > 0 ) {
         m_NWN_path = path;
-
     }
     else {
         QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\BioWare\\NWN\\Neverwinter", QSettings::NativeFormat);
         path = settings.value("Location").toString();
         qDebug() << path;
+        if ( path.size() > 0 ) {
+            m_NWN_path = path;
+        }
     }
 #endif
 
