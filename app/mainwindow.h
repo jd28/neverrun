@@ -34,6 +34,7 @@ class QTreeWidgetItem;
 class QVBoxLayout;
 class QWebView;
 
+class DirectConnectDialog;
 class HtmlPreviewGenerator;
 class ListSelectionDialog;
 class ModuleCategoryWidget;
@@ -56,17 +57,19 @@ class MainWindow : public QMainWindow {
     };
 
     // Data Members
+    Options              *options_;
+    DirectConnectDialog  *direct_connect_dlg_;
     HtmlPreviewGenerator *generator_;
     ListSelectionDialog  *list_selection_dlg_;
     ModuleCategoryWidget *module_category_;
     ModuleTableWidget    *modules_table_widget_;
-    Options              *options_;
     QGridLayout          *main_grid_layout_;
     QNetworkDiskCache    *diskCache;
     QPushButton          *website_button_;
     QPushButton          *info_button_;
     QPushButton          *play_button_;
     QPushButton          *dm_button_;
+    QPushButton          *direct_connect_;
     QPushButton          *update_button_;
     QStackedWidget       *cat_stack_;
     QStackedWidget       *list_stack_;
@@ -103,6 +106,7 @@ private slots:
     void onListSelectionAccepted();
     void runUpdater();
     void switchStack();
+    void requestDirectConnect();
 
 public slots:
     void changeStack(ToggleButton::Button button);
@@ -118,6 +122,7 @@ public slots:
     void onRequestRemoveFromDialog();
     void onServerSettingsChanged();
     void openURL(const QUrl& url);
+    void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
     void SetServerAddressFilter(const QStringList &ips);
     void setModuleFilter(const QStringList &mods);

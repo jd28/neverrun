@@ -17,10 +17,13 @@ typedef ns4__ArrayOfNWGameServer ArrayOfNWGameServer;
 typedef ns4__NWGameServer NWGameServer;
 typedef _ns1__LookupServerByGameType GameLookup;
 typedef _ns1__LookupServerByGameTypeResponse GameLookupResponse;
+typedef _ns1__RegisterPendingServers RegisterPendingServers;
+typedef _ns1__RegisterPendingServersResponse RegisterPendingServersResponse;
 
 #endif
 
 int RoomToSkywing(int room);
 const char * GetSoapErrorMessage(int res);
+unsigned int AddServer(const char* address);
 
 #endif // NWNMASTERSERVER_H

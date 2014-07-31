@@ -134,25 +134,22 @@ public:
     QString cdkey;
     QString player_name;
     QString m_NWN_path;
-    QMap<QString, QString> password_dm_;
-    QMap<QString, QString> password_player_;
-    QMap<QString, QString> server_loader_;
-    QMap<QString, QString> server_updater_;
 
-
+    void addDirectConnect(const QString &addr);
     QString getPassword(QString address, bool is_dm) const;
     QStringList getCategoryIPs(const QString &cat) const;
     QStringList getCategoryModules(const QString &cat) const;
+    QStringList getDirectConnects();
     QStringList getModuleCategories() const;
     QStringList getServerCategories() const;
     void removeServerCategory(const QString& cat);
     void addServerToCategory(const QString& cat, const QString& addr);
     void removeServerFromCategory(const QString& cat, const QString& addr);
     void addModuleToCategory(const QString& cat, const QString& addr);
+    void removeModuleCategory(const QString &cat);
     void removeModuleFromCategory(const QString& cat, const QString& addr);
     void removeUserName(const QString& name);
 
-    void removeModuleCategory(const QString &cat);
 private:
     QFont font;
     int m_tabWidth;
@@ -177,9 +174,13 @@ private:
     MarkdownConverter m_markdownConverter;
     QString current_username_;
     QStringList usernames_;
-
+    QStringList direct_connect_;
     QMap<QString, QStringList> server_categories_;
     QMap<QString, QStringList> module_categories_;
+    QMap<QString, QString> password_dm_;
+    QMap<QString, QString> password_player_;
+    QMap<QString, QString> server_loader_;
+    QMap<QString, QString> server_updater_;
 
 };
 

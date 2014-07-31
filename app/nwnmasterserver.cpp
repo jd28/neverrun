@@ -93,3 +93,33 @@ const char * GetSoapErrorMessage(int res)
     return "Undiagnosed error.\n";
 }
 
+unsigned int AddServer(const char *address) {
+    if (!address || !*address) { return 0; }
+    NWNMasterServerAPIProxy *api = new NWNMasterServerAPIProxy();
+    api->soap_endpoint = API_ENDPOINT;
+
+    auto servers = new char*[2];
+    servers[0] = _strdup(address);
+    servers[1] = NULL;
+
+    RegisterPendingServers srv_request;
+    RegisterPendingServersResponse srv_response;
+    auto strings = new ns5__ArrayOfstring();
+    strings->string = servers;
+    strings->__sizestring = 1;
+
+    srv_request.Product = (char *)soap_malloc(api, sizeof(char) * 5);  // NWN1 plus a null character.
+    strcpy_s(srv_request.Product, sizeof(char) * 5,  "NWN1");
+    srv_request.ServerAddresses = strings;
+
+    int res = api->RegisterPendingServers(&srv_request, &srv_response);
+    if(res != SOAP_OK) {
+        delete api;
+        return 0;
+    }
+
+    unsigned int r = *srv_response.RegisterPendingServersResult;
+    delete api;
+    return r;
+}
+

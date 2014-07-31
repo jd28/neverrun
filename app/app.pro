@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     widgets/moduletablewidget.cpp \
     models/moduletableproxymodel.cpp \
     widgets/serversettings.cpp \
-    widgets/serverinfowidget.cpp
+    widgets/serverinfowidget.cpp \
+    widgets/directconnectdialog.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
@@ -60,7 +61,8 @@ HEADERS  += mainwindow.h \
     models/ServerTableProxyModel.h \
     widgets/serversettings.h \
     util.h \
-    widgets/serverinfowidget.h
+    widgets/serverinfowidget.h \
+    widgets/directconnectdialog.h
 
 RESOURCES += \
     qdarkstyle/style.qrc
@@ -112,4 +114,5 @@ FORMS += \
     widgets/setdmpassworddialog.ui \
     widgets/listselectiondialog.ui \
     widgets/serversettings.ui \
-    widgets/serverinfowidget.ui
+    widgets/serverinfowidget.ui \
+    widgets/directconnectdialog.ui

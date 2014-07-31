@@ -51,6 +51,7 @@
 #include "widgets/togglebutton.h"
 #include "widgets/listselectiondialog.h"
 #include "widgets/usernamebutton.h"
+#include "widgets/directconnectdialog.h"
 
 #include "models/moduletablemodel.h"
 #include "widgets/setdmpassworddialog.h"
@@ -97,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     options_->readSettings();
 
+    direct_connect_dlg_ = new DirectConnectDialog(options_, this);
     name_label_ = new UserNameButton(options_, options_->getCurrentUserName(), options_->getUserNames(), this);
 
     QFont font;
@@ -209,6 +211,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(server_info_widget_, SIGNAL(closeInfo()), SLOT(switchStack()));
 
+    connect(direct_connect_dlg_, SIGNAL(requestPlayServer(QString,QString,bool)),
+            SLOT(playServer(QString,QString,bool)));
+
     setupUi();
 
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
@@ -280,6 +285,9 @@ QWidget *MainWindow::CreateInfoButtonBar() {
     QWidget *bw = new QWidget(this);
     QHBoxLayout *bl = new QHBoxLayout();
 
+    direct_connect_ = new QPushButton("Direct Connect", this);
+    connect(direct_connect_, SIGNAL(clicked()), SLOT(requestDirectConnect()));
+
     play_button_ = new QPushButton("Play", this);
     connect(play_button_, SIGNAL(clicked()), SLOT(play()));
     dm_button_ = new QPushButton("DM", this);
@@ -294,6 +302,7 @@ QWidget *MainWindow::CreateInfoButtonBar() {
 
     bl->addWidget(play_button_);
     bl->addWidget(dm_button_);
+    bl->addWidget(direct_connect_);
     bl->addWidget(website_button_);
     bl->addWidget(info_button_);
 
@@ -389,6 +398,11 @@ void MainWindow::switchStack() {
             info_button_->setEnabled(false);
         }
     }
+}
+
+void MainWindow::requestDirectConnect() {
+    direct_connect_dlg_->ensureFocus();
+    direct_connect_dlg_->show();
 }
 
 void MainWindow::HandleServerSelectionChange(QModelIndex current, QModelIndex previous) {
@@ -516,11 +530,10 @@ void MainWindow::PlayModule(QString module, bool dm) {
     openProcess(ps, arguments.join(" "), dir);
 }
 
-void MainWindow::RunNWN(QString address, bool dm) {
+
+void MainWindow::playServer(QString address, QString password, bool dm) {
     qDebug() << "Attempting to run NWN";
     options_->addServerToCategory("History", address);
-
-    QString password = options_->getPassword(address, dm);
 
     QStringList arguments;
     if (dm) {
@@ -547,7 +560,10 @@ void MainWindow::RunNWN(QString address, bool dm) {
     QString dir = QFileInfo(exe).canonicalPath();
 
     openProcess(ps, arguments.join(" "), dir);
+}
 
+void MainWindow::RunNWN(QString address, bool dm) {
+    playServer(address, options_->getPassword(address, dm), dm);
 }
 
 void MainWindow::OnPasswordChanged(QString address, QString password, bool is_dm) {

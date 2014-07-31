@@ -45,6 +45,7 @@ static const char* CODEHIGHLIGHT_ENABLED = "codehighlighting/enabled";
 static const char* SHOWSPECIALCHARACTERS_ENABLED = "specialchars/enabled";
 static const char* WORDWRAP_ENABLED = "wordwrap/enabled";
 
+static const char* DIRECT_CONNECT = "DirectConnect";
 static const char* SERVER_LOADERS = "ServerLoaders";
 static const char* SERVER_UPDATERS = "ServerUpdaters";
 
@@ -210,6 +211,16 @@ static bool FileConvert20ToSpace(QString filename) {
     }
     savefile.close();
     return true;
+}
+
+void Options::addDirectConnect(const QString& addr) {
+    if( addr.size() > 0 && !direct_connect_.contains(addr) ) {
+        direct_connect_ << addr;
+    }
+}
+
+QStringList Options::getDirectConnects() {
+    return direct_connect_;
 }
 
 QStringList Options::getCategoryIPs(const QString& cat) const {
@@ -536,6 +547,13 @@ void Options::readSettings()
     }
     settings.endArray();
 
+    size = settings.beginReadArray(DIRECT_CONNECT);
+    for(int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        direct_connect_ << settings.value("address").toString();
+    }
+    settings.endArray();
+
     foreach(const QString& c, cats) {
         QStringList servers;
         int size = settings.beginReadArray("Server_"+c);
@@ -669,6 +687,13 @@ void Options::writeSettings()
     for(int i = 0; i < usernames_.size(); ++i) {
         settings.setArrayIndex(i);
         settings.setValue("name", usernames_[i]);
+    }
+    settings.endArray();
+
+    settings.beginWriteArray(DIRECT_CONNECT, direct_connect_.size());
+    for(int i = 0; i < direct_connect_.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("address", direct_connect_[i]);
     }
     settings.endArray();
 
