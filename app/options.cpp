@@ -612,6 +612,7 @@ void Options::readSettings()
         if ( !server_categories_["Favorites"].contains(s) ) {
             server_categories_["Favorites"] << s;
         }
+        h = nwn_settings.value("Favorites Page/server" + QString::number(i++));
     }
 
     if(!usernames_.contains(current_username_)) {
@@ -619,8 +620,6 @@ void Options::readSettings()
     }
 
     usernames_.sort(Qt::CaseInsensitive);
-
-
 
     apply();
 }
