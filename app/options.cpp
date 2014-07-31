@@ -571,31 +571,30 @@ void Options::readSettings()
     }
 
     if (server_categories_.find("History") == server_categories_.end()) {
-        QStringList history;
-
-        QVariant h = nwn_settings.value("History Page/server0");
-        int i = 1;
-        while(h.isValid() && h.toString().size() > 0) {
-            history << h.toString();
-            h = nwn_settings.value("History Page/server" + QString::number(i++));
-        }
-        server_categories_.insert("History", history);
-
+        server_categories_.insert("History", QStringList());
     }
-
     if (server_categories_.find("Favorites") == server_categories_.end()) {
-        QStringList favorites;
-
-        QVariant h = nwn_settings.value("Favorites Page/server0");
-        int i = 1;
-        while(h.isValid() && h.toString().size() > 0) {
-            favorites << h.toString();
-            h = nwn_settings.value("Favorites Page/server" + QString::number(i++));
-        }
-
-        server_categories_.insert("Favorites", favorites);
+        server_categories_.insert("Favorites", QStringList());
     }
 
+    QVariant h = nwn_settings.value("History Page/server0");
+    int i = 1;
+    while(h.isValid() && h.toString().size() > 0) {
+        QString s = h.toString();
+        if ( !server_categories_["History"].contains(s) ) {
+            server_categories_["History"] << s;
+        }
+        h = nwn_settings.value("History Page/server" + QString::number(i++));
+    }
+
+    h = nwn_settings.value("Favorites Page/server0");
+    i = 1;
+    while(h.isValid() && h.toString().size() > 0) {
+        QString s = h.toString();
+        if ( !server_categories_["Favorites"].contains(s) ) {
+            server_categories_["Favorites"] << s;
+        }
+    }
 
     if(!usernames_.contains(current_username_)) {
         usernames_ << current_username_;
