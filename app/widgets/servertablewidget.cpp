@@ -105,7 +105,7 @@ const ServerTableModel* ServerTableWidget::getServerTableModel() const {
     return model_;
 }
 
-static std::vector<Server> GetAllServers(int room){
+static std::vector<Server> GetAllServers(QStringList history){
     NWNMasterServerAPIProxy *api = new NWNMasterServerAPIProxy();
     ArrayOfNWGameServer *servers;
     api->soap_endpoint = API_ENDPOINT;
@@ -130,14 +130,15 @@ static std::vector<Server> GetAllServers(int room){
         return s;
     }
 
-    s.resize(servers->__sizeNWGameServer);
+    s.reserve(servers->__sizeNWGameServer + history.size());
     QRegExp url("((?:https?)://\\S+)");
     url.setCaseSensitivity (Qt::CaseInsensitive);
 
     for(int i = 0; i < servers->__sizeNWGameServer; ++i){
         QString add(servers->NWGameServer[i]->ServerAddress);
+        history.removeAll(add);
 
-        Server& serv = s[i];
+        Server serv;
         serv.module_name = servers->NWGameServer[i]->ModuleName;
         serv.server_name = servers->NWGameServer[i]->ServerName;
         serv.server_name.remove( QRegExp("^[^a-zA-Z]*") );
@@ -187,6 +188,20 @@ static std::vector<Server> GetAllServers(int room){
         }
         serv.serv_description = desc;
         serv.serv_description.replace(QRegExp("[\\n\\r]+"), "\n\n");
+        s.push_back(serv);
+    }
+
+    for(auto it = history.begin(); it != history.end(); ++it) {
+        Server serv;
+        QRegExp rx("(\\:)");
+        QStringList query = (*it).split(rx);
+        Q_ASSERT(query.size() == 2);
+        serv.address = query[0];
+        serv.port = query[1].toInt();
+        serv.module_name = "Offline";
+        serv.server_name = *it;
+        serv.online = false;
+        s.push_back(serv);
     }
 
     delete api;
@@ -197,7 +212,7 @@ static std::vector<Server> GetAllServers(int room){
 void ServerTableWidget::GetServerList(int room, bool force) {
     if(!force && !isVisible()) { return; }
     requested_room_ = room;
-    QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, room);
+    QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, options_->getCategoryIPs("History"));
     connect(&watcher_, SIGNAL(finished()), this, SLOT(finished()));
     watcher_.setFuture(future);
 }
@@ -245,6 +260,10 @@ void ServerTableWidget::UpdateServers() {
 void ServerTableWidget::HandleSelectionChange(QModelIndex current, QModelIndex previous) {
     Q_UNUSED(current);
     Q_UNUSED(previous);
+}
+
+void ServerTableWidget::addServer(const QString& addr) {
+    model_->addServer(addr);
 }
 
 void ServerTableWidget::onSettingsChanged() {

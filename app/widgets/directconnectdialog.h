@@ -23,7 +23,7 @@ public:
 
 signals:
     void requestPlayServer(QString address, QString password, bool dm);
-
+    void addServer(QString address);
 private slots:
     void play();
     void dm();

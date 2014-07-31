@@ -214,9 +214,9 @@ static bool FileConvert20ToSpace(QString filename) {
 }
 
 void Options::addDirectConnect(const QString& addr) {
-    if( addr.size() > 0 && !direct_connect_.contains(addr) ) {
-        direct_connect_ << addr;
-    }
+    if(addr.size() == 0) { return; }
+    direct_connect_.removeAll(addr);
+    direct_connect_.insert(0, addr);
 }
 
 QStringList Options::getDirectConnects() {

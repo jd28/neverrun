@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>478</width>
-    <height>268</height>
+    <height>264</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,13 +26,6 @@
       <item row="2" column="1">
        <widget class="QLineEdit" name="password"/>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Address:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" colspan="2">
        <spacer name="verticalSpacer">
         <property name="orientation">
@@ -48,6 +41,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Address:</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_2">
@@ -69,33 +69,33 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="addToMasterWiget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QCheckBox::indicator {
+      <item row="3" column="0" colspan="2">
+       <widget class="QWidget" name="addToMasterWiget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QCheckBox::indicator {
      width: 15px;
      height: 15px;
  }</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QCheckBox" name="addToMaster">
-        <property name="styleSheet">
-         <string notr="true">font-size: 20px;
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="addToMaster">
+           <property name="styleSheet">
+            <string notr="true">font-size: 20px;
 </string>
-        </property>
-        <property name="text">
-         <string>Add to Master Server List</string>
-        </property>
+           </property>
+           <property name="text">
+            <string>Add to Master Server List</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>

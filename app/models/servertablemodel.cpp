@@ -38,12 +38,56 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
 }
 
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
+    // Set everything to offline each update, then turn them back on if they are in fact online.
+    for(auto it = servers_.begin(); it != servers_.end(); ++it) { (*it).online = false; }
+
     for(int i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
         if(it != server_map_.end()) {
+            if( servers[i].online && servers_[it.value()].module_name == "Offline") {
+                qDebug() << "A server has come online: " << servers[i].module_name;
+                // Replace the whole server entry
+                servers_[it.value()] = servers[i];
+            }
+
             servers_[it.value()].cur_players = servers[i].cur_players;
+            servers_[it.value()].online = servers[i].online;
+        }
+        else { // If it's not in the map we got a new server...
+            qDebug() << "Adding server: " << servers[i].address + QString::number(servers[i].port)
+                     << " " << servers[i].module_name << " at " << servers_.size();
+
+            server_map_.insert(servers[i].address + QString::number(servers[i].port), servers_.size());
+            insertRows(servers_.size(), 1);
+            servers_[servers_.size()-1] = servers[i];
         }
     }
+    emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+void ServerTableModel::addServer(const QString& addr) {
+    QRegExp rx("(\\:)");
+    QStringList query = addr.split(rx);
+    Q_ASSERT(query.size() == 2);
+    Server serv;
+    serv.address = query[0];
+    serv.port = query[1].toInt();
+    serv.module_name = "Offline";
+    serv.server_name = addr;
+    serv.online = false;
+
+    auto it = server_map_.find(serv.address + QString::number(serv.port));
+    if(it != server_map_.end()) {
+        qDebug() << "Address Found...";
+        return;
+    }
+
+    qDebug() << "Attempting to add server: " << addr;
+    qDebug() << servers_.size();
+
+    server_map_.insert(serv.address + QString::number(serv.port), servers_.size());
+    insertRows(servers_.size(), 1);
+    servers_[servers_.size()-1] = serv;
     emit dataChanged(QModelIndex(), QModelIndex());
 }
 
@@ -89,6 +133,16 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     else if (role == Qt::UserRole + 4 && index.column() == COLUMN_SERVER_NAME) {
         return s.toStringList();
     }
+    else if (role == Qt::UserRole + 5 && index.column() == COLUMN_SERVER_NAME) {
+        return s.online;
+    }
+    else if (role == Qt::UserRole + 6 && index.column() == COLUMN_SERVER_NAME) {
+        return s.address;
+    }
+    else if (role == Qt::UserRole + 7 && index.column() == COLUMN_SERVER_NAME) {
+        return s.port;
+    }
+
     else if (role == Qt::DisplayRole) {
         switch (index.column()) {
         default: return QVariant();
@@ -135,7 +189,13 @@ Server ServerTableModel::getServer(QModelIndex index) const {
 bool ServerTableModel::insertRows(int position, int rows, const QModelIndex &index) {
     Q_UNUSED(index);
     beginInsertRows(QModelIndex(), position, position+rows-1);
-    servers_.insert(servers_.begin() + position, Server());
+    if(position == servers_.size()){
+        for (int i = 0; i < rows; ++i)
+            servers_.push_back(Server());
+    }
+    else {
+        servers_.insert(servers_.begin() + position, Server());
+    }
     endInsertRows();
     return true;
 }

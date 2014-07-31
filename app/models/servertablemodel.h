@@ -66,6 +66,8 @@ public:
     bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
 
     Server getServer(QModelIndex index) const;
+public slots:
+    void addServer(const QString &addr);
 private:
     std::vector<Server> servers_;
     QMap<QString, int> server_map_;

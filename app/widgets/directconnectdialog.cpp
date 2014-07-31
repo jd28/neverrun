@@ -57,16 +57,23 @@ void DirectConnectDialog::doServer(const QString& addr, const QString& pass, boo
     }
 
     options_->addDirectConnect(addr);
-    bool add = true;
-    for (int i = 0; i < ui->address->count(); ++i) {
+    ui->address->insertItem(0, addr);
+
+    for (int i = 1; i < ui->address->count(); ++i) {
         if (ui->address->itemText(i) == addr) {
-            add = false;
+            ui->address->removeItem(i);
             break;
         }
     }
-    if (add) {
-        ui->address->addItem(addr);
+
+    if (ui->address->count() > 10) {
+        ui->address->removeItem(10);
     }
+
+    ui->address->setCurrentIndex(0);
+
+    options_->addServerToCategory("History", addr);
+    emit addServer(addr);
     emit requestPlayServer(addr, pass, false);
 }
 

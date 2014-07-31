@@ -756,3 +756,13 @@ QTableView *MainWindow::createModuleTable() {
     tbl->verticalHeader()->setVisible(false);
     return tbl;
 }
+
+void MainWindow::addServer(QString addr) {
+    server_table_widget_->addServer(addr);
+    auto it = server_category_->selectionModel()->selectedIndexes();
+    if (it.size() == 0) { return; }
+
+    if (it[0].data().toString() == "History") {
+        SetServerAddressFilter(options_->getCategoryIPs("History"));
+    }
+}

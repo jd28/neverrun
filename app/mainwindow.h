@@ -109,6 +109,7 @@ private slots:
     void requestDirectConnect();
 
 public slots:
+    void addServer(QString addr);
     void changeStack(ToggleButton::Button button);
     void HandleModuleSelectionChange(QModelIndex current, QModelIndex previous);
     void HandleOpenWebsite();
