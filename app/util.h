@@ -23,11 +23,13 @@
 
 #include "server.h"
 
+void errorMessage(const QString& err);
 QString findUrl(const QString& str);
 QString getPlayerCountFromDatagram(const QList<QByteArray> &datagram);
 Server getServerFromDatagram(const QList<QByteArray> &datagram);
 bool isUsableModuleCategory(const QString& str);
 bool isUsableServerCategory(const QString& str);
+bool isValidServerAddress(const QString& addr);
 int RoomToGameType(const QString& room);
 QString sanitizeName(const QString& str);
 

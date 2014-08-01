@@ -1,3 +1,5 @@
+#include <QMessageBox>
+
 #include "util.h"
 
 static int GetGameTypeFromServerDatagram(const QString& s) {
@@ -64,13 +66,11 @@ QString getPlayerCountFromDatagram(const QList<QByteArray> &datagram) {
     return datagram[5];
 }
 
-
 bool isUsableModuleCategory(const QString &str) {
     static QStringList cats = QStringList() << "All"
                                             << "Favorites";
     return !cats.contains(str);
 }
-
 
 bool isUsableServerCategory(const QString &str) {
     static QStringList cats = QStringList() << "All"
@@ -93,7 +93,6 @@ bool isUsableServerCategory(const QString &str) {
     return !cats.contains(str);
 }
 
-
 int RoomToGameType(const QString &room) {
     // The room list
     if (room == "Action") return 0;
@@ -111,9 +110,7 @@ int RoomToGameType(const QString &room) {
     if (room == "Tech Support") return 12;
 
     return -1; //Handle differently;
-
 }
-
 
 QString findUrl(const QString &str) {
     static QRegExp url("((?:https?)://\\S+)");
@@ -121,4 +118,27 @@ QString findUrl(const QString &str) {
     int n = url.indexIn(str);
     if ( n == -1 ) { return ""; }
     return url.cap(0);
+}
+
+QString sanitizeName(const QString &str) {
+    static const QRegExp nonalpha("^[^a-zA-Z]*");
+    QString s = str;
+    s.remove(nonalpha);
+    return s;
+}
+
+void errorMessage(const QString &err) {
+    QMessageBox dlFailedMsgBox;
+    dlFailedMsgBox.setIcon(QMessageBox::Critical);
+    dlFailedMsgBox.setModal(true);
+    dlFailedMsgBox.setWindowFlags(Qt::SplashScreen);
+    dlFailedMsgBox.setText(QObject::tr("Error"));
+    dlFailedMsgBox.setInformativeText(err);
+    dlFailedMsgBox.exec();
+}
+
+bool isValidServerAddress(const QString &addr) {
+    static QRegExp ip("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{1,6}");
+    int res = ip.indexIn(addr);
+    return res != -1;
 }
