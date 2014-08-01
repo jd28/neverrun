@@ -232,7 +232,7 @@ void MainWindow::changeStack(ToggleButton::Button button) {
     case ToggleButton::Left:
         cat_stack_->setCurrentIndex(STACK_INDEX_SERVER);
         list_stack_->setCurrentIndex(STACK_INDEX_SERVER);
-        website_button_->setText("Visit Website");
+        website_button_->setText("Website");
         info_button_->setEnabled(true);
         dm_button_->setEnabled(true);
         website_button_->setEnabled(current_website_.size() > 0);
@@ -301,7 +301,7 @@ QWidget *MainWindow::CreateInfoButtonBar() {
     info_button_ = new QPushButton("Info", this);
     connect(info_button_, SIGNAL(clicked()), this, SLOT(switchStack()));
 
-    website_button_ = new QPushButton("Visit Website", this);
+    website_button_ = new QPushButton("Website", this);
     website_button_->setEnabled(false);
     website_button_->setMinimumHeight(25);
 
