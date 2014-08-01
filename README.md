@@ -9,3 +9,4 @@ neverwintervault.org entry for details
 * [discount](https://github.com/Orc/discount)
 * [yaml-cpp](https://code.google.com/p/yaml-cpp/)
 * [CuteMarkEd](https://github.com/cloose/CuteMarkEd) - Markdown converter.
+* [Fervor](https://github.com/pypt/fervor) - Auto-updater.

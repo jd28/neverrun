@@ -3,6 +3,14 @@ QT       += core gui widgets webkitwidgets gui-private
 TARGET = neverrun
 TEMPLATE = app
 
+DEFINES += FV_GUI=1
+CONFIG += fervor_gui
+
+# Fervor autoupdater
+# (set TARGET and VERSION of your app before including Fervor.pri)
+!include("../3rdparty/fervor/Fervor.pri") {
+        error("Unable to include Fervor autoupdater.")
+}
 unix {
   CONFIG += link_pkgconfig
 }
@@ -75,6 +83,8 @@ win32:QMAKE_LFLAGS += /INCREMENTAL:NO
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../app-static/release/ -lapp-static
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../app-static/debug/ -lapp-static
 else:unix: LIBS += -L$$OUT_PWD/../app-static/ -lapp-static
+
+INCLUDEPATH += $$PWD/../3rdparty/fervor/
 
 INCLUDEPATH += $$PWD/../app-static
 DEPENDPATH += $$PWD/../app-static

@@ -43,6 +43,7 @@
 #include <QProcess>
 #include <qpa/qplatformnativeinterface.h>
 
+#include "fvupdater.h"
 #include "widgets/moduletablewidget.h"
 #include "widgets/servertablewidget.h"
 #include "widgets/servercategorywidget.h"
@@ -781,4 +782,8 @@ void MainWindow::onDoubleClickServer(QModelIndex idx) {
     QString address = server_table_widget_->model()->data(index, Qt::UserRole + 3).toString();
 
     RunNWN(address, false);
+}
+
+void MainWindow::setUpdater(FvUpdater *updater) {
+    updater_ = updater;
 }

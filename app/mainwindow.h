@@ -35,6 +35,7 @@ class QVBoxLayout;
 class QWebView;
 
 class DirectConnectDialog;
+class FvUpdater;
 class HtmlPreviewGenerator;
 class ListSelectionDialog;
 class ModuleCategoryWidget;
@@ -59,6 +60,7 @@ class MainWindow : public QMainWindow {
     // Data Members
     Options              *options_;
     DirectConnectDialog  *direct_connect_dlg_;
+    FvUpdater            *updater_;
     HtmlPreviewGenerator *generator_;
     ListSelectionDialog  *list_selection_dlg_;
     ModuleCategoryWidget *module_category_;
@@ -137,6 +139,7 @@ public:
     void closeEvent(QCloseEvent *event);
     Options* options() { return options_; }
     void readSettings();
+    void setUpdater(FvUpdater *updater);
 
 };
 
