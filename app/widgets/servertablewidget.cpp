@@ -36,6 +36,7 @@
 #include "../server.h"
 #include "serversettings.h"
 #include "../options.h"
+#include "../util.h"
 
 ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     : QTableView(parent)
@@ -131,9 +132,6 @@ static std::vector<Server> GetAllServers(QStringList history){
     }
 
     s.reserve(servers->__sizeNWGameServer + history.size());
-    QRegExp url("((?:https?)://\\S+)");
-    url.setCaseSensitivity (Qt::CaseInsensitive);
-
     for(int i = 0; i < servers->__sizeNWGameServer; ++i){
         QString add(servers->NWGameServer[i]->ServerAddress);
         history.removeAll(add);
@@ -166,24 +164,17 @@ static std::vector<Server> GetAllServers(QStringList history){
         QString desc(servers->NWGameServer[i]->ServerDescription);
         serv.mod_description = servers->NWGameServer[i]->ModuleDescription;
         serv.mod_description.replace(QRegExp("[\\n\\r]+"), "\n\n");
-        int n = url.indexIn(desc);
-        if ( n != -1) {
-            if ( url.cap(0).endsWith(".nrl", Qt::CaseInsensitive)) {
-                serv.nrl = url.cap(0);
+
+        QString url = findUrl(desc);
+        if (url.size() == 0) {
+            url = findUrl(serv.mod_description);
+        }
+        if (url.size() > 0) {
+            if ( url.endsWith(".nrl", Qt::CaseInsensitive)) {
+                serv.nrl = url;
             }
             else {
-                serv.homepage = url.cap(0);
-            }
-        }
-        else {
-            int n = url.indexIn(serv.mod_description);
-            if ( n != -1) {
-                if ( url.cap(0).endsWith(".nrl", Qt::CaseInsensitive)) {
-                    serv.nrl = url.cap(0);
-                }
-                else {
-                    serv.homepage = url.cap(0);
-                }
+                serv.homepage = url;
             }
         }
         serv.serv_description = desc;

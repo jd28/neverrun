@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     models/moduletableproxymodel.cpp \
     widgets/serversettings.cpp \
     widgets/serverinfowidget.cpp \
-    widgets/directconnectdialog.cpp
+    widgets/directconnectdialog.cpp \
+    util.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
