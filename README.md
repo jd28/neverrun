@@ -2,7 +2,7 @@
 
 Neverrun is a module/server launcher/browser written in Qt.  See the
 neverwintervault.org entry for details
-[here](http://neverwintervault.org/project/nwn1/other/gui/neverrun).
+[here](http://neverwintervault.org/project/nwn1/other/tool/neverrun).
 
 ### 3rd Party libraries/code/resources:
 * [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet)
