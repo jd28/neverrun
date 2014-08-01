@@ -35,7 +35,7 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
     , servers_(std::move(servers))
     , current_update_index_(0) {
 
-    for(int i = 0; i < servers_.size(); ++i){
+    for(size_t i = 0; i < servers_.size(); ++i){
         server_map_.insert(servers_[i].address + QString::number(servers_[i].port), i);
     }
 }
@@ -44,7 +44,7 @@ void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
     // Set everything to offline each update, then turn them back on if they are in fact online.
     for(auto it = servers_.begin(); it != servers_.end(); ++it) { (*it).online = false; }
 
-    for(int i = 0; i < servers.size(); ++i) {
+    for(size_t i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
         if(it != server_map_.end()) {
             if( servers[i].online && servers_[it.value()].module_name == "Offline") {
