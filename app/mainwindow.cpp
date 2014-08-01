@@ -199,6 +199,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server_table_widget_, SIGNAL(PasswordChanged(QString,QString,bool)),
             SLOT(OnPasswordChanged(QString,QString,bool)));
 
+    connect(direct_connect_dlg_, SIGNAL(addServer(QString)),
+            SLOT(addServer(QString)));
+
     connect(name_label_, SIGNAL(addUserName(QString)),
             SLOT(onAddUserName(QString)));
     connect(name_label_, SIGNAL(userNameChanged(QString)),
