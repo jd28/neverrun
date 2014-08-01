@@ -538,6 +538,8 @@ void MainWindow::PlayModule(QString module, bool dm) {
 
 
 void MainWindow::playServer(QString address, QString password, bool dm) {
+    if(!isValidServerAddress(address)) { return; }
+
     qDebug() << "Attempting to run NWN";
     options_->addServerToCategory("History", address);
 
