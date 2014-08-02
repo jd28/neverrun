@@ -74,7 +74,7 @@ void DirectConnectDialog::doServer(const QString& addr, const QString& pass, boo
 
     options_->addServerToCategory("History", addr);
     emit addServer(addr);
-    emit requestPlayServer(addr, pass, false);
+    emit requestPlayServer(addr, pass, dm);
 }
 
 void DirectConnectDialog::play() {
