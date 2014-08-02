@@ -29,7 +29,7 @@ QString getPlayerCountFromDatagram(const QList<QByteArray> &datagram);
 Server getServerFromDatagram(const QList<QByteArray> &datagram);
 bool isUsableModuleCategory(const QString& str);
 bool isUsableServerCategory(const QString& str);
-bool isValidServerAddress(const QString& addr);
+bool isValidServerAddress(const QString& addr, bool port);
 int RoomToGameType(const QString& room);
 QString sanitizeName(const QString& str);
 

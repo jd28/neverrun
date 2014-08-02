@@ -135,8 +135,10 @@ void errorMessage(const QString &err) {
     dlFailedMsgBox.exec();
 }
 
-bool isValidServerAddress(const QString &addr) {
-    static QRegExp ip("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{1,6}");
-    int res = ip.indexIn(addr);
+bool isValidServerAddress(const QString &addr, bool port) {
+    static QRegExp ip("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})(:[0-9]{1,6})?$");
+    static QRegExp ipp("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})(:[0-9]{1,6})$");
+
+    int res = port ? ipp.indexIn(addr) : ip.indexIn(addr);
     return res != -1;
 }
