@@ -4,8 +4,9 @@
 #include "directconnectdialog.h"
 #include "ui_directconnectdialog.h"
 
-#include "../options.h"
 #include "../nwnmasterserver.h"
+#include "../options.h"
+#include "../util.h"
 
 DirectConnectDialog::DirectConnectDialog(Options *opts, QWidget *parent) :
     QDialog(parent),
@@ -42,13 +43,13 @@ void DirectConnectDialog::ensureFocus() {
 }
 
 void DirectConnectDialog::doServer(const QString& addr, const QString& pass, bool dm) {
-    static QRegExp ip("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{1,6}");
+    static QRegExp domain(".*\\..*:[0-9]{1,6}");
 
-    int res = ip.indexIn(addr);
+    int res2 = domain.indexIn(addr);
 
     close();
-    if(res == -1) {
-        error_->show();
+    if(!isValidServerAddress(addr) && res2 == -1) {
+        errorMessage("Invalid IP Address/Hostname");
         return;
     }
 
