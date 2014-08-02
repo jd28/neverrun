@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss
+	version="0.3"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+	xmlns:fervor="https://github.com/pypt/fervor"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+
+	<channel>
+		<title>Neverrun Changelog</title>
+		<link>https://raw.githubusercontent.com/jd28/neverrun/master/appcast_neverrun.xml</link>
+		<description>Most recent changes with links to updates.</description>
+		<language>en</language>
+		<atom:link href="https://raw.githubusercontent.com/jd28/neverrun/master/appcast_neverrun.xml" rel="self" type="application/rss+xml" />
+
+		<item>
+			<title>Version 0.3 (0 bugs fixed; 5 new features)</title>
+			<pubDate>Fri, 01 Aug 2014 19:20:11 +0000</pubDate>
+			<guid isPermaLink="true">https://raw.githubusercontent.com/jd28/neverrun/master/ReleaseNotes.html#v0.3</guid>
+
+			<!-- One of those (<link> is preferred by Fervor, <sparkle:releaseNotesLink> is used by Sparkle) -->
+			<link>https://raw.githubusercontent.com/jd28/neverrun/master/ReleaseNotes.html#v0.3</link> <!-- or -->
+			<sparkle:releaseNotesLink>https://raw.githubusercontent.com/jd28/neverrun/master/ReleaseNotes.html#v0.3</sparkle:releaseNotesLink>
+
+			<!--
+				See QtGlobal's QT_OS_* constants for valid platform versions.
+			-->
+
+			<!-- Windows version. -->
+			<enclosure
+				url="https://dl.dropboxusercontent.com/u/32687721/neverrun_windows_update_v0.3.zip"
+				fervor:version="0.3"
+				fervor:platform="Q_OS_WIN32"
+				length="4300738"
+				type="application/octet-stream" />
+		</item>
+	</channel>
+</rss>
