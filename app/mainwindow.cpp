@@ -138,11 +138,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(module_category_, SIGNAL(LoadModules(int)),
             SLOT(LoadModules(int)));
 
-    connect(server_category_, SIGNAL(UpdateFilter(const QStringList&)),
-            SLOT(SetServerAddressFilter(const QStringList&)));
+    connect(server_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
+            SLOT(SetServerAddressFilter(const QStringList&, const QString&)));
 
-    connect(module_category_, SIGNAL(UpdateFilter(const QStringList&)),
-            SLOT(setModuleFilter(const QStringList&)));
+    connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
+            SLOT(setModuleFilter(const QStringList&, const QString&)));
 
     connect(server_table_widget_->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             SLOT(HandleServerSelectionChange(QModelIndex,QModelIndex)));
@@ -428,13 +428,13 @@ void MainWindow::LoadModules(int room){
     modules_table_widget_->loadModules(room);
 }
 
-void MainWindow::SetServerAddressFilter(const QStringList &ips) {
-    server_table_widget_->SetServerAddressFilter(ips);
+void MainWindow::SetServerAddressFilter(const QStringList &ips, const QString &cat) {
+    server_table_widget_->SetServerAddressFilter(ips, cat);
     server_table_widget_->selectionModel()->clear();
 }
 
-void MainWindow::setModuleFilter(const QStringList &mods) {
-    modules_table_widget_->setModuleFilter(mods);
+void MainWindow::setModuleFilter(const QStringList &mods, const QString& cat) {
+    modules_table_widget_->setModuleFilter(mods, cat);
     modules_table_widget_->selectionModel()->clear();
 }
 
@@ -615,7 +615,7 @@ void MainWindow::onListSelectionAccepted() {
                 options_->removeServerFromCategory(i, add);
                 auto sel = server_category_->selectionModel()->selectedRows();
                 if (i == sel[0].data()) {
-                    SetServerAddressFilter(options_->getCategoryIPs(i));
+                    SetServerAddressFilter(options_->getCategoryIPs(i), i);
                 }
             }
 
@@ -629,7 +629,7 @@ void MainWindow::onListSelectionAccepted() {
                 options_->removeModuleFromCategory(i, add);
                 auto sel = module_category_->selectionModel()->selectedRows();
                 if (i == sel[0].data()) {
-                    setModuleFilter(options_->getCategoryModules(i));
+                    setModuleFilter(options_->getCategoryModules(i), i);
                 }
             }
         }
@@ -761,7 +761,7 @@ void MainWindow::addServer(QString addr) {
     if (it.size() == 0) { return; }
 
     if (it[0].data().toString() == "History") {
-        SetServerAddressFilter(options_->getCategoryIPs("History"));
+        SetServerAddressFilter(options_->getCategoryIPs("History"), "History");
     }
 }
 

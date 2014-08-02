@@ -70,8 +70,10 @@ class ServerTableWidget : public QTableView {
     Options *options_;
     QAction *act_add_to_;
     QAction *act_remove_from_;
+    QAction *act_remove_from_cat_;
     QAction *act_settings_;
     QFutureWatcher<std::vector<Server>> watcher_;
+    QString current_cat_;
     QTimer *timer_;
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
@@ -87,7 +89,7 @@ public:
     const ServerTableProxyModel *proxyModel() { return proxy_model_; }
     void LoadServers(int room, bool force = false);
     const ServerTableModel *getServerTableModel() const;
-    void SetServerAddressFilter(const QStringList &ips);
+    void SetServerAddressFilter(const QStringList &ips, const QString &cat);
 
 signals:
     void PasswordChanged(QString address, QString pass, bool is_dm);
@@ -109,6 +111,7 @@ private slots:
     void onAddTo();
     void onModelDataChanged(QModelIndex, QModelIndex);
     void onRemoveFrom();
+    void onRemoveFromCat();
     void play();
     void requestChangeServerSettings();
 

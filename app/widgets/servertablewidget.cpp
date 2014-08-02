@@ -78,8 +78,11 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     connect(timer_, SIGNAL(timeout()), SLOT(UpdateServers()));
     act_add_to_ = new QAction("Add to...", this);
     connect(act_add_to_, SIGNAL(triggered()), SLOT(onAddTo()));
-    act_remove_from_ = new QAction("Remove From...", this);
+    act_remove_from_ = new QAction("Remove from...", this);
     connect(act_remove_from_, SIGNAL(triggered()), SLOT(onRemoveFrom()));
+    act_remove_from_cat_ = new QAction("Remove from", this);
+    connect(act_remove_from_cat_, SIGNAL(triggered()), SLOT(onRemoveFromCat()));
+
     act_settings_ = new QAction("Settings", this);
     connect(act_settings_, SIGNAL(triggered()), SLOT(requestChangeServerSettings()));
 
@@ -94,6 +97,15 @@ void ServerTableWidget::onAddTo() {
 
 void ServerTableWidget::onRemoveFrom() {
     emit requestRemoveFrom();
+}
+
+void ServerTableWidget::onRemoveFromCat() {
+    auto selections = selectedIndexes();
+    if (selections.size() == 0) { return; }
+    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
+    QString address = model()->data(idx, Qt::UserRole + 3).toString();
+    options_->removeServerFromCategory(current_cat_, address);
+    SetServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
 }
 
 void ServerTableWidget::SetupDialogs() {
@@ -286,12 +298,12 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
 
     QMenu menu(this);
 
-    auto act = new QAction("Play", this);
+    auto act = new QAction("Play", &menu);
     connect(act, SIGNAL(triggered()), this, SLOT(play()));
     menu.addAction(act);
 
 
-    act = new QAction("DM", this);
+    act = new QAction("DM", &menu);
     connect(act, SIGNAL(triggered()), this, SLOT(dm()));
     menu.addAction(act);
 
@@ -299,6 +311,10 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
 
     menu.addAction(act_add_to_);
     menu.addAction(act_remove_from_);
+    if(current_cat_.size() > 0) {
+        act_remove_from_cat_->setText("Remove from " + current_cat_);
+        menu.addAction(act_remove_from_cat_);
+    }
 
     menu.addSeparator();
     menu.addAction(act_settings_);
@@ -336,6 +352,7 @@ void ServerTableWidget::requestChangeServerSettings() {
     server_settings_dlg_->show();
 }
 
-void ServerTableWidget::SetServerAddressFilter(const QStringList& ips) {
+void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
+    current_cat_ = cat;
     proxy_model_->SetServerAddressFilter(ips);
 }

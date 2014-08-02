@@ -135,8 +135,8 @@ public slots:
     void openURL(const QUrl& url);
     void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
-    void SetServerAddressFilter(const QStringList &ips);
-    void setModuleFilter(const QStringList &mods);
+    void SetServerAddressFilter(const QStringList &ips, const QString& cat);
+    void setModuleFilter(const QStringList &mods, const QString &cat);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

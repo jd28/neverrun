@@ -169,23 +169,26 @@ void ServerCategoryWidget::ChangeServerList()
 {
     foreach(QTableWidgetItem *x, selectedItems()) {
         QStringList ips;
-        if (x->text() == "All") { emit LoadAllServers(-1); return; }
-
-        int res = RoomToGameType(x->text());
-        if(res == -1) {
-            QString cat = x->text();
-            ips = options_->getCategoryIPs(x->text());
-            if(cat == "History") {
-                emit LoadAllServers(-3);
-            }
-            else {
-                emit LoadAllServers(-2);
-            }
-            emit UpdateFilter(ips);
+        QString cat;
+        if (x->text() == "All") {
+            emit LoadAllServers(-1);
         }
         else {
-            emit LoadAllServers(res);
-            emit UpdateFilter(ips);
+            int res = RoomToGameType(x->text());
+            if(res == -1) {
+                cat = x->text();
+                ips = options_->getCategoryIPs(x->text());
+                if(cat == "History") {
+                    emit LoadAllServers(-3);
+                }
+                else {
+                    emit LoadAllServers(-2);
+                }
+            }
+            else {
+                emit LoadAllServers(res);
+            }
         }
+        emit UpdateFilter(ips, cat);
     }
 }
