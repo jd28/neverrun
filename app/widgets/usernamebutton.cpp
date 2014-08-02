@@ -19,6 +19,8 @@
 #include <QDebug>
 #include <QMenu>
 #include <QSignalMapper>
+#include <QStyleOptionButton>
+#include <QStylePainter>
 
 #include "setdmpassworddialog.h"
 #include "listselectiondialog.h"
@@ -26,24 +28,23 @@
 #include "usernamebutton.h"
 
 UserNameButton::UserNameButton(Options *options, const QString& current, const QStringList &all, QWidget *parent)
-    : QToolButton(parent)
+    : QPushButton(parent)
     , options_(options)
 {
 
     setText(current);
+    setStyleSheet("font-size: 30px;");
+    qDebug() << current << " " << QFontMetrics(font()).boundingRect(current).width();
+    setMinimumWidth( QFontMetrics(font()).boundingRect(current).width() );
     name_menu_ = new QMenu(this);
+    name_menu_->setStyleSheet("font-size: 16px; text-align: center;");
     for (int i = 0; i < all.size(); ++i) {
         name_menu_->addAction(all[i]);
     }
     connect(name_menu_, SIGNAL(triggered(QAction*)),
             this, SLOT(changeUserName(QAction*)));
 
-    //setStyleSheet("font-size: 20px; margin: 5px;");
-    QFont font;
-    font.setFamily(font.defaultFamily());
-    font.setPixelSize(15);
-    setFont(font);
-    setMinimumHeight(42);
+
 
     list_selection_dlg_ = new ListSelectionDialog(this);
     connect(list_selection_dlg_, SIGNAL(accepted()), SLOT(onRemoveUserNames()));
@@ -60,8 +61,8 @@ UserNameButton::UserNameButton(Options *options, const QString& current, const Q
     act->setProperty("NAME_LABEL_NOT_NAME", true);
 
     name_menu_->addAction(act);
-    setPopupMode(QToolButton::InstantPopup);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    //setPopupMode(QToolButton::InstantPopup);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     add_user_ = new TextBoxDialog(TextBoxDialog::MODE_USER_NAME, this);
     connect(add_user_, SIGNAL(accepted()), SLOT(addUserName()));
@@ -93,6 +94,14 @@ void UserNameButton::onRemoveUserNames() {
             name_menu_->removeAction(a);
         }
     }
+}
+
+void UserNameButton::paintEvent(QPaintEvent *) {
+    QStylePainter p( this );
+    QStyleOptionButton opt;
+    initStyleOption( & opt );
+    opt.features &= (~ QStyleOptionButton::HasMenu);
+    p.drawControl( QStyle::CE_PushButton, opt );
 }
 
 void UserNameButton::addUserName() {

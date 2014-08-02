@@ -102,11 +102,6 @@ MainWindow::MainWindow(QWidget *parent)
     direct_connect_dlg_ = new DirectConnectDialog(options_, this);
     name_label_ = new UserNameButton(options_, options_->getCurrentUserName(), options_->getUserNames(), this);
 
-    QFont font;
-    font.setFamily(font.defaultFamily());
-    font.setPixelSize(30);
-    name_label_->setFont(font);
-
     server_category_ = new ServerCategoryWidget(options_, this);
     server_category_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     server_category_->setContentsMargins(0, 0, 0,0);

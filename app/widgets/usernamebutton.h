@@ -18,7 +18,7 @@
 #ifndef USERNAMEBUTTON_H
 #define USERNAMEBUTTON_H
 
-#include <QToolButton>
+#include <QPushButton>
 
 class QMenu;
 class TextBoxDialog;
@@ -26,7 +26,7 @@ class ListSelectionDialog;
 class QSignalMapper;
 class Options;
 
-class UserNameButton : public QToolButton
+class UserNameButton : public QPushButton
 {
     Q_OBJECT
 
@@ -50,6 +50,9 @@ private slots:
     void changeUserName(QAction *action);
     void showRemoveUserNames();
     void onRemoveUserNames();
-};
+
+protected:
+protected:
+    virtual void paintEvent( QPaintEvent * );};
 
 #endif // USERNAMEBUTTON_H
