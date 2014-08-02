@@ -107,6 +107,7 @@ private slots:
     void customMenuRequested(QPoint pos);
     void dm();
     void onAddTo();
+    void onModelDataChanged(QModelIndex, QModelIndex);
     void onRemoveFrom();
     void play();
     void requestChangeServerSettings();

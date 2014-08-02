@@ -139,6 +139,7 @@ public:
     QString getPassword(QString address, bool is_dm) const;
     QStringList getCategoryIPs(const QString &cat) const;
     QStringList getCategoryModules(const QString &cat) const;
+    int getClientPort() const;
     QStringList getDirectConnects();
     QStringList getModuleCategories() const;
     QStringList getServerCategories() const;
@@ -181,6 +182,7 @@ private:
     QMap<QString, QString> password_player_;
     QMap<QString, QString> server_loader_;
     QMap<QString, QString> server_updater_;
+    int client_port_;
 
 };
 

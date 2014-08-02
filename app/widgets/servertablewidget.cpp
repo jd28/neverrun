@@ -73,7 +73,7 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     horizontalHeader()->setSortIndicator(ServerTableModel::COLUMN_PLAYER_COUNT, Qt::DescendingOrder);
 
     timer_ = new QTimer(this);
-    timer_->start(30000);
+    timer_->start(60000);
 
     connect(timer_, SIGNAL(timeout()), SLOT(UpdateServers()));
     act_add_to_ = new QAction("Add to...", this);
@@ -138,8 +138,7 @@ static std::vector<Server> GetAllServers(QStringList history){
 
         Server serv;
         serv.module_name = servers->NWGameServer[i]->ModuleName;
-        serv.server_name = servers->NWGameServer[i]->ServerName;
-        serv.server_name.remove( QRegExp("^[^a-zA-Z]*") );
+        serv.server_name = sanitizeName(servers->NWGameServer[i]->ServerName);
         if (serv.server_name.size() == 0)
             serv.server_name = "Unamed Server";
 
@@ -230,6 +229,9 @@ void ServerTableWidget::finished(){
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
+        model_->bindUpdSocket(options_->getClientPort() + 1);
+        connect(model_,SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
     }
     else {
         model_->UpdateSevers(std::move(res));
@@ -242,6 +244,13 @@ void ServerTableWidget::finished(){
     }
 
     setUpdatesEnabled(true);
+}
+
+void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
+    ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
+    if(ServerTableModel::COLUMN_PLAYER_COUNT == horizontalHeader()->sortIndicatorSection()){
+        pm->invalidate();
+    }
 }
 
 void ServerTableWidget::UpdateServers() {

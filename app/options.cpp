@@ -471,10 +471,15 @@ void Options::setMarkdownConverter(Options::MarkdownConverter converter)
     }
 }
 
+int Options::getClientPort() const {
+    return client_port_;
+}
+
 void Options::readSettings()
 {
     QSettings nwn_settings(m_NWN_path + "/nwnplayer.ini", QSettings::IniFormat);
     current_username_ = nwn_settings.value("Profile/Player Name").toString();
+    client_port_ = nwn_settings.value("Profile/Client Port").toInt();
 
     QSettings settings(QDir::homePath() + "/.neverrun/neverrun.ini", QSettings::IniFormat);
 

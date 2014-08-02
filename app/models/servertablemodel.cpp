@@ -18,10 +18,13 @@
 #include <QColor>
 #include <QDebug>
 #include <QHeaderView>
+#include <QUdpSocket>
+#include <QTimer>
 #include <QVariant>
 
 #include "servertablemodel.h"
 #include "../widgets/servertablewidget.h"
+#include "../util.h"
 
 ServerTableModel::ServerTableModel(QObject *parent)
     : QAbstractTableModel(parent) {
@@ -29,12 +32,12 @@ ServerTableModel::ServerTableModel(QObject *parent)
 
 ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
     : QAbstractTableModel(parent)
-    , servers_(std::move(servers)) {
+    , servers_(std::move(servers))
+    , current_update_index_(0) {
 
     for(int i = 0; i < servers_.size(); ++i){
         server_map_.insert(servers_[i].address + QString::number(servers_[i].port), i);
     }
-
 }
 
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
@@ -49,8 +52,6 @@ void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
                 // Replace the whole server entry
                 servers_[it.value()] = servers[i];
             }
-
-            servers_[it.value()].cur_players = servers[i].cur_players;
             servers_[it.value()].online = servers[i].online;
         }
         else { // If it's not in the map we got a new server...
@@ -89,6 +90,44 @@ void ServerTableModel::addServer(const QString& addr) {
     insertRows(servers_.size(), 1);
     servers_[servers_.size()-1] = serv;
     emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+void ServerTableModel::readDatagrams() {
+    while (udp_socket_->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(udp_socket_->pendingDatagramSize());
+
+        QHostAddress sender;
+        quint16 senderPort;
+
+        udp_socket_->readDatagram(datagram.data(), datagram.size(),
+                                  &sender, &senderPort);
+
+        QList<QByteArray> res = datagram.split('\0');
+
+        auto it = server_map_.find(sender.toString() + QString::number(senderPort));
+        if  (it == server_map_.end()) { continue; }
+
+        if ( servers_[it.value()].online ) {
+            QString p = getPlayerCountFromDatagram(res);
+            int players = p.toInt();
+            if (servers_[it.value()].cur_players != players) {
+                servers_[it.value()].cur_players = players;
+                emit dataChanged(QModelIndex(), QModelIndex());
+            }
+        }
+        else {
+            qDebug() << "Server coming online: " << servers_[it.value()].address + QString::number(servers_[it.value()].port)
+                    << " " << servers_[it.value()].module_name << " at " << servers_.size();
+
+            Server s = getServerFromDatagram(res);
+            s.address = sender.toString();
+            s.port = senderPort;
+            servers_[it.value()] = s;
+            servers_[it.value()].online = true;
+            emit dataChanged(QModelIndex(), QModelIndex());
+        }
+    }
 }
 
 int ServerTableModel::rowCount(const QModelIndex &parent) const {
@@ -206,4 +245,36 @@ bool ServerTableModel::removeRows(int position, int rows, const QModelIndex &ind
     servers_.erase(std::begin(servers_) + position, std::begin(servers_) + position+rows-1);
     endRemoveRows();
     return true;
+}
+
+void ServerTableModel::bindUpdSocket(int port) {
+    udp_socket_ = new QUdpSocket(this);
+    bool res = udp_socket_->bind(port);
+    if (!res) { return; }
+    timer_ = new QTimer(this);
+    connect(timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
+    timer_->start(2000);
+    connect(udp_socket_, SIGNAL(readyRead()),SLOT(readDatagrams()));
+}
+
+void ServerTableModel::requestUpdate(const QString& address, const int port) {
+    static const char* d = "\xFE\xFD\x00\xE0\xEB\x2D\x0E\x14\x01\x0B\x01\x05\x08\x0A\x33\x34\x35\x13\x04\x36\x37\x38\x39\x14\x3A\x3B\x3C\x3D\x00\x00";
+
+    //qDebug() << address << " " << port;
+    udp_socket_->writeDatagram(d, 30, QHostAddress(address), port);
+
+}
+
+void ServerTableModel::requestUpdates() {
+    Q_ASSERT(current_update_index_ < servers_.size());
+
+    int target = min(current_update_index_ + 10, servers_.size());
+
+    for (int i = current_update_index_; i < target; ++i) {
+        requestUpdate(servers_[current_update_index_].address, servers_[current_update_index_].port);
+        ++current_update_index_;
+    }
+
+    if ( current_update_index_ == servers_.size() )
+        current_update_index_ = 0;
 }

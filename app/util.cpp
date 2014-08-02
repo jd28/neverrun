@@ -24,11 +24,9 @@ Server getServerFromDatagram(const QList<QByteArray> &datagram) {
     Server s;
     QString res;
 
-    if (datagram[3].size() == 0) {
+    s.server_name = sanitizeName(datagram[3]);
+    if (s.server_name.size() == 0) {
         s.server_name = "Unamed Server";
-    }
-    else {
-        s.server_name = datagram[3];
     }
     s.module_name = datagram[4];
 

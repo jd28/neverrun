@@ -22,6 +22,9 @@
 #include <vector>
 #include "../server.h"
 
+class QUdpSocket;
+class QTimer;
+
 class ServerTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -48,14 +51,9 @@ public:
     explicit ServerTableModel(QObject *parent = 0);
     ServerTableModel(std::vector<Server> servers, QObject *parent = 0);
 
-    void SetServers(std::vector<Server> servers) {
-        beginInsertRows(QModelIndex(), 0, servers.size() - 1);
-        servers_ = std::move(servers);
-        endInsertRows();
-        //emit(dataChanged(index(0,0), index(servers_.size(), 9)));
-    }
     void UpdateSevers(const std::vector<Server>& servers);
 
+    void bindUpdSocket(int port);
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -68,9 +66,18 @@ public:
     Server getServer(QModelIndex index) const;
 public slots:
     void addServer(const QString &addr);
+
+private slots:
+    void readDatagrams();
+    void requestUpdates();
+
 private:
+    void requestUpdate(const QString &address, const int port);
     std::vector<Server> servers_;
     QMap<QString, int> server_map_;
+    QUdpSocket *udp_socket_;
+    QTimer *timer_;
+    size_t current_update_index_;
 };
 
 #endif // SERVERTABLEMODEL_H
