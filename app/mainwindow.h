@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow {
     UserNameButton       *name_label_;
 
     // Functions
+    QString getDefaultNWNExe();
     QWidget *createAddCategoryWidget();
     QWidget *CreateCategoryWidget();
     QWidget *CreateInfoButtonBar();

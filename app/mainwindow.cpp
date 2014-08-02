@@ -488,18 +488,24 @@ void MainWindow::launchToolset() {
 }
 
 void MainWindow::launchNWN() {
-    QString exe;
-#if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
-
+    QString exe = getDefaultNWNExe();
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
     openProcess(ps, "", dir);
+}
+
+QString MainWindow::getDefaultNWNExe() {
+    QString exe;
+#ifdef Q_OS_WIN32
+    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+    if (!QFile(exe).exists())
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
+#elif Q_OS_LINUX
+    exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
+#endif
+
+    return exe;
 }
 
 void MainWindow::PlayModule(QString module, bool dm) {
@@ -512,14 +518,7 @@ void MainWindow::PlayModule(QString module, bool dm) {
     arguments << "+LoadNewModule"
               << module;
 
-    QString exe;
-#if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
-
+    QString exe = getDefaultNWNExe();
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
@@ -547,13 +546,9 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
               << address;
 
     QString exe = current_server_loader_;
-#if _WIN32
     if(exe.size() == 0 || !QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+        exe = getDefaultNWNExe();
 
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
