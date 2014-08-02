@@ -18,53 +18,19 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <QDebug>
 #include <QStringList>
 
-static int RoomToGameType(const QString& room) {
-    // The room list
-    if (room == "Action") return 0;
-    if (room == "Role Play") return 3;
-    if (room == "Team") return 4;
-    if (room == "Social") return 7;
-    if (room == "PW Action") return 9;
-    if (room == "Alternative") return 8;
-    if (room == "Story") return 1;
-    if (room == "Story Lite") return 2;
-    if (room == "Melee") return 5;
-    if (room == "Arena") return 6;
-    if (room == "PW Story") return 10;
-    if (room == "Solo") return 11;
-    if (room == "Tech Support") return 12;
+#include "server.h"
 
-    return -1; //Handle differently;
-
-}
-
-static bool isUsableServerCategory(const QString& str) {
-    static QStringList cats = QStringList() << "All"
-                                            << "History"
-                                            << "Favorites"
-                                            << "Action"
-                                            << "Role Play"
-                                            << "Team"
-                                            << "Social"
-                                            << "PW Action"
-                                            << "Alternative"
-                                            << "Story"
-                                            << "Story Lite"
-                                            << "Melee"
-                                            << "Arena"
-                                            << "PW Story"
-                                            << "Solo"
-                                            << "Tech Support";
-
-    return !cats.contains(str);
-}
-
-static bool isUsableModuleCategory(const QString& str) {
-    static QStringList cats = QStringList() << "All"
-                                            << "Favorites";
-    return !cats.contains(str);
-}
+void errorMessage(const QString& err);
+QString findUrl(const QString& str);
+QString getPlayerCountFromDatagram(const QList<QByteArray> &datagram);
+Server getServerFromDatagram(const QList<QByteArray> &datagram);
+bool isUsableModuleCategory(const QString& str);
+bool isUsableServerCategory(const QString& str);
+bool isValidServerAddress(const QString& addr);
+int RoomToGameType(const QString& room);
+QString sanitizeName(const QString& str);
 
 #endif // UTIL_H

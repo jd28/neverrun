@@ -36,6 +36,7 @@
 #include "../server.h"
 #include "serversettings.h"
 #include "../options.h"
+#include "../util.h"
 
 ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     : QTableView(parent)
@@ -72,7 +73,7 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     horizontalHeader()->setSortIndicator(ServerTableModel::COLUMN_PLAYER_COUNT, Qt::DescendingOrder);
 
     timer_ = new QTimer(this);
-    timer_->start(30000);
+    timer_->start(60000);
 
     connect(timer_, SIGNAL(timeout()), SLOT(UpdateServers()));
     act_add_to_ = new QAction("Add to...", this);
@@ -105,7 +106,7 @@ const ServerTableModel* ServerTableWidget::getServerTableModel() const {
     return model_;
 }
 
-static std::vector<Server> GetAllServers(int room){
+static std::vector<Server> GetAllServers(QStringList history){
     NWNMasterServerAPIProxy *api = new NWNMasterServerAPIProxy();
     ArrayOfNWGameServer *servers;
     api->soap_endpoint = API_ENDPOINT;
@@ -130,17 +131,14 @@ static std::vector<Server> GetAllServers(int room){
         return s;
     }
 
-    s.resize(servers->__sizeNWGameServer);
-    QRegExp url("((?:https?)://\\S+)");
-    url.setCaseSensitivity (Qt::CaseInsensitive);
-
+    s.reserve(servers->__sizeNWGameServer + history.size());
     for(int i = 0; i < servers->__sizeNWGameServer; ++i){
         QString add(servers->NWGameServer[i]->ServerAddress);
+        history.removeAll(add);
 
-        Server& serv = s[i];
+        Server serv;
         serv.module_name = servers->NWGameServer[i]->ModuleName;
-        serv.server_name = servers->NWGameServer[i]->ServerName;
-        serv.server_name.remove( QRegExp("^[^a-zA-Z]*") );
+        serv.server_name = sanitizeName(servers->NWGameServer[i]->ServerName);
         if (serv.server_name.size() == 0)
             serv.server_name = "Unamed Server";
 
@@ -165,28 +163,35 @@ static std::vector<Server> GetAllServers(int room){
         QString desc(servers->NWGameServer[i]->ServerDescription);
         serv.mod_description = servers->NWGameServer[i]->ModuleDescription;
         serv.mod_description.replace(QRegExp("[\\n\\r]+"), "\n\n");
-        int n = url.indexIn(desc);
-        if ( n != -1) {
-            if ( url.cap(0).endsWith(".nrl", Qt::CaseInsensitive)) {
-                serv.nrl = url.cap(0);
+
+        QString url = findUrl(desc);
+        if (url.size() == 0) {
+            url = findUrl(serv.mod_description);
+        }
+        if (url.size() > 0) {
+            if ( url.endsWith(".nrl", Qt::CaseInsensitive)) {
+                serv.nrl = url;
             }
             else {
-                serv.homepage = url.cap(0);
-            }
-        }
-        else {
-            int n = url.indexIn(serv.mod_description);
-            if ( n != -1) {
-                if ( url.cap(0).endsWith(".nrl", Qt::CaseInsensitive)) {
-                    serv.nrl = url.cap(0);
-                }
-                else {
-                    serv.homepage = url.cap(0);
-                }
+                serv.homepage = url;
             }
         }
         serv.serv_description = desc;
         serv.serv_description.replace(QRegExp("[\\n\\r]+"), "\n\n");
+        s.push_back(serv);
+    }
+
+    for(auto it = history.begin(); it != history.end(); ++it) {
+        Server serv;
+        QRegExp rx("(\\:)");
+        QStringList query = (*it).split(rx);
+        Q_ASSERT(query.size() == 2);
+        serv.address = query[0];
+        serv.port = query[1].toInt();
+        serv.module_name = "Offline";
+        serv.server_name = *it;
+        serv.online = false;
+        s.push_back(serv);
     }
 
     delete api;
@@ -197,7 +202,7 @@ static std::vector<Server> GetAllServers(int room){
 void ServerTableWidget::GetServerList(int room, bool force) {
     if(!force && !isVisible()) { return; }
     requested_room_ = room;
-    QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, room);
+    QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, options_->getCategoryIPs("History"));
     connect(&watcher_, SIGNAL(finished()), this, SLOT(finished()));
     watcher_.setFuture(future);
 }
@@ -224,6 +229,9 @@ void ServerTableWidget::finished(){
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
+        model_->bindUpdSocket(options_->getClientPort() + 1);
+        connect(model_,SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
     }
     else {
         model_->UpdateSevers(std::move(res));
@@ -238,6 +246,13 @@ void ServerTableWidget::finished(){
     setUpdatesEnabled(true);
 }
 
+void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
+    ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
+    if(ServerTableModel::COLUMN_PLAYER_COUNT == horizontalHeader()->sortIndicatorSection()){
+        pm->invalidate();
+    }
+}
+
 void ServerTableWidget::UpdateServers() {
     GetServerList(-1);
 }
@@ -245,6 +260,10 @@ void ServerTableWidget::UpdateServers() {
 void ServerTableWidget::HandleSelectionChange(QModelIndex current, QModelIndex previous) {
     Q_UNUSED(current);
     Q_UNUSED(previous);
+}
+
+void ServerTableWidget::addServer(const QString& addr) {
+    model_->addServer(addr);
 }
 
 void ServerTableWidget::onSettingsChanged() {

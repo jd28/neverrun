@@ -34,6 +34,8 @@ class QTreeWidgetItem;
 class QVBoxLayout;
 class QWebView;
 
+class DirectConnectDialog;
+class FvUpdater;
 class HtmlPreviewGenerator;
 class ListSelectionDialog;
 class ModuleCategoryWidget;
@@ -56,17 +58,21 @@ class MainWindow : public QMainWindow {
     };
 
     // Data Members
+    Options              *options_;
+    DirectConnectDialog  *direct_connect_dlg_;
+    FvUpdater            *updater_;
     HtmlPreviewGenerator *generator_;
     ListSelectionDialog  *list_selection_dlg_;
     ModuleCategoryWidget *module_category_;
     ModuleTableWidget    *modules_table_widget_;
-    Options              *options_;
     QGridLayout          *main_grid_layout_;
+    QMenu                *settings_button_menu_;
     QNetworkDiskCache    *diskCache;
     QPushButton          *website_button_;
     QPushButton          *info_button_;
     QPushButton          *play_button_;
     QPushButton          *dm_button_;
+    QPushButton          *direct_connect_;
     QPushButton          *update_button_;
     QStackedWidget       *cat_stack_;
     QStackedWidget       *list_stack_;
@@ -88,6 +94,7 @@ class MainWindow : public QMainWindow {
     QWidget *CreateInfoButtonBar();
     QTableView *createModuleTable();
     QWidget *CreatePlayButtonBar();
+    QPushButton * createSettingsButton();
     void openProcess(const QString &exe, const QString &args, const QString &dir) const;
     void PlayModule(QString module, bool dm);
     void setupHtmlPreview();
@@ -95,16 +102,24 @@ class MainWindow : public QMainWindow {
     void ToolsetModule(QString module);
 
 private slots:
+    void about();
     void addCategory();
+    void checkForUpdates();
+    void dm();
     void htmlResultReady(const QString &html);
     void play();
-    void dm();
+    void launchNWN();
+    void launchToolset();
     void onCategoryAdded();
+    void onDoubleClickServer(QModelIndex idx);
     void onListSelectionAccepted();
+    void openSettings();
     void runUpdater();
     void switchStack();
+    void requestDirectConnect();
 
 public slots:
+    void addServer(QString addr);
     void changeStack(ToggleButton::Button button);
     void HandleModuleSelectionChange(QModelIndex current, QModelIndex previous);
     void HandleOpenWebsite();
@@ -118,6 +133,7 @@ public slots:
     void onRequestRemoveFromDialog();
     void onServerSettingsChanged();
     void openURL(const QUrl& url);
+    void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
     void SetServerAddressFilter(const QStringList &ips);
     void setModuleFilter(const QStringList &mods);
@@ -130,6 +146,7 @@ public:
     void closeEvent(QCloseEvent *event);
     Options* options() { return options_; }
     void readSettings();
+    void setUpdater(FvUpdater *updater);
 
 };
 

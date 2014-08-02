@@ -71,7 +71,7 @@
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
       <string notr="true">min-width: 100px;
-font-size: 20px;</string>
+font-size: 18px;</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

@@ -19,12 +19,20 @@
 #include <QDebug>
 #include <QFile>
 
+#include "fvupdater.h"
 #include "mainwindow.h"
-#include "widgets/setdmpassworddialog.h"
 #include "options.h"
+#include "widgets/setdmpassworddialog.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    // Prerequisite for the Fervor updater
+    QApplication::setOrganizationName("neverrun");
+    QApplication::setOrganizationDomain("none");
+    QApplication::setApplicationName("neverrun");
+    QApplication::setApplicationVersion("0.3");
+
     QFile f(":/qdarkstyle/style.qss");
     f.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(f.readAll());
@@ -32,6 +40,19 @@ int main(int argc, char *argv[]) {
 
     MainWindow w;
     w.readSettings();
+
+#ifndef QT_DEBUG
+    auto updater = new FvUpdater();
+    w.setUpdater(updater);
+
+    // Set feed URL before doing anything else
+    updater->SetFeedURL("https://raw.githubusercontent.com/jd28/neverrun/master/appcast_neverrun.xml");
+    // Finish Up old Updates
+    updater->finishUpdate();
+
+    // Check for updates automatically
+    updater->CheckForUpdatesSilent();
+#endif
 
     if(!w.AddServers()){
         qDebug() << "Failed to load servers...";

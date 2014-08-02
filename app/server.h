@@ -23,6 +23,21 @@
 #include <stdint.h>
 
 struct Server {
+    Server()
+        : ilr(false)
+        , elc(false)
+        , cur_players(0)
+        , max_players(0)
+        , min_level(0)
+        , max_level(0)
+        , password(false)
+        , local_vault(false)
+        , pvp(0)
+        , online(true)
+        , one_party(false)
+        , gametype(-1)
+    {}
+
     QString module_name;
     QString server_name;
     QString address;

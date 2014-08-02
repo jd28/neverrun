@@ -175,8 +175,12 @@ void ServerCategoryWidget::ChangeServerList()
         if(res == -1) {
             QString cat = x->text();
             ips = options_->getCategoryIPs(x->text());
-
-            emit LoadAllServers(-2);
+            if(cat == "History") {
+                emit LoadAllServers(-3);
+            }
+            else {
+                emit LoadAllServers(-2);
+            }
             emit UpdateFilter(ips);
         }
         else {

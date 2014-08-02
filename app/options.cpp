@@ -45,6 +45,7 @@ static const char* CODEHIGHLIGHT_ENABLED = "codehighlighting/enabled";
 static const char* SHOWSPECIALCHARACTERS_ENABLED = "specialchars/enabled";
 static const char* WORDWRAP_ENABLED = "wordwrap/enabled";
 
+static const char* DIRECT_CONNECT = "DirectConnect";
 static const char* SERVER_LOADERS = "ServerLoaders";
 static const char* SERVER_UPDATERS = "ServerUpdaters";
 
@@ -210,6 +211,16 @@ static bool FileConvert20ToSpace(QString filename) {
     }
     savefile.close();
     return true;
+}
+
+void Options::addDirectConnect(const QString& addr) {
+    if(addr.size() == 0) { return; }
+    direct_connect_.removeAll(addr);
+    direct_connect_.insert(0, addr);
+}
+
+QStringList Options::getDirectConnects() {
+    return direct_connect_;
 }
 
 QStringList Options::getCategoryIPs(const QString& cat) const {
@@ -460,10 +471,15 @@ void Options::setMarkdownConverter(Options::MarkdownConverter converter)
     }
 }
 
+int Options::getClientPort() const {
+    return client_port_;
+}
+
 void Options::readSettings()
 {
     QSettings nwn_settings(m_NWN_path + "/nwnplayer.ini", QSettings::IniFormat);
     current_username_ = nwn_settings.value("Profile/Player Name").toString();
+    client_port_ = nwn_settings.value("Profile/Client Port").toInt();
 
     QSettings settings(QDir::homePath() + "/.neverrun/neverrun.ini", QSettings::IniFormat);
 
@@ -536,6 +552,13 @@ void Options::readSettings()
     }
     settings.endArray();
 
+    size = settings.beginReadArray(DIRECT_CONNECT);
+    for(int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        direct_connect_ << settings.value("address").toString();
+    }
+    settings.endArray();
+
     foreach(const QString& c, cats) {
         QStringList servers;
         int size = settings.beginReadArray("Server_"+c);
@@ -571,39 +594,37 @@ void Options::readSettings()
     }
 
     if (server_categories_.find("History") == server_categories_.end()) {
-        QStringList history;
-
-        QVariant h = nwn_settings.value("History Page/server0");
-        int i = 1;
-        while(h.isValid() && h.toString().size() > 0) {
-            history << h.toString();
-            h = nwn_settings.value("History Page/server" + QString::number(i++));
-        }
-        server_categories_.insert("History", history);
-
+        server_categories_.insert("History", QStringList());
     }
-
     if (server_categories_.find("Favorites") == server_categories_.end()) {
-        QStringList favorites;
-
-        QVariant h = nwn_settings.value("Favorites Page/server0");
-        int i = 1;
-        while(h.isValid() && h.toString().size() > 0) {
-            favorites << h.toString();
-            h = nwn_settings.value("Favorites Page/server" + QString::number(i++));
-        }
-
-        server_categories_.insert("Favorites", favorites);
+        server_categories_.insert("Favorites", QStringList());
     }
 
+    QVariant h = nwn_settings.value("History Page/server0");
+    int i = 1;
+    while(h.isValid() && h.toString().size() > 0) {
+        QString s = h.toString();
+        if ( !server_categories_["History"].contains(s) ) {
+            server_categories_["History"] << s;
+        }
+        h = nwn_settings.value("History Page/server" + QString::number(i++));
+    }
+
+    h = nwn_settings.value("Favorites Page/server0");
+    i = 1;
+    while(h.isValid() && h.toString().size() > 0) {
+        QString s = h.toString();
+        if ( !server_categories_["Favorites"].contains(s) ) {
+            server_categories_["Favorites"] << s;
+        }
+        h = nwn_settings.value("Favorites Page/server" + QString::number(i++));
+    }
 
     if(!usernames_.contains(current_username_)) {
         usernames_ << current_username_;
     }
 
     usernames_.sort(Qt::CaseInsensitive);
-
-
 
     apply();
 }
@@ -670,6 +691,13 @@ void Options::writeSettings()
     for(int i = 0; i < usernames_.size(); ++i) {
         settings.setArrayIndex(i);
         settings.setValue("name", usernames_[i]);
+    }
+    settings.endArray();
+
+    settings.beginWriteArray(DIRECT_CONNECT, direct_connect_.size());
+    for(int i = 0; i < direct_connect_.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("address", direct_connect_[i]);
     }
     settings.endArray();
 

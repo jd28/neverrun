@@ -70,15 +70,21 @@ public:
     }
 
     bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const {
-        if (current_room_ == -2) {
-            QModelIndex i = sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent);
+        QModelIndex i = sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent);
+        bool online = sourceModel()->data(i, Qt::UserRole + 5).toBool();
+        if (current_room_ == -3) {
             return ip_filter_.contains(sourceModel()->data(i, Qt::UserRole + 3).toString());
         }
-        else if (current_room_ == -1) {
-            return true;
+        else if (current_room_ == -2) {
+            return ip_filter_.contains(sourceModel()->data(i, Qt::UserRole + 3).toString()) && online;
         }
-        return sourceModel()->data(sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent), Qt::UserRole + 1).toInt() == current_room_;
+        else if (current_room_ == -1) {
+            return online;
+        }
+        return online && sourceModel()->data(sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent), Qt::UserRole + 1).toInt() == current_room_;
     }
+
+    void resetFilter() { invalidateFilter(); }
 
     void SetServerAddressFilter(const QStringList& ips);
 private:
