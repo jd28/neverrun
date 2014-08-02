@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow {
     ModuleCategoryWidget *module_category_;
     ModuleTableWidget    *modules_table_widget_;
     QGridLayout          *main_grid_layout_;
+    QMenu                *settings_button_menu_;
     QNetworkDiskCache    *diskCache;
     QPushButton          *website_button_;
     QPushButton          *info_button_;
@@ -93,6 +94,7 @@ class MainWindow : public QMainWindow {
     QWidget *CreateInfoButtonBar();
     QTableView *createModuleTable();
     QWidget *CreatePlayButtonBar();
+    QPushButton * createSettingsButton();
     void openProcess(const QString &exe, const QString &args, const QString &dir) const;
     void PlayModule(QString module, bool dm);
     void setupHtmlPreview();
@@ -100,13 +102,18 @@ class MainWindow : public QMainWindow {
     void ToolsetModule(QString module);
 
 private slots:
+    void about();
     void addCategory();
+    void checkForUpdates();
+    void dm();
     void htmlResultReady(const QString &html);
     void play();
-    void dm();
+    void launchNWN();
+    void launchToolset();
     void onCategoryAdded();
     void onDoubleClickServer(QModelIndex idx);
     void onListSelectionAccepted();
+    void openSettings();
     void runUpdater();
     void switchStack();
     void requestDirectConnect();

@@ -31,6 +31,7 @@
 #include <QSplitter>
 #include <QPushButton>
 #include <QComboBox>
+#include <QMessageBox>
 #include <QMenuBar>
 #include <QTableWidget>
 #include <QLabel>
@@ -58,37 +59,6 @@
 #include "widgets/setdmpassworddialog.h"
 #include "util.h"
 #include "widgets/serverinfowidget.h"
-
-void MainWindow::setupUi() {
-    setupHtmlPreview();
-}
-
-void MainWindow::setupHtmlPreview() {
-    server_info_widget_->webview()->page()->settings()->setUserStyleSheetUrl(QUrl("qrc:/web/styles/clearness-dark.css"));
-    server_info_widget_->webview()->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    connect( server_info_widget_->webview()->page(), SIGNAL(linkClicked(const QUrl&)),this, SLOT(openURL(const QUrl&)));
-
-    // add our objects everytime JavaScript environment is cleared
-    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
-    //        this, SLOT(addJavaScriptObject()));
-
-    // restore scrollbar position after content size changed
-    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
-    //        this, SLOT(htmlContentSizeChanged()));
-
-    // load HTML template for live preview from resources
-    QFile f(":/web/template.html");
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QString htmlTemplate = f.readAll();
-        //qDebug() << "Template loaded.";
-        generator_->setHtmlTemplate(htmlTemplate);
-    }
-
-    // start background HTML preview generator
-    connect(generator_, SIGNAL(htmlResultReady(QString)),
-            this, SLOT(htmlResultReady(QString)));
-    generator_->start();
-}
 
 MainWindow::MainWindow(QWidget *parent)
     : options_(new Options(this))
@@ -141,14 +111,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QWidget *anotherw = new QWidget(this);
     QHBoxLayout *another = new QHBoxLayout();
-    QPushButton *settings_button = new QPushButton(this);
-    QIcon ico(":/qss_icons/rc/settings.png");
-    settings_button->setIcon(ico);
-    settings_button->setMinimumSize(QSize(35, 35));
-    settings_button->setIconSize(QSize(25, 25));
-    settings_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
     another->addWidget(name_label_, Qt::AlignRight);
-    another->addWidget(settings_button, Qt::AlignRight);
+    another->addWidget(createSettingsButton(), Qt::AlignRight);
     anotherw->setLayout(another);
     another->setStretch(0, 1);
     another->setStretch(1, 1);
@@ -507,6 +472,36 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
 
 }
 
+void MainWindow::launchToolset() {
+    QString exe;
+#if _WIN32
+    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNTX Loader.exe");
+
+    if (!QFile(exe).exists())
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwtoolset.exe");
+#endif
+
+    QString ps = QFileInfo(exe).canonicalFilePath();
+    QString dir = QFileInfo(exe).canonicalPath();
+
+    openProcess(ps, "", dir);
+}
+
+void MainWindow::launchNWN() {
+    QString exe;
+#if _WIN32
+    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+
+    if (!QFile(exe).exists())
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
+#endif
+
+    QString ps = QFileInfo(exe).canonicalFilePath();
+    QString dir = QFileInfo(exe).canonicalPath();
+
+    openProcess(ps, "", dir);
+}
+
 void MainWindow::PlayModule(QString module, bool dm) {
     qDebug() << "Attempting to run NWN";
 
@@ -783,4 +778,101 @@ void MainWindow::onDoubleClickServer(QModelIndex idx) {
 
 void MainWindow::setUpdater(FvUpdater *updater) {
     updater_ = updater;
+}
+
+void MainWindow::setupUi() {
+    setupHtmlPreview();
+}
+
+void MainWindow::setupHtmlPreview() {
+    server_info_widget_->webview()->page()->settings()->setUserStyleSheetUrl(QUrl("qrc:/web/styles/clearness-dark.css"));
+    server_info_widget_->webview()->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    connect( server_info_widget_->webview()->page(), SIGNAL(linkClicked(const QUrl&)),this, SLOT(openURL(const QUrl&)));
+
+    // add our objects everytime JavaScript environment is cleared
+    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+    //        this, SLOT(addJavaScriptObject()));
+
+    // restore scrollbar position after content size changed
+    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
+    //        this, SLOT(htmlContentSizeChanged()));
+
+    // load HTML template for live preview from resources
+    QFile f(":/web/template.html");
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString htmlTemplate = f.readAll();
+        //qDebug() << "Template loaded.";
+        generator_->setHtmlTemplate(htmlTemplate);
+    }
+
+    // start background HTML preview generator
+    connect(generator_, SIGNAL(htmlResultReady(QString)),
+            this, SLOT(htmlResultReady(QString)));
+    generator_->start();
+}
+
+QPushButton * MainWindow::createSettingsButton() {
+    QPushButton *settings_button = new QPushButton(this);
+    QIcon ico(":/qss_icons/rc/settings.png");
+    settings_button->setStyleSheet("padding-right: 0px; padding-left: 0px;");
+    settings_button->setIcon(ico);
+    settings_button->setMinimumSize(QSize(30, 35));
+    settings_button->setMaximumWidth(38);
+    settings_button->setIconSize(QSize(35, 35));
+    settings_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    settings_button_menu_ = new QMenu(this);
+    auto act = new QAction("Launch NWN", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(launchNWN()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("Launch Toolset", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(launchToolset()));
+    settings_button_menu_->addAction(act);
+
+    settings_button_menu_->addSeparator();
+
+    act = new QAction("Check for updates...", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(checkForUpdates()));
+    settings_button_menu_->addAction(act);
+
+    settings_button_menu_->addSeparator();
+
+    act = new QAction("Settings", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("About neverrun", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(about()));
+    settings_button_menu_->addAction(act);
+
+    settings_button_menu_->addSeparator();
+
+    act = new QAction("Exit", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(close()));
+    settings_button_menu_->addAction(act);
+
+    settings_button->setMenu(settings_button_menu_);
+
+    return settings_button;
+}
+
+void MainWindow::checkForUpdates() {
+    if (!updater_) { return; }
+    updater_->CheckForUpdatesNotSilent();
+}
+
+void MainWindow::about() {
+    QMessageBox::about(this, "About neverrun",
+                       "neverrun v" + QApplication::applicationVersion() +
+                       "\nneverrun (c) 2014 Joshua Dean\n"
+                       "License: GPL V2 or greater\n\n"
+                       "This program is distributed in the hope that it will be useful, "
+                       "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+                       "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+                       "GNU General Public License for more details."
+                       );
+}
+
+void MainWindow::openSettings() {
+    errorMessage("Not yet implemented...");
 }
