@@ -495,6 +495,14 @@ void MainWindow::launchNWN() {
     openProcess(ps, "", dir);
 }
 
+void MainWindow::launchDMClient() {
+    QString exe = getDefaultNWNExe();
+    QString ps = QFileInfo(exe).canonicalFilePath();
+    QString dir = QFileInfo(exe).canonicalPath();
+
+    openProcess(ps, "-dmc", dir);
+}
+
 QString MainWindow::getDefaultNWNExe() {
     QString exe;
 #ifdef Q_OS_WIN32
@@ -815,13 +823,25 @@ QPushButton * MainWindow::createSettingsButton() {
     settings_button->setMaximumWidth(38);
     settings_button->setIconSize(QSize(35, 35));
     settings_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
     settings_button_menu_ = new QMenu(this);
-    auto act = new QAction("Launch NWN", settings_button_menu_);
+    auto act = new QAction("Play NWN", settings_button_menu_);
+    act->setShortcut(Qt::Key_P | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchNWN()));
     settings_button_menu_->addAction(act);
 
-    act = new QAction("Launch Toolset", settings_button_menu_);
+    act = new QAction("Toolset", settings_button_menu_);
+    act->setShortcut(Qt::Key_T | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchToolset()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("DM Client", settings_button_menu_);
+    act->setShortcut(Qt::Key_D | Qt::CTRL);
+    connect(act, SIGNAL(triggered()), SLOT(launchDMClient()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("Configure NWN", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
     settings_button_menu_->addAction(act);
 
     settings_button_menu_->addSeparator();

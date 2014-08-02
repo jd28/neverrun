@@ -109,6 +109,7 @@ private slots:
     void dm();
     void htmlResultReady(const QString &html);
     void play();
+    void launchDMClient();
     void launchNWN();
     void launchToolset();
     void onCategoryAdded();
