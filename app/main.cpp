@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     QApplication::setOrganizationName("neverrun");
     QApplication::setOrganizationDomain("none");
     QApplication::setApplicationName("neverrun");
-    QApplication::setApplicationVersion("0.3");
+    QApplication::setApplicationVersion("0.4");
 
     QFile f(":/qdarkstyle/style.qss");
     f.open(QFile::ReadOnly);
