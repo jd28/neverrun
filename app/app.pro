@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     widgets/serversettings.cpp \
     widgets/serverinfowidget.cpp \
     widgets/directconnectdialog.cpp \
-    util.cpp
+    util.cpp \
+    Server.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \

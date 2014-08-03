@@ -41,8 +41,18 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
 }
 
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
-    // Set everything to offline each update, then turn them back on if they are in fact online.
-    for(auto it = servers_.begin(); it != servers_.end(); ++it) { (*it).online = false; }
+    // If we haven't heard from a server for 10 seconds... consider it offline.
+    for(auto it = servers_.begin(); it != servers_.end(); ++it) {
+        if ((*it).last_contact == 0 || getTickCount() - (*it).last_contact > 10000) {
+            Server s;
+            s.address = (*it).address;
+            s.online = false;
+            s.server_name = s.address;
+            s.module_name = "Offline";
+            *it = s;
+        }
+    }
+
 
     for(size_t i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
@@ -108,15 +118,18 @@ void ServerTableModel::readDatagrams() {
         auto it = server_map_.find(sender.toString() + QString::number(senderPort));
         if  (it == server_map_.end()) { continue; }
 
-        if ( servers_[it.value()].online ) {
+        size_t idx = it.value();
+        servers_[idx].last_contact = getTickCount();
+        servers_[idx].addPing(servers_[idx].last_contact - servers_[idx].last_query);
+
+        if ( servers_[idx].online ) {
             QString p = getPlayerCountFromDatagram(res);
             int players = p.toInt();
-            if (servers_[it.value()].cur_players != players) {
-                servers_[it.value()].cur_players = players;
-                emit dataChanged(QModelIndex(), QModelIndex());
+            if (servers_[idx].cur_players != players) {
+                servers_[idx].cur_players = players;
             }
         }
-        else {
+        else if(res.size() > 19) {
             qDebug() << "Server coming online: " << servers_[it.value()].address + QString::number(servers_[it.value()].port)
                     << " " << servers_[it.value()].module_name << " at " << servers_.size();
 
@@ -125,8 +138,12 @@ void ServerTableModel::readDatagrams() {
             s.port = senderPort;
             servers_[it.value()] = s;
             servers_[it.value()].online = true;
-            emit dataChanged(QModelIndex(), QModelIndex());
+
         }
+        else {
+            qDebug() << res;
+        }
+        emit dataChanged(QModelIndex(), QModelIndex());
     }
 }
 
@@ -137,14 +154,14 @@ int ServerTableModel::rowCount(const QModelIndex &parent) const {
 
 int ServerTableModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return 4;
+    return 5;
 }
 
 QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
-    if (index.row() >= servers_.size() || index.row() < 0)
+    if ((unsigned)index.row() >= servers_.size())
         return QVariant();
 
     const Server &s = servers_[index.row()];
@@ -181,17 +198,18 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     else if (role == Qt::UserRole + 7 && index.column() == COLUMN_SERVER_NAME) {
         return s.port;
     }
-
     else if (role == Qt::DisplayRole) {
         switch (index.column()) {
         default: return QVariant();
         case COLUMN_SERVER_NAME: return s.server_name;
         case COLUMN_MODULE_NAME: return s.module_name;
         case COLUMN_PLAYER_COUNT: return QString::number(s.cur_players) + "/" + QString::number(s.max_players);
+        case COLUMN_PING: return s.getPing();
         }
     }
     else if (Qt::TextAlignmentRole == role && (index.column() == COLUMN_PLAYER_COUNT
-                                               || index.column() == COLUMN_LEVELS)) {
+                                               || index.column() == COLUMN_LEVELS
+                                               || index.column() == COLUMN_PING)) {
         return Qt::AlignCenter;
     }
 
@@ -207,6 +225,7 @@ QVariant ServerTableModel::headerData(int section, Qt::Orientation orientation, 
         case COLUMN_SERVER_NAME: return "Server Name";
         case COLUMN_MODULE_NAME: return "Module Name";
         case COLUMN_PLAYER_COUNT: return "Players";
+        case COLUMN_PING: return "Ping";
         }
     }
 
@@ -218,11 +237,6 @@ Qt::ItemFlags ServerTableModel::flags(const QModelIndex &index) const {
         return Qt::ItemIsEnabled;
 
     return QAbstractTableModel::flags(index);
-}
-
-Server ServerTableModel::getServer(QModelIndex index) const {
-    if (index.row() >= servers_.size()) { return Server(); }
-    return servers_[index.row()];
 }
 
 bool ServerTableModel::insertRows(int position, int rows, const QModelIndex &index) {
@@ -251,9 +265,6 @@ void ServerTableModel::bindUpdSocket(int port) {
     udp_socket_ = new QUdpSocket(this);
     bool res = udp_socket_->bind(port);
     if (!res) { return; }
-    timer_ = new QTimer(this);
-    connect(timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
-    timer_->start(2000);
     connect(udp_socket_, SIGNAL(readyRead()),SLOT(readDatagrams()));
 }
 
@@ -271,6 +282,7 @@ void ServerTableModel::requestUpdates() {
     int target = min(current_update_index_ + 10, servers_.size());
 
     for (int i = current_update_index_; i < target; ++i) {
+        servers_[current_update_index_].last_query = getTickCount();
         requestUpdate(servers_[current_update_index_].address, servers_[current_update_index_].port);
         ++current_update_index_;
     }

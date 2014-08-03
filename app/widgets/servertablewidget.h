@@ -75,6 +75,7 @@ class ServerTableWidget : public QTableView {
     QFutureWatcher<std::vector<Server>> watcher_;
     QString current_cat_;
     QTimer *timer_;
+    QTimer *ping_timer_;
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
     ServerTableProxyModel *proxy_model_;
@@ -114,6 +115,7 @@ private slots:
     void onRemoveFromCat();
     void play();
     void requestChangeServerSettings();
+    void requestUpdates();
 
 };
 

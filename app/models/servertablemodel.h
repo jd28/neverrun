@@ -35,6 +35,7 @@ public:
         COLUMN_SERVER_NAME,
         COLUMN_MODULE_NAME,
         COLUMN_PLAYER_COUNT,
+        COLUMN_PING,
         COLUMN_ADDRESS,
         COLUMN_LEVELS,
         COLUMN_ELC,
@@ -54,6 +55,7 @@ public:
     void UpdateSevers(const std::vector<Server>& servers);
 
     void bindUpdSocket(int port);
+    void requestUpdates();
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -63,20 +65,17 @@ public:
     bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
 
-    Server getServer(QModelIndex index) const;
 public slots:
     void addServer(const QString &addr);
 
 private slots:
     void readDatagrams();
-    void requestUpdates();
 
 private:
     void requestUpdate(const QString &address, const int port);
     std::vector<Server> servers_;
     QMap<QString, int> server_map_;
     QUdpSocket *udp_socket_;
-    QTimer *timer_;
     size_t current_update_index_;
 };
 

@@ -32,5 +32,6 @@ bool isUsableServerCategory(const QString& str);
 bool isValidServerAddress(const QString& addr, bool port);
 int RoomToGameType(const QString& room);
 QString sanitizeName(const QString& str);
+uint64_t getTickCount();
 
 #endif // UTIL_H

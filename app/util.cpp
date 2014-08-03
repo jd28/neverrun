@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <qt_windows.h>
 
 #include "util.h"
 
@@ -141,4 +142,44 @@ bool isValidServerAddress(const QString &addr, bool port) {
 
     int res = port ? ipp.indexIn(addr) : ip.indexIn(addr);
     return res != -1;
+}
+
+
+void readPacket(const QByteArray &data, Server &s) {
+    if ( data.size() >= 20 && data.mid(0, 4) == "BNXR") {
+        parseBNXR(data, s);
+    }
+    else if ( data.size() >= 9 && data.mid(0, 5) == "BNERU") {
+        parseBNERU(data, s);
+    }
+    else if ( data.size() >= 20 && data.mid(0, 4) == "BNDR") {
+        parseBNDR(data, s);
+    }
+
+}
+
+uint64_t getTickCount() {
+#ifdef Q_OS_WIN
+    return GetTickCount();
+#endif
+    return 0;
+}
+
+
+void parseBNDR(const QByteArray &data, Server &s) {
+    if ( data.size() < 10) { return; }
+}
+
+
+void parseBNERU(const QByteArray &data, Server &s) {
+    if ( data.size() < 10) { return; }
+    if ( data.mid(0, 5) != "BNERU") { return; }
+
+}
+
+
+void parseBNXR(const QByteArray &data, Server &s) {
+    if ( data.size() < 10) { return; }
+    if ( data.mid(0, 4) != "BNXR") { return; }
+
 }

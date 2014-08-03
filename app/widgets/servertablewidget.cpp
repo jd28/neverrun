@@ -64,7 +64,8 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     horizontalHeader()->setSectionResizeMode(ServerTableModel::COLUMN_PASSWORD, QHeaderView::ResizeToContents);
     horizontalHeader()->setSectionResizeMode(ServerTableModel::COLUMN_PLAYER_COUNT, QHeaderView::ResizeToContents);
-    verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    horizontalHeader()->setSectionResizeMode(ServerTableModel::COLUMN_PING, QHeaderView::ResizeToContents);
+
     setSortingEnabled(true);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -244,6 +245,10 @@ void ServerTableWidget::finished(){
         model_->bindUpdSocket(options_->getClientPort() + 1);
         connect(model_,SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
+        ping_timer_ = new QTimer(this);
+        connect(ping_timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
+        ping_timer_->start(1000);
+
     }
     else {
         model_->UpdateSevers(std::move(res));
@@ -261,6 +266,9 @@ void ServerTableWidget::finished(){
 void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
     ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
     if(ServerTableModel::COLUMN_PLAYER_COUNT == horizontalHeader()->sortIndicatorSection()){
+        pm->invalidate();
+    }
+    else if(ServerTableModel::COLUMN_PING == horizontalHeader()->sortIndicatorSection()){
         pm->invalidate();
     }
 }
@@ -356,3 +364,11 @@ void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QSt
     current_cat_ = cat;
     proxy_model_->SetServerAddressFilter(ips);
 }
+
+void ServerTableWidget::requestUpdates() {
+    if ( !isVisible() || !isActiveWindow() || parentWidget()->isMinimized())
+        return;
+
+    model_->requestUpdates();
+}
+
