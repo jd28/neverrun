@@ -236,8 +236,7 @@ void ServerTableWidget::finished(){
 
     std::vector<Server> res(std::move(watcher_.result()));
     if ( res.size() == 0) {
-        QErrorMessage err;
-        err.showMessage("Error loading server list!");
+        errorMessage("Error loading server list!");
     }
 
     if(model_->rowCount(QModelIndex()) == 0) {
@@ -251,7 +250,11 @@ void ServerTableWidget::finished(){
                 SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
         ping_timer_ = new QTimer(this);
         connect(ping_timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
-        ping_timer_->start(50);
+        ping_timer_->start(15000/model_->rowCount(QModelIndex()));
+
+        offline_timer_ = new QTimer(this);
+        connect(offline_timer_, SIGNAL(timeout()), SLOT(sweepOfflineServers()));
+        offline_timer_->start(15000);
 
     }
     else {
@@ -277,8 +280,23 @@ void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
     }
 }
 
+bool ServerTableWidget::canUpdate() {
+    static bool locked = false;
+    if ( !isVisible() || !isActiveWindow() || parentWidget()->isMinimized()) {
+        locked = true;
+        return false;
+    }
+
+    if (locked) {
+        model_->setLastActive(getTickCount());
+    }
+
+    locked = false;
+    return true;
+}
+
 void ServerTableWidget::UpdateServers() {
-    GetServerList(-1);
+    if (canUpdate()) { GetServerList(-1); }
 }
 
 void ServerTableWidget::HandleSelectionChange(QModelIndex current, QModelIndex previous) {
@@ -370,10 +388,11 @@ void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QSt
 }
 
 void ServerTableWidget::requestUpdates() {
-    if ( !isVisible() || !isActiveWindow() || parentWidget()->isMinimized())
-        return;
+    if (canUpdate()) { model_->requestUpdates(); }
+}
 
-    model_->requestUpdates();
+void ServerTableWidget::sweepOfflineServers() {
+    if (canUpdate()) { model_->sweepOfflineServers(); }
 }
 
 void ServerTableWidget::setBNXR() {

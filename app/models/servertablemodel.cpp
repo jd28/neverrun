@@ -39,20 +39,11 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
     for(size_t i = 0; i < servers_.size(); ++i){
         server_map_.insert(servers_[i].address + QString::number(servers_[i].port), i);
     }
+    last_active_ = 0;
 }
 
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
-    // If we haven't heard from a server for 10 seconds... consider it offline.
-    for(auto it = servers_.begin(); it != servers_.end(); ++it) {
-        if ( (*it).isOffline() ) {
-            (*it).server_name = (*it).address;
-            (*it).module_name = "Offline";
-            (*it).messages_received = SERVER_MESSAGES_RECIEVED_NONE;
-            emit dataChanged(QModelIndex(), QModelIndex());
-        }
-    }
-
-
+    bool update = false;
     for(size_t i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
         if(it == server_map_.end()) {
@@ -62,9 +53,11 @@ void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
             server_map_.insert(servers[i].address + QString::number(servers[i].port), servers_.size());
             insertRows(servers_.size(), 1);
             servers_[servers_.size()-1] = servers[i];
+            update = true;
         }
     }
-    emit dataChanged(QModelIndex(), QModelIndex());
+    if(update)
+        emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 void ServerTableModel::addServer(const QString& addr) {
@@ -230,6 +223,29 @@ bool ServerTableModel::removeRows(int position, int rows, const QModelIndex &ind
     servers_.erase(std::begin(servers_) + position, std::begin(servers_) + position+rows-1);
     endRemoveRows();
     return true;
+}
+
+void ServerTableModel::sweepOfflineServers() {
+    bool update = false;
+
+    // I do not like this at all...
+    for(auto it = servers_.begin(); it != servers_.end(); ++it) {
+        uint64_t tick = getTickCount();
+        Server& s = *it;
+        if ( s.online
+             && last_active_ != 0
+             && tick - last_active_ > 20000
+             && tick - s.last_contact > 20000 ) {
+                s.reset();
+                s.server_name = (*it).address + ":" + QString::number(s.port);
+                s.module_name = "Offline";
+                update = true;
+        }
+    }
+
+    if(update)
+        emit dataChanged(QModelIndex(), QModelIndex());
+
 }
 
 void ServerTableModel::bindUpdSocket(int port) {

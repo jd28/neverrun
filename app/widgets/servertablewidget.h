@@ -76,13 +76,15 @@ class ServerTableWidget : public QTableView {
     QString current_cat_;
     QTimer *timer_;
     QTimer *ping_timer_;
+    QTimer *offline_timer_;
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
     ServerTableProxyModel *proxy_model_;
+
+    bool canUpdate();
     void setBNXR();
     void setBNDR();
     void setBNERU();
-
     void SetupDialogs();
     void UpdatePlayerCounts();
 
@@ -119,6 +121,7 @@ private slots:
     void play();
     void requestChangeServerSettings();
     void requestUpdates();
+    void sweepOfflineServers();
 
 };
 

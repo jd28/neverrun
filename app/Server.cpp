@@ -26,7 +26,31 @@ int64_t Server::getPing() const {
 }
 
 bool Server::isOffline() const {
-    return module_name == "Offline" || (last_query != 0 && getTickCount() - last_contact > 60000);
+    return !online;
+}
+
+void Server::reset() {
+    ilr = false;
+    elc = false;
+    cur_players = 0;
+    max_players = 0;
+    min_level = 0;
+    max_level = 0;
+    password = false;
+    local_vault = false;
+    pvp = 0;
+    time_t heartbeat;
+    online = false;
+    one_party = false;;
+    homepage = "";
+    nrl = "";
+    gametype = -1;
+    last_query = 0;
+    last_contact = 0;
+    messages_received = 0;
+    current_ping = 0;
+
+    std::fill_n(ping_history, MAX_PING_HISTORY, -1);
 }
 
 QStringList Server::toStringList() const {
