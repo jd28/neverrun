@@ -228,10 +228,8 @@ bool parseBNER(const QByteArray &data, Server &s) {
     uint32_t size = d[offset];
     offset += 1;
     if ( size > 0 ) {
-        if(size != s.server_name.size()) {
-            s.server_name = sanitizeName(data.mid(offset, size));
-            updated = true;
-        }
+        s.server_name = sanitizeName(data.mid(offset, size));
+        updated = true;
     }
 
     s.messages_received |= SERVER_MESSAGES_RECIEVED_BNER;

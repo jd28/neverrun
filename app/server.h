@@ -82,6 +82,7 @@ struct Server {
     void addPing(int64_t ping);
     int64_t getPing() const;
     bool isOffline() const;
+    void reset();
     QStringList toStringList() const;
 
 

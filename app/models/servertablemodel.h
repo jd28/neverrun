@@ -67,6 +67,9 @@ public:
     void setBNXI(const QByteArray& bnxi) { bnxi_ = bnxi; }
     void setBNDS(const QByteArray& bnds) { bnds_ = bnds; }
     void setBNES(const QByteArray& bnes) { bnes_ = bnes; }
+    void setLastActive(int64_t last_active) { last_active_ = last_active; }
+    void sweepOfflineServers();
+
 public slots:
     void addServer(const QString &addr);
 
@@ -82,6 +85,7 @@ private:
     QByteArray bnxi_;
     QByteArray bnds_;
     QByteArray bnes_;
+    int64_t last_active_;
 };
 
 #endif // SERVERTABLEMODEL_H
