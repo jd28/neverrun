@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow {
     UserNameButton       *name_label_;
 
     // Functions
+    QString getDefaultNWNExe();
     QWidget *createAddCategoryWidget();
     QWidget *CreateCategoryWidget();
     QWidget *CreateInfoButtonBar();
@@ -108,6 +109,7 @@ private slots:
     void dm();
     void htmlResultReady(const QString &html);
     void play();
+    void launchDMClient();
     void launchNWN();
     void launchToolset();
     void onCategoryAdded();
@@ -135,8 +137,8 @@ public slots:
     void openURL(const QUrl& url);
     void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
-    void SetServerAddressFilter(const QStringList &ips);
-    void setModuleFilter(const QStringList &mods);
+    void SetServerAddressFilter(const QStringList &ips, const QString& cat);
+    void setModuleFilter(const QStringList &mods, const QString &cat);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

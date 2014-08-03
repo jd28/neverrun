@@ -30,11 +30,13 @@
 #include <QTableView>
 
 #include "moduletablewidget.h"
+#include "../options.h"
 
 ModuleTableWidget::ModuleTableWidget(Options *options, QWidget *parent)
     : QTableView(parent)
     , model_(new ModuleTableModel(options, this))
     , proxy_model_(new ModuleTableProxyModel(this))
+    , options_(options)
 {
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -57,12 +59,15 @@ ModuleTableWidget::ModuleTableWidget(Options *options, QWidget *parent)
 
     act_add_to_ = new QAction("Add to...", this);
     connect(act_add_to_, SIGNAL(triggered()), SLOT(onAddTo()));
-    act_remove_from_ = new QAction("Remove From...", this);
+    act_remove_from_ = new QAction("Remove from...", this);
     connect(act_remove_from_, SIGNAL(triggered()), SLOT(onRemoveFrom()));
+    act_remove_from_cat_ = new QAction("Remove from", this);
+    connect(act_remove_from_cat_, SIGNAL(triggered()), SLOT(onRemoveFromCat()));
 
 }
 
-void ModuleTableWidget::setModuleFilter(const QStringList &mods) {
+void ModuleTableWidget::setModuleFilter(const QStringList &mods, const QString& cat) {
+    current_cat_ = cat;
     proxy_model_->setModuleFilter(mods);
 }
 
@@ -72,6 +77,15 @@ void ModuleTableWidget::onAddTo() {
 
 void ModuleTableWidget::onRemoveFrom() {
     emit requestRemoveFrom();
+}
+
+void ModuleTableWidget::onRemoveFromCat() {
+    auto selections = selectedIndexes();
+    if (selections.size() == 0) { return; }
+    auto idx = model()->index(selections[0].row(), 0);
+    QString mod = model()->data(idx).toString();
+    options_->removeModuleFromCategory(current_cat_, mod);
+    setModuleFilter(options_->getCategoryModules(current_cat_), current_cat_);
 }
 
 const ModuleTableModel *ModuleTableWidget::getModuleTableModel() const {
@@ -93,7 +107,6 @@ void ModuleTableWidget::customMenuRequested(QPoint pos) {
     connect(act, SIGNAL(triggered()), this, SLOT(play()));
     menu.addAction(act);
 
-
     act = new QAction("DM", this);
     connect(act, SIGNAL(triggered()), this, SLOT(dm()));
     menu.addAction(act);
@@ -102,6 +115,11 @@ void ModuleTableWidget::customMenuRequested(QPoint pos) {
 
     menu.addAction(act_add_to_);
     menu.addAction(act_remove_from_);
+
+    if(current_cat_.size() > 0) {
+        act_remove_from_cat_->setText("Remove from " + current_cat_);
+        menu.addAction(act_remove_from_cat_);
+    }
 
     menu.addSeparator();
 

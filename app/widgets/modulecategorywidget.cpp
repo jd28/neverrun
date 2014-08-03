@@ -154,10 +154,15 @@ void ModuleCategoryWidget::ChangeModuleList()
 {
     foreach(QTableWidgetItem *x, selectedItems()) {
         QStringList ips;
-        if (x->text() == "All") { emit LoadModules(-1); return; }
-
-        ips = options_->getCategoryModules(x->text());
-        emit LoadModules(-2);
-        emit UpdateFilter(ips);
+        QString cat;
+        if (x->text() == "All") {
+            emit LoadModules(-1);
+        }
+        else {
+            ips = options_->getCategoryModules(x->text());
+            cat = x->text();
+            emit LoadModules(-2);
+        }
+        emit UpdateFilter(ips, cat);
     }
 }

@@ -742,4 +742,27 @@ void Options::writeSettings()
         }
         settings.endArray();
     }
+
+    QSettings nwn_settings(m_NWN_path + "/nwnplayer.ini", QSettings::IniFormat);
+    nwn_settings.remove("History Page");
+    nwn_settings.remove("Favorites Page");
+
+    auto hist = server_categories_.find("History");
+    if ( hist != server_categories_.end() ) {
+        QStringList& ls = hist.value();
+        for(int i = 0; i < ls.size(); ++i) {
+            nwn_settings.setValue("History Page/Server" + QString::number(i), ls[i]);
+        }
+    }
+
+    auto fav = server_categories_.find("Favorites");
+    if ( fav != server_categories_.end() ) {
+        QStringList& ls = fav.value();
+        for(int i = 0; i < ls.size(); ++i) {
+            nwn_settings.setValue("Favorites Page/Server" + QString::number(i), ls[i]);
+        }
+    }
+
+    nwn_settings.sync();
+    FileConvert20ToSpace(m_NWN_path + "/nwnplayer.ini");
 }

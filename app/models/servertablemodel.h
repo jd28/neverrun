@@ -35,6 +35,7 @@ public:
         COLUMN_SERVER_NAME,
         COLUMN_MODULE_NAME,
         COLUMN_PLAYER_COUNT,
+        COLUMN_PING,
         COLUMN_ADDRESS,
         COLUMN_LEVELS,
         COLUMN_ELC,
@@ -54,6 +55,7 @@ public:
     void UpdateSevers(const std::vector<Server>& servers);
 
     void bindUpdSocket(int port);
+    void requestUpdates();
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -62,22 +64,24 @@ public:
    // bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
     bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
-
-    Server getServer(QModelIndex index) const;
+    void setBNXI(const QByteArray& bnxi) { bnxi_ = bnxi; }
+    void setBNDS(const QByteArray& bnds) { bnds_ = bnds; }
+    void setBNES(const QByteArray& bnes) { bnes_ = bnes; }
 public slots:
     void addServer(const QString &addr);
 
 private slots:
     void readDatagrams();
-    void requestUpdates();
 
 private:
-    void requestUpdate(const QString &address, const int port);
+    void requestUpdate(const Server &s);
     std::vector<Server> servers_;
     QMap<QString, int> server_map_;
     QUdpSocket *udp_socket_;
-    QTimer *timer_;
     size_t current_update_index_;
+    QByteArray bnxi_;
+    QByteArray bnds_;
+    QByteArray bnes_;
 };
 
 #endif // SERVERTABLEMODEL_H

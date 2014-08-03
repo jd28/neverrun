@@ -138,11 +138,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(module_category_, SIGNAL(LoadModules(int)),
             SLOT(LoadModules(int)));
 
-    connect(server_category_, SIGNAL(UpdateFilter(const QStringList&)),
-            SLOT(SetServerAddressFilter(const QStringList&)));
+    connect(server_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
+            SLOT(SetServerAddressFilter(const QStringList&, const QString&)));
 
-    connect(module_category_, SIGNAL(UpdateFilter(const QStringList&)),
-            SLOT(setModuleFilter(const QStringList&)));
+    connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
+            SLOT(setModuleFilter(const QStringList&, const QString&)));
 
     connect(server_table_widget_->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             SLOT(HandleServerSelectionChange(QModelIndex,QModelIndex)));
@@ -428,13 +428,13 @@ void MainWindow::LoadModules(int room){
     modules_table_widget_->loadModules(room);
 }
 
-void MainWindow::SetServerAddressFilter(const QStringList &ips) {
-    server_table_widget_->SetServerAddressFilter(ips);
+void MainWindow::SetServerAddressFilter(const QStringList &ips, const QString &cat) {
+    server_table_widget_->SetServerAddressFilter(ips, cat);
     server_table_widget_->selectionModel()->clear();
 }
 
-void MainWindow::setModuleFilter(const QStringList &mods) {
-    modules_table_widget_->setModuleFilter(mods);
+void MainWindow::setModuleFilter(const QStringList &mods, const QString& cat) {
+    modules_table_widget_->setModuleFilter(mods, cat);
     modules_table_widget_->selectionModel()->clear();
 }
 
@@ -488,18 +488,32 @@ void MainWindow::launchToolset() {
 }
 
 void MainWindow::launchNWN() {
-    QString exe;
-#if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
-
+    QString exe = getDefaultNWNExe();
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
     openProcess(ps, "", dir);
+}
+
+void MainWindow::launchDMClient() {
+    QString exe = getDefaultNWNExe();
+    QString ps = QFileInfo(exe).canonicalFilePath();
+    QString dir = QFileInfo(exe).canonicalPath();
+
+    openProcess(ps, "-dmc", dir);
+}
+
+QString MainWindow::getDefaultNWNExe() {
+    QString exe;
+#ifdef Q_OS_WIN32
+    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+    if (!QFile(exe).exists())
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
+#elif Q_OS_LINUX
+    exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
+#endif
+
+    return exe;
 }
 
 void MainWindow::PlayModule(QString module, bool dm) {
@@ -512,14 +526,7 @@ void MainWindow::PlayModule(QString module, bool dm) {
     arguments << "+LoadNewModule"
               << module;
 
-    QString exe;
-#if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
-
+    QString exe = getDefaultNWNExe();
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
@@ -528,7 +535,7 @@ void MainWindow::PlayModule(QString module, bool dm) {
 
 
 void MainWindow::playServer(QString address, QString password, bool dm) {
-    if(!isValidServerAddress(address)) { return; }
+    if(!isValidServerAddress(address, true)) { return; }
 
     qDebug() << "Attempting to run NWN";
     options_->addServerToCategory("History", address);
@@ -547,13 +554,9 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
               << address;
 
     QString exe = current_server_loader_;
-#if _WIN32
     if(exe.size() == 0 || !QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+        exe = getDefaultNWNExe();
 
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
-#endif
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
@@ -615,7 +618,7 @@ void MainWindow::onListSelectionAccepted() {
                 options_->removeServerFromCategory(i, add);
                 auto sel = server_category_->selectionModel()->selectedRows();
                 if (i == sel[0].data()) {
-                    SetServerAddressFilter(options_->getCategoryIPs(i));
+                    SetServerAddressFilter(options_->getCategoryIPs(i), i);
                 }
             }
 
@@ -629,7 +632,7 @@ void MainWindow::onListSelectionAccepted() {
                 options_->removeModuleFromCategory(i, add);
                 auto sel = module_category_->selectionModel()->selectedRows();
                 if (i == sel[0].data()) {
-                    setModuleFilter(options_->getCategoryModules(i));
+                    setModuleFilter(options_->getCategoryModules(i), i);
                 }
             }
         }
@@ -761,7 +764,7 @@ void MainWindow::addServer(QString addr) {
     if (it.size() == 0) { return; }
 
     if (it[0].data().toString() == "History") {
-        SetServerAddressFilter(options_->getCategoryIPs("History"));
+        SetServerAddressFilter(options_->getCategoryIPs("History"), "History");
     }
 }
 
@@ -820,13 +823,25 @@ QPushButton * MainWindow::createSettingsButton() {
     settings_button->setMaximumWidth(38);
     settings_button->setIconSize(QSize(35, 35));
     settings_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
     settings_button_menu_ = new QMenu(this);
-    auto act = new QAction("Launch NWN", settings_button_menu_);
+    auto act = new QAction("Play NWN", settings_button_menu_);
+    act->setShortcut(Qt::Key_P | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchNWN()));
     settings_button_menu_->addAction(act);
 
-    act = new QAction("Launch Toolset", settings_button_menu_);
+    act = new QAction("Toolset", settings_button_menu_);
+    act->setShortcut(Qt::Key_T | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchToolset()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("DM Client", settings_button_menu_);
+    act->setShortcut(Qt::Key_D | Qt::CTRL);
+    connect(act, SIGNAL(triggered()), SLOT(launchDMClient()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("Configure NWN", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
     settings_button_menu_->addAction(act);
 
     settings_button_menu_->addSeparator();

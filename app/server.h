@@ -18,11 +18,19 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <QDebug>
 #include <QString>
 #include <QStringList>
 #include <stdint.h>
 
+static const uint32_t SERVER_MESSAGES_RECIEVED_NONE = 0;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNXR = 0x1;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNER = 0x2;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNDR = 0x4;
+
 struct Server {
+    static const int MAX_PING_HISTORY = 2;
+
     Server()
         : ilr(false)
         , elc(false)
@@ -36,7 +44,13 @@ struct Server {
         , online(true)
         , one_party(false)
         , gametype(-1)
-    {}
+        , last_query(0)
+        , last_contact(0)
+        , messages_received(SERVER_MESSAGES_RECIEVED_NONE)
+        , current_ping(0)
+    {
+        std::fill_n(ping_history, MAX_PING_HISTORY, -1);
+    }
 
     QString module_name;
     QString server_name;
@@ -50,7 +64,6 @@ struct Server {
     int max_players;
     int min_level;
     int max_level;
-    int64_t ping;
     bool password;
     bool local_vault;
     int pvp;
@@ -60,32 +73,18 @@ struct Server {
     QString homepage;
     QString nrl;
     int gametype;
+    uint64_t last_query;
+    uint64_t last_contact;
+    uint32_t messages_received;
+    int64_t ping_history[MAX_PING_HISTORY];
+    int current_ping;
 
-    QStringList toStringList() const {
-        QStringList res;
+    void addPing(int64_t ping);
+    int64_t getPing() const;
+    bool isOffline() const;
+    QStringList toStringList() const;
 
-        // Server Name
-        res << server_name
-            << module_name
-            << (address + ":" + QString::number(port))
-            << (QString::number(cur_players) + "/" + QString::number(max_players))
-            << (QString::number(min_level) + "-" + QString::number(max_level));
 
-        switch(pvp) {
-        default: res << "None"; break;
-        case 1: res << "Party"; break;
-        case 2: res << "Full"; break;
-        }
-
-        res << (ilr ? "yes" : "no")
-            << (elc ? "yes" : "no")
-            << (local_vault ? "yes" : "no")
-            << (one_party ? "yes" : "no")
-            << mod_description
-            << serv_description;
-
-        return std::move(res);
-    }
 };
 
 #endif // SERVER_H

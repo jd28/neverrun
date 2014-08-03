@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QHostInfo>
 #include <QMessageBox>
 
 #include "directconnectdialog.h"
@@ -43,25 +44,67 @@ void DirectConnectDialog::ensureFocus() {
 }
 
 void DirectConnectDialog::doServer(const QString& addr, const QString& pass, bool dm) {
-    static QRegExp domain(".*\\..*:[0-9]{1,6}");
+    static QRegExp port("(:[0-9]{1,6})$");
+    static QRegExp domain("([^:]+)(:[0-9]{1,6})?$");
 
-    int res2 = domain.indexIn(addr);
+    QString p;
+    if ( port.indexIn(addr) != -1 ) {
+        p = port.cap(0);
+    }
+
+    QString address;
+    QString dom;
+
+    if(!isValidServerAddress(addr, false)) {
+        int res2 = domain.indexIn(addr);
+        if( res2 == -1) {
+            errorMessage("Invalid IP Address/Hostname");
+            return;
+        }
+        dom = domain.cap(1);
+        QHostInfo info = QHostInfo::fromName(dom);
+        auto addresses = info.addresses();
+
+        if (addresses.size() == 0 || !isValidServerAddress(addresses[0].toString(), false)) {
+            errorMessage("Unable to resolve hostname: " + dom);
+            return;
+        }
+        address = addresses[0].toString();
+        address += p;
+    }
+    else {
+        address = addr;
+    }
 
     close();
-    if(!isValidServerAddress(addr) && res2 == -1) {
-        errorMessage("Invalid IP Address/Hostname");
-        return;
+
+    if(p.size() == 0) {
+        address += ":5121";
     }
 
     if(ui->addToMaster->isChecked()) {
-        qDebug() << AddServer(addr.toStdString().c_str());
+        qDebug() << AddServer(address.toStdString().c_str());
     }
 
-    options_->addDirectConnect(addr);
-    ui->address->insertItem(0, addr);
+    QString t;
+    if( dom.size() > 0 ) {
+        if(p.size() == 0) {
+            dom += ":5121";
+        }
+        else {
+            dom += p;
+        }
+        t = dom;
+    }
+    else {
+        t = address;
+    }
+
+    options_->addDirectConnect(t);
+    ui->address->insertItem(0, t);
 
     for (int i = 1; i < ui->address->count(); ++i) {
-        if (ui->address->itemText(i) == addr) {
+        if (ui->address->itemText(i) == t) {
             ui->address->removeItem(i);
             break;
         }
@@ -73,9 +116,9 @@ void DirectConnectDialog::doServer(const QString& addr, const QString& pass, boo
 
     ui->address->setCurrentIndex(0);
 
-    options_->addServerToCategory("History", addr);
-    emit addServer(addr);
-    emit requestPlayServer(addr, pass, dm);
+    options_->addServerToCategory("History", address);
+    emit addServer(address);
+    emit requestPlayServer(address, pass, dm);
 }
 
 void DirectConnectDialog::play() {

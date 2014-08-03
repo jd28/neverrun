@@ -25,6 +25,7 @@
 #include "servertablemodel.h"
 #include "../widgets/servertablewidget.h"
 #include "../util.h"
+#include "../server.h"
 
 ServerTableModel::ServerTableModel(QObject *parent)
     : QAbstractTableModel(parent) {
@@ -41,20 +42,20 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
 }
 
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
-    // Set everything to offline each update, then turn them back on if they are in fact online.
-    for(auto it = servers_.begin(); it != servers_.end(); ++it) { (*it).online = false; }
+    // If we haven't heard from a server for 10 seconds... consider it offline.
+    for(auto it = servers_.begin(); it != servers_.end(); ++it) {
+        if ( (*it).isOffline() ) {
+            (*it).server_name = (*it).address;
+            (*it).module_name = "Offline";
+            (*it).messages_received = SERVER_MESSAGES_RECIEVED_NONE;
+            emit dataChanged(QModelIndex(), QModelIndex());
+        }
+    }
+
 
     for(size_t i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
-        if(it != server_map_.end()) {
-            if( servers[i].online && servers_[it.value()].module_name == "Offline") {
-                qDebug() << "A server has come online: " << servers[i].module_name;
-                // Replace the whole server entry
-                servers_[it.value()] = servers[i];
-            }
-            servers_[it.value()].online = servers[i].online;
-        }
-        else { // If it's not in the map we got a new server...
+        if(it == server_map_.end()) {
             qDebug() << "Adding server: " << servers[i].address + QString::number(servers[i].port)
                      << " " << servers[i].module_name << " at " << servers_.size();
 
@@ -103,30 +104,17 @@ void ServerTableModel::readDatagrams() {
         udp_socket_->readDatagram(datagram.data(), datagram.size(),
                                   &sender, &senderPort);
 
-        QList<QByteArray> res = datagram.split('\0');
-
         auto it = server_map_.find(sender.toString() + QString::number(senderPort));
         if  (it == server_map_.end()) { continue; }
 
-        if ( servers_[it.value()].online ) {
-            QString p = getPlayerCountFromDatagram(res);
-            int players = p.toInt();
-            if (servers_[it.value()].cur_players != players) {
-                servers_[it.value()].cur_players = players;
-                emit dataChanged(QModelIndex(), QModelIndex());
-            }
-        }
-        else {
-            qDebug() << "Server coming online: " << servers_[it.value()].address + QString::number(servers_[it.value()].port)
-                    << " " << servers_[it.value()].module_name << " at " << servers_.size();
+        size_t idx = it.value();
+        servers_[idx].last_contact = getTickCount();
+        servers_[idx].addPing(servers_[idx].last_contact - servers_[idx].last_query);
 
-            Server s = getServerFromDatagram(res);
-            s.address = sender.toString();
-            s.port = senderPort;
-            servers_[it.value()] = s;
-            servers_[it.value()].online = true;
+        servers_[idx].online = true;
+
+        if (readPacket(datagram, servers_[idx]))
             emit dataChanged(QModelIndex(), QModelIndex());
-        }
     }
 }
 
@@ -137,14 +125,14 @@ int ServerTableModel::rowCount(const QModelIndex &parent) const {
 
 int ServerTableModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return 4;
+    return 5;
 }
 
 QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
-    if (index.row() >= servers_.size() || index.row() < 0)
+    if ((unsigned)index.row() >= servers_.size())
         return QVariant();
 
     const Server &s = servers_[index.row()];
@@ -173,7 +161,7 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
         return s.toStringList();
     }
     else if (role == Qt::UserRole + 5 && index.column() == COLUMN_SERVER_NAME) {
-        return s.online;
+        return !s.isOffline();
     }
     else if (role == Qt::UserRole + 6 && index.column() == COLUMN_SERVER_NAME) {
         return s.address;
@@ -181,17 +169,18 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     else if (role == Qt::UserRole + 7 && index.column() == COLUMN_SERVER_NAME) {
         return s.port;
     }
-
     else if (role == Qt::DisplayRole) {
         switch (index.column()) {
         default: return QVariant();
         case COLUMN_SERVER_NAME: return s.server_name;
         case COLUMN_MODULE_NAME: return s.module_name;
         case COLUMN_PLAYER_COUNT: return QString::number(s.cur_players) + "/" + QString::number(s.max_players);
+        case COLUMN_PING: return s.getPing();
         }
     }
     else if (Qt::TextAlignmentRole == role && (index.column() == COLUMN_PLAYER_COUNT
-                                               || index.column() == COLUMN_LEVELS)) {
+                                               || index.column() == COLUMN_LEVELS
+                                               || index.column() == COLUMN_PING)) {
         return Qt::AlignCenter;
     }
 
@@ -207,6 +196,7 @@ QVariant ServerTableModel::headerData(int section, Qt::Orientation orientation, 
         case COLUMN_SERVER_NAME: return "Server Name";
         case COLUMN_MODULE_NAME: return "Module Name";
         case COLUMN_PLAYER_COUNT: return "Players";
+        case COLUMN_PING: return "Ping";
         }
     }
 
@@ -218,11 +208,6 @@ Qt::ItemFlags ServerTableModel::flags(const QModelIndex &index) const {
         return Qt::ItemIsEnabled;
 
     return QAbstractTableModel::flags(index);
-}
-
-Server ServerTableModel::getServer(QModelIndex index) const {
-    if (index.row() >= servers_.size()) { return Server(); }
-    return servers_[index.row()];
 }
 
 bool ServerTableModel::insertRows(int position, int rows, const QModelIndex &index) {
@@ -251,30 +236,23 @@ void ServerTableModel::bindUpdSocket(int port) {
     udp_socket_ = new QUdpSocket(this);
     bool res = udp_socket_->bind(port);
     if (!res) { return; }
-    timer_ = new QTimer(this);
-    connect(timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
-    timer_->start(2000);
     connect(udp_socket_, SIGNAL(readyRead()),SLOT(readDatagrams()));
 }
 
-void ServerTableModel::requestUpdate(const QString& address, const int port) {
-    static const char* d = "\xFE\xFD\x00\xE0\xEB\x2D\x0E\x14\x01\x0B\x01\x05\x08\x0A\x33\x34\x35\x13\x04\x36\x37\x38\x39\x14\x3A\x3B\x3C\x3D\x00\x00";
+void ServerTableModel::requestUpdate(const Server& s) {
+    udp_socket_->writeDatagram(bnxi_, QHostAddress(s.address), s.port);
+    if ( (s.messages_received & SERVER_MESSAGES_RECIEVED_BNDR) == 0 ) {
+        udp_socket_->writeDatagram(bnds_, QHostAddress(s.address), s.port);
+    }
 
-    //qDebug() << address << " " << port;
-    udp_socket_->writeDatagram(d, 30, QHostAddress(address), port);
-
+    if ( (s.messages_received & SERVER_MESSAGES_RECIEVED_BNER) == 0 ) {
+        udp_socket_->writeDatagram(bnes_, QHostAddress(s.address), s.port);
+    }
 }
 
 void ServerTableModel::requestUpdates() {
-    Q_ASSERT(current_update_index_ < servers_.size());
-
-    int target = min(current_update_index_ + 10, servers_.size());
-
-    for (int i = current_update_index_; i < target; ++i) {
-        requestUpdate(servers_[current_update_index_].address, servers_[current_update_index_].port);
-        ++current_update_index_;
-    }
-
-    if ( current_update_index_ == servers_.size() )
+    servers_[current_update_index_].last_query = getTickCount();
+    requestUpdate(servers_[current_update_index_]);
+    if ( ++current_update_index_ == servers_.size() )
         current_update_index_ = 0;
 }

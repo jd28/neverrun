@@ -63,6 +63,11 @@ public:
             QVariant r = sourceModel()->data(right, Qt::UserRole + 1);
             return l.toInt() < r.toInt();
         }
+        else if (left.column() == ServerTableModel::COLUMN_PING) {
+            if (leftData.toInt() == -1) { return false; }
+            if (rightData.toInt() == -1) { return true; }
+            return leftData.toInt() < rightData.toInt();
+        }
         else if (leftData.type() == QVariant::Int) {
             return leftData.toInt() < rightData.toInt();
         }

@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <qt_windows.h>
 
 #include "util.h"
 
@@ -135,8 +136,134 @@ void errorMessage(const QString &err) {
     dlFailedMsgBox.exec();
 }
 
-bool isValidServerAddress(const QString &addr) {
-    static QRegExp ip("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{1,6}");
-    int res = ip.indexIn(addr);
+bool isValidServerAddress(const QString &addr, bool port) {
+    static QRegExp ip("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})(:[0-9]{1,6})?$");
+    static QRegExp ipp("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})(:[0-9]{1,6})$");
+
+    int res = port ? ipp.indexIn(addr) : ip.indexIn(addr);
     return res != -1;
+}
+
+uint64_t getTickCount() {
+#ifdef Q_OS_WIN
+    return GetTickCount();
+#endif
+    return 0;
+}
+
+bool readPacket(const QByteArray &data, Server &s) {
+    bool updated = false;
+    if ( data.size() >= 20 && data.mid(0, 4) == "BNXR") {
+        updated = parseBNXR(data, s) || updated;
+    }
+    else if ( data.size() >= 9 && data.mid(0, 5) == "BNERU") {
+        updated = parseBNER(data, s) || updated;
+    }
+    else if ( data.size() >= 10 && data.mid(0, 4) == "BNDR") {
+        updated = parseBNDR(data, s) || updated;
+    }
+    return updated;
+}
+
+bool parseBNDR(const QByteArray &data, Server &s) {
+    const char *d = data.data();
+
+    bool updated = false;
+    int offset = 6;
+    bool ok;
+    QString url;
+
+    uint32_t sdesc_size = 0;
+    memcpy(&sdesc_size, d + offset, 4);
+    offset += 4;
+    if ( sdesc_size != 0 ) {
+        if ( sdesc_size != s.serv_description.size() ) {
+            s.serv_description = data.mid(offset, sdesc_size);
+
+            url = findUrl(s.serv_description);
+            if (url.size() > 0) {
+                if ( url.endsWith(".nrl", Qt::CaseInsensitive)) { s.nrl = url; }
+                else { s.homepage = url; }
+            }
+            updated = true;
+        }
+        offset += sdesc_size;
+    }
+
+    int mdesc_size = 0;
+    memcpy(&mdesc_size, d + offset, 4);
+    offset += 4;
+    if ( mdesc_size != 0 ) {
+        if ( mdesc_size != s.mod_description.size() ) {
+            s.mod_description = data.mid(offset, mdesc_size);
+            if ( url.size() == 0 ) {
+                QString url = findUrl(s.mod_description);
+                if (url.size() > 0) {
+                    if ( url.endsWith(".nrl", Qt::CaseInsensitive)) { s.nrl = url; }
+                    else { s.homepage = url; }
+                }
+            }
+            updated = true;
+        }
+        offset += mdesc_size;
+    }
+
+    offset += 8; // Don't care about build number...
+    if ( s.gametype != data[offset] ) {
+        s.gametype = data[offset];
+        updated = true;
+    }
+
+    s.messages_received |= SERVER_MESSAGES_RECIEVED_BNDR;
+    return updated;
+}
+
+
+bool parseBNER(const QByteArray &data, Server &s) {
+    if(s.messages_received & SERVER_MESSAGES_RECIEVED_BNER) { return false; }
+    const char *d = data.data();
+
+    bool updated = false;
+    int offset = 8;
+    uint32_t size = d[offset];
+    offset += 1;
+    if ( size > 0 ) {
+        if(size != s.server_name.size()) {
+            s.server_name = sanitizeName(data.mid(offset, size));
+            updated = true;
+        }
+    }
+
+    s.messages_received |= SERVER_MESSAGES_RECIEVED_BNER;
+    return updated;
+}
+
+
+bool parseBNXR(const QByteArray &data, Server &s) {
+    bool updated = false;
+
+#define S(member, idx) \
+    if((int)member != (uchar)data.at(idx)) { updated = true; member = (uchar)data.at(idx); }
+
+    S(s.password, 7);
+    S(s.min_level, 8);
+    S(s.max_level, 9);
+    S(s.cur_players, 10);
+    S(s.max_players, 11);
+    S(s.local_vault, 12);
+    S(s.pvp, 13);
+    S(s.one_party, 15);
+    S(s.elc, 16);
+    S(s.ilr, 17);
+
+    int mod_name_size = data[19];
+    if (mod_name_size != 0 && mod_name_size != s.module_name.size()) {
+        s.module_name = data.mid(20, mod_name_size);
+        updated = true;
+    }
+
+    s.messages_received |= SERVER_MESSAGES_RECIEVED_BNXR;
+
+    return updated;
+#undef S
 }

@@ -36,7 +36,7 @@ public:
 
 signals:
     void LoadModules(int room);
-    void UpdateFilter(const QStringList& ips);
+    void UpdateFilter(const QStringList& ips, const QString& name);
 
 private slots:
     void ChangeModuleList();

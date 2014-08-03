@@ -6,6 +6,10 @@ TEMPLATE = app
 DEFINES += FV_GUI=1
 CONFIG += fervor_gui
 
+#Windows XP compatability
+DEFINES += "WINVER=0x0501"
+DEFINES += "_WIN32_WINNT=0x0501"
+
 # Fervor autoupdater
 # (set TARGET and VERSION of your app before including Fervor.pri)
 !include("../3rdparty/fervor/Fervor.pri") {
@@ -40,7 +44,8 @@ SOURCES += main.cpp\
     widgets/serversettings.cpp \
     widgets/serverinfowidget.cpp \
     widgets/directconnectdialog.cpp \
-    util.cpp
+    util.cpp \
+    Server.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
