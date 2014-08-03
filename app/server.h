@@ -23,6 +23,11 @@
 #include <QStringList>
 #include <stdint.h>
 
+static const uint32_t SERVER_MESSAGES_RECIEVED_NONE = 0;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNXR = 0x1;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNER = 0x2;
+static const uint32_t SERVER_MESSAGES_RECIEVED_BNDR = 0x4;
+
 struct Server {
     static const int MAX_PING_HISTORY = 2;
 
@@ -41,6 +46,7 @@ struct Server {
         , gametype(-1)
         , last_query(0)
         , last_contact(0)
+        , messages_received(SERVER_MESSAGES_RECIEVED_NONE)
         , current_ping(0)
     {
         std::fill_n(ping_history, MAX_PING_HISTORY, -1);
@@ -69,12 +75,13 @@ struct Server {
     int gametype;
     uint64_t last_query;
     uint64_t last_contact;
-    ServerMessagesReceived messages_received;
+    uint32_t messages_received;
     int64_t ping_history[MAX_PING_HISTORY];
     int current_ping;
 
     void addPing(int64_t ping);
     int64_t getPing() const;
+    bool isOffline() const;
     QStringList toStringList() const;
 
 

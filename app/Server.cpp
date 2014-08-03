@@ -25,6 +25,10 @@ int64_t Server::getPing() const {
     return sum / MAX_PING_HISTORY;
 }
 
+bool Server::isOffline() const {
+    return module_name == "Offline" || (last_query != 0 && getTickCount() - last_contact > 60000);
+}
+
 QStringList Server::toStringList() const {
     QStringList res;
 

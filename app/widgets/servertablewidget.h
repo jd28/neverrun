@@ -79,6 +79,9 @@ class ServerTableWidget : public QTableView {
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
     ServerTableProxyModel *proxy_model_;
+    void setBNXR();
+    void setBNDR();
+    void setBNERU();
 
     void SetupDialogs();
     void UpdatePlayerCounts();

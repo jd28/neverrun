@@ -27,6 +27,7 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QtEndian>
 #include <QTimer>
 #include <QUdpSocket>
 
@@ -242,12 +243,15 @@ void ServerTableWidget::finished(){
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
-        model_->bindUpdSocket(options_->getClientPort() + 1);
+        model_->bindUpdSocket(options_->getClientPort() + 100);
+        setBNXR();
+        setBNDR();
+        setBNERU();
         connect(model_,SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
         ping_timer_ = new QTimer(this);
         connect(ping_timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
-        ping_timer_->start(1000);
+        ping_timer_->start(50);
 
     }
     else {
@@ -370,5 +374,32 @@ void ServerTableWidget::requestUpdates() {
         return;
 
     model_->requestUpdates();
+}
+
+void ServerTableWidget::setBNXR() {
+    QByteArray bnxi("BNXI");
+    uint16_t p = options_->getClientPort() + 100;
+    char res[2];
+    qToBigEndian(p, (uchar*)&res);
+    bnxi.append(res, 2);
+    model_->setBNXI(bnxi);
+}
+
+void ServerTableWidget::setBNDR() {
+    QByteArray bnxi("BNDS");
+    uint16_t p = options_->getClientPort() + 100;
+    char res[2];
+    qToBigEndian(p, (uchar*)&res);
+    bnxi.append(res, 2);
+    model_->setBNDS(bnxi);
+}
+
+void ServerTableWidget::setBNERU() {
+    QByteArray bnxi("BNES");
+    uint16_t p = options_->getClientPort() + 100;
+    char res[2];
+    qToBigEndian(p, (uchar*)&res);
+    bnxi.append(res, 2);
+    model_->setBNES(bnxi);
 }
 

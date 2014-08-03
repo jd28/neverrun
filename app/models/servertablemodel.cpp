@@ -25,6 +25,7 @@
 #include "servertablemodel.h"
 #include "../widgets/servertablewidget.h"
 #include "../util.h"
+#include "../server.h"
 
 ServerTableModel::ServerTableModel(QObject *parent)
     : QAbstractTableModel(parent) {
@@ -43,28 +44,18 @@ ServerTableModel::ServerTableModel(std::vector<Server> servers, QObject *parent)
 void ServerTableModel::UpdateSevers(const std::vector<Server> &servers) {
     // If we haven't heard from a server for 10 seconds... consider it offline.
     for(auto it = servers_.begin(); it != servers_.end(); ++it) {
-        if ((*it).last_contact == 0 || getTickCount() - (*it).last_contact > 10000) {
-            Server s;
-            s.address = (*it).address;
-            s.online = false;
-            s.server_name = s.address;
-            s.module_name = "Offline";
-            *it = s;
+        if ( (*it).isOffline() ) {
+            (*it).server_name = (*it).address;
+            (*it).module_name = "Offline";
+            (*it).messages_received = SERVER_MESSAGES_RECIEVED_NONE;
+            emit dataChanged(QModelIndex(), QModelIndex());
         }
     }
 
 
     for(size_t i = 0; i < servers.size(); ++i) {
         auto it = server_map_.find(servers[i].address + QString::number(servers[i].port));
-        if(it != server_map_.end()) {
-            if( servers[i].online && servers_[it.value()].module_name == "Offline") {
-                qDebug() << "A server has come online: " << servers[i].module_name;
-                // Replace the whole server entry
-                servers_[it.value()] = servers[i];
-            }
-            servers_[it.value()].online = servers[i].online;
-        }
-        else { // If it's not in the map we got a new server...
+        if(it == server_map_.end()) {
             qDebug() << "Adding server: " << servers[i].address + QString::number(servers[i].port)
                      << " " << servers[i].module_name << " at " << servers_.size();
 
@@ -113,8 +104,6 @@ void ServerTableModel::readDatagrams() {
         udp_socket_->readDatagram(datagram.data(), datagram.size(),
                                   &sender, &senderPort);
 
-        QList<QByteArray> res = datagram.split('\0');
-
         auto it = server_map_.find(sender.toString() + QString::number(senderPort));
         if  (it == server_map_.end()) { continue; }
 
@@ -122,28 +111,10 @@ void ServerTableModel::readDatagrams() {
         servers_[idx].last_contact = getTickCount();
         servers_[idx].addPing(servers_[idx].last_contact - servers_[idx].last_query);
 
-        if ( servers_[idx].online ) {
-            QString p = getPlayerCountFromDatagram(res);
-            int players = p.toInt();
-            if (servers_[idx].cur_players != players) {
-                servers_[idx].cur_players = players;
-            }
-        }
-        else if(res.size() > 19) {
-            qDebug() << "Server coming online: " << servers_[it.value()].address + QString::number(servers_[it.value()].port)
-                    << " " << servers_[it.value()].module_name << " at " << servers_.size();
+        servers_[idx].online = true;
 
-            Server s = getServerFromDatagram(res);
-            s.address = sender.toString();
-            s.port = senderPort;
-            servers_[it.value()] = s;
-            servers_[it.value()].online = true;
-
-        }
-        else {
-            qDebug() << res;
-        }
-        emit dataChanged(QModelIndex(), QModelIndex());
+        if (readPacket(datagram, servers_[idx]))
+            emit dataChanged(QModelIndex(), QModelIndex());
     }
 }
 
@@ -190,7 +161,7 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
         return s.toStringList();
     }
     else if (role == Qt::UserRole + 5 && index.column() == COLUMN_SERVER_NAME) {
-        return s.online;
+        return !s.isOffline();
     }
     else if (role == Qt::UserRole + 6 && index.column() == COLUMN_SERVER_NAME) {
         return s.address;
@@ -268,25 +239,20 @@ void ServerTableModel::bindUpdSocket(int port) {
     connect(udp_socket_, SIGNAL(readyRead()),SLOT(readDatagrams()));
 }
 
-void ServerTableModel::requestUpdate(const QString& address, const int port) {
-    static const char* d = "\xFE\xFD\x00\xE0\xEB\x2D\x0E\x14\x01\x0B\x01\x05\x08\x0A\x33\x34\x35\x13\x04\x36\x37\x38\x39\x14\x3A\x3B\x3C\x3D\x00\x00";
+void ServerTableModel::requestUpdate(const Server& s) {
+    udp_socket_->writeDatagram(bnxi_, QHostAddress(s.address), s.port);
+    if ( (s.messages_received & SERVER_MESSAGES_RECIEVED_BNDR) == 0 ) {
+        udp_socket_->writeDatagram(bnds_, QHostAddress(s.address), s.port);
+    }
 
-    //qDebug() << address << " " << port;
-    udp_socket_->writeDatagram(d, 30, QHostAddress(address), port);
-
+    if ( (s.messages_received & SERVER_MESSAGES_RECIEVED_BNER) == 0 ) {
+        udp_socket_->writeDatagram(bnes_, QHostAddress(s.address), s.port);
+    }
 }
 
 void ServerTableModel::requestUpdates() {
-    Q_ASSERT(current_update_index_ < servers_.size());
-
-    int target = min(current_update_index_ + 10, servers_.size());
-
-    for (int i = current_update_index_; i < target; ++i) {
-        servers_[current_update_index_].last_query = getTickCount();
-        requestUpdate(servers_[current_update_index_].address, servers_[current_update_index_].port);
-        ++current_update_index_;
-    }
-
-    if ( current_update_index_ == servers_.size() )
+    servers_[current_update_index_].last_query = getTickCount();
+    requestUpdate(servers_[current_update_index_]);
+    if ( ++current_update_index_ == servers_.size() )
         current_update_index_ = 0;
 }
