@@ -85,9 +85,15 @@ Qt::ItemFlags ModuleTableModel::flags(const QModelIndex &index) const {
 }
 
 bool ModuleTableModel::insertRows(int position, int rows, const QModelIndex &index) {
+    Q_UNUSED(index);
+    Q_UNUSED(position);
+    Q_UNUSED(rows);
     return false;
 }
 
 bool ModuleTableModel::removeRows(int position, int rows, const QModelIndex &index) {
+    Q_UNUSED(index);
+    Q_UNUSED(position);
+    Q_UNUSED(rows);
     return false;
 }

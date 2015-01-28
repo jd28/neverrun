@@ -170,7 +170,6 @@ bool parseBNDR(const QByteArray &data, Server &s) {
 
     bool updated = false;
     int offset = 6;
-    bool ok;
     QString url;
 
     uint32_t sdesc_size = 0;

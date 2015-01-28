@@ -39,7 +39,6 @@ void Server::reset() {
     password = false;
     local_vault = false;
     pvp = 0;
-    time_t heartbeat;
     online = false;
     one_party = false;;
     homepage = "";
