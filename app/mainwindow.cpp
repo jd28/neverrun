@@ -306,8 +306,6 @@ void MainWindow::onCategoryAdded() {
     auto s = add_category_dlg_->getText();
     int cur = cat_stack_->currentIndex();
 
-    qDebug() << s << " " << cur;
-
     switch(cur) {
     default: return;
     case STACK_INDEX_SERVER:
@@ -458,6 +456,7 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
     HWND hwnd  = (HWND)QGuiApplication::platformNativeInterface()->nativeResourceForWindow(QByteArrayLiteral("handle"),
                                                                                            this->windowHandle());
 
+    qDebug() << "Executing program: " << exe << "\n    Parameters: " << args << "\n    Working Directory: " << dir;
     int result = (int)ShellExecute(hwnd,
                                    NULL,
                                    reinterpret_cast<const WCHAR*>(exe.utf16()),
@@ -517,11 +516,8 @@ QString MainWindow::getDefaultNWNExe() {
 }
 
 void MainWindow::PlayModule(QString module, bool dm) {
-    qDebug() << "Attempting to run NWN";
-
     QStringList arguments;
-    if (dm) { return;
-    }
+    if (dm) { return; }
 
     arguments << "+LoadNewModule"
               << module;
@@ -537,7 +533,6 @@ void MainWindow::PlayModule(QString module, bool dm) {
 void MainWindow::playServer(QString address, QString password, bool dm) {
     if(!isValidServerAddress(address, true)) { return; }
 
-    qDebug() << "Attempting to run NWN";
     options_->addServerToCategory("History", address);
 
     QStringList arguments;
