@@ -229,6 +229,9 @@ bool parseBNER(const QByteArray &data, Server &s) {
     offset += 1;
     if ( size > 0 ) {
         s.server_name = sanitizeName(data.mid(offset, size));
+        if ( s.server_name.length() == 0 ) {
+            s.server_name = "Unnamed Server";
+        }
         updated = true;
     }
 

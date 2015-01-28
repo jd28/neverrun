@@ -154,7 +154,7 @@ static std::vector<Server> GetAllServers(QStringList history){
         serv.module_name = servers->NWGameServer[i]->ModuleName;
         serv.server_name = sanitizeName(servers->NWGameServer[i]->ServerName);
         if (serv.server_name.size() == 0)
-            serv.server_name = "Unamed Server";
+            serv.server_name = "Unnamed Server";
 
         QRegExp rx("(\\:)");
         QStringList query = add.split(rx);
