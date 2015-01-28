@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QByteArray>
+#include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QStackedWidget>
 #include <QDebug>
@@ -223,8 +224,15 @@ bool MainWindow::AddServers() {
 
 void MainWindow::readSettings() {
     QSettings settings(QDir::homePath() + "/.neverrun/neverrun.ini", QSettings::IniFormat);
-    restoreGeometry(settings.value("geometry", saveGeometry()).toByteArray());
-    restoreState(settings.value("windowState", saveState()).toByteArray());
+    QByteArray geom = settings.value("geometry", saveGeometry()).toByteArray();
+    QByteArray state = settings.value("windowState", saveState()).toByteArray();
+    if (geom.length() > 0 ) {
+        restoreGeometry(geom);
+    }
+    else {
+        resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+    }
+    restoreState(state);
 }
 
 void MainWindow::htmlResultReady(const QString &html) {
