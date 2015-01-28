@@ -45,6 +45,7 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     , requested_room_(-1)
     , server_settings_dlg_(new ServerSettingsDialog(this))
     , options_(options)
+    , error_loading_(false)
 {
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -236,9 +237,14 @@ void ServerTableWidget::finished(){
 
     std::vector<Server> res(std::move(watcher_.result()));
     if ( res.size() == 0) {
-        errorMessage("Error loading server list!");
+        if (!error_loading_) {
+            errorMessage("Error loading server list!");
+        }
+        error_loading_ = true;
+        return;
     }
 
+    error_loading_ = false;
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);

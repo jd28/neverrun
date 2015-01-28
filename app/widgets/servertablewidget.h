@@ -80,6 +80,7 @@ class ServerTableWidget : public QTableView {
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
     ServerTableProxyModel *proxy_model_;
+    bool error_loading_;
 
     bool canUpdate();
     void setBNXR();
