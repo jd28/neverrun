@@ -13,7 +13,7 @@ CONFIG += staticlib
 INCLUDEPATH += \
    include
 
-INCLUDEPATH += $(BOOST_ROOT)
+win32:INCLUDEPATH += "$(BOOST_ROOT)/include"
 
 message($(BOOST_ROOT))
 

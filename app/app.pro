@@ -19,7 +19,7 @@ unix {
   CONFIG += link_pkgconfig
 }
 
-win32:INCLUDEPATH += $(BOOST_ROOT)
+win32:INCLUDEPATH += "$(BOOST_ROOT)/include"
 
 SOURCES += main.cpp\
     mainwindow.cpp \
