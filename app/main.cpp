@@ -24,7 +24,32 @@
 #include "options.h"
 #include "widgets/setdmpassworddialog.h"
 
+QFile log_file;
+
+void log(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    QByteArray localMsg = msg.toLocal8Bit();
+    QTextStream stream(&log_file);
+    switch (type) {
+    case QtDebugMsg:
+        stream << msg << "\n";
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        abort();
+    }
+}
+
 int main(int argc, char *argv[]) {
+    log_file.setFileName("neverrun.log");
+    log_file.open(QFile::WriteOnly);
+    qInstallMessageHandler(log);
+
     QApplication a(argc, argv);
 
     // Prerequisite for the Fervor updater
