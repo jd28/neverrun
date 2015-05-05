@@ -288,6 +288,18 @@ void Options::removeUserName(const QString &name) {
     usernames_.removeAll(name);
 }
 
+QStringList Options::getBlacklist() {
+    return blacklist_;
+}
+
+void Options::addToBlacklist(const QString &ip)
+{
+    if ( blacklist_.contains(ip) ) {
+        return;
+    }
+    blacklist_ << ip;
+}
+
 void Options::setCurrentUserName(QString un) {
      current_username_ = un;
      QSettings nwn_settings(m_NWN_path + "/nwnplayer.ini", QSettings::IniFormat);
@@ -544,6 +556,13 @@ void Options::readSettings()
     }
     settings.endArray();
 
+    size = settings.beginReadArray("Blacklist");
+    for(int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        blacklist_ << settings.value("ip").toString();
+    }
+    settings.endArray();
+
     QStringList cats;
     size = settings.beginReadArray("ServerCategories");
     for(int i = 0; i < size; ++i) {
@@ -691,6 +710,13 @@ void Options::writeSettings()
     for(int i = 0; i < usernames_.size(); ++i) {
         settings.setArrayIndex(i);
         settings.setValue("name", usernames_[i]);
+    }
+    settings.endArray();
+
+    settings.beginWriteArray("Blacklist", blacklist_.size());
+    for(int i = 0; i < blacklist_.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("ip", blacklist_[i]);
     }
     settings.endArray();
 

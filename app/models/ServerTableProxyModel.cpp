@@ -24,3 +24,9 @@ void ServerTableProxyModel::SetServerAddressFilter(const QStringList &ips) {
     invalidateFilter();
 }
 
+void ServerTableProxyModel::SetServerBlacklist(const QStringList &ips)
+{
+    blacklist_ = ips;
+    invalidateFilter();
+}
+

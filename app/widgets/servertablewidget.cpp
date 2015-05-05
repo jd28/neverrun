@@ -91,6 +91,9 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     connect(server_settings_dlg_, SIGNAL(accepted()), SLOT(onSettingsChanged()));
 
+    act_blacklist_ = new QAction("Blacklist", this);
+    connect(act_blacklist_, SIGNAL(triggered()), SLOT(onBlacklist()));
+
     SetupDialogs();
 }
 
@@ -109,6 +112,15 @@ void ServerTableWidget::onRemoveFromCat() {
     QString address = model()->data(idx, Qt::UserRole + 3).toString();
     options_->removeServerFromCategory(current_cat_, address);
     SetServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
+}
+
+void ServerTableWidget::onBlacklist() {
+    auto selections = selectedIndexes();
+    if (selections.size() == 0) { return; }
+    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
+    QString address = model()->data(idx, Qt::UserRole + 6).toString();
+    options_->addToBlacklist(address);
+    proxy_model_->SetServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::SetupDialogs() {
@@ -248,6 +260,7 @@ void ServerTableWidget::finished(){
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
+        pm->SetServerBlacklist(options_->getBlacklist());
         model_->bindUpdSocket(options_->getClientPort() + 100);
         setBNXR();
         setBNDR();
@@ -347,11 +360,14 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
 
     menu.addAction(act_add_to_);
     menu.addAction(act_remove_from_);
+
     if(current_cat_.size() > 0) {
         act_remove_from_cat_->setText("Remove from " + current_cat_);
         menu.addAction(act_remove_from_cat_);
     }
 
+    menu.addSeparator();
+    menu.addAction(act_blacklist_);
     menu.addSeparator();
     menu.addAction(act_settings_);
 

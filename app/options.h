@@ -150,6 +150,8 @@ public:
     void removeModuleCategory(const QString &cat);
     void removeModuleFromCategory(const QString& cat, const QString& addr);
     void removeUserName(const QString& name);
+    QStringList getBlacklist();
+    void addToBlacklist(const QString& ip);
 
 private:
     QFont font;
@@ -176,6 +178,7 @@ private:
     QString current_username_;
     QStringList usernames_;
     QStringList direct_connect_;
+    QStringList blacklist_;
     QMap<QString, QStringList> server_categories_;
     QMap<QString, QStringList> module_categories_;
     QMap<QString, QString> password_dm_;

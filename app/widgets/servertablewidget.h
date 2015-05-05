@@ -72,6 +72,7 @@ class ServerTableWidget : public QTableView {
     QAction *act_remove_from_;
     QAction *act_remove_from_cat_;
     QAction *act_settings_;
+    QAction *act_blacklist_;
     QFutureWatcher<std::vector<Server>> watcher_;
     QString current_cat_;
     QTimer *timer_;
@@ -123,6 +124,7 @@ private slots:
     void requestChangeServerSettings();
     void requestUpdates();
     void sweepOfflineServers();
+    void onBlacklist();
 
 };
 
