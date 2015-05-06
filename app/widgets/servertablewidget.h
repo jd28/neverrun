@@ -98,6 +98,7 @@ public:
     void LoadServers(int room, bool force = false);
     const ServerTableModel *getServerTableModel() const;
     void SetServerAddressFilter(const QStringList &ips, const QString &cat);
+    void updateBlacklist();
 
 signals:
     void PasswordChanged(QString address, QString pass, bool is_dm);

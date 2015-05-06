@@ -55,6 +55,7 @@
 #include "widgets/listselectiondialog.h"
 #include "widgets/usernamebutton.h"
 #include "widgets/directconnectdialog.h"
+#include "widgets/neverrun_settings.h"
 
 #include "models/moduletablemodel.h"
 #include "widgets/setdmpassworddialog.h"
@@ -480,14 +481,15 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
 }
 
 void MainWindow::launchToolset() {
-    QString exe;
+    QString exe = options_->getDefaultToolset();
+    if(exe.size() == 0 || !QFile(exe).exists()) {
 #if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNTX Loader.exe");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNTX Loader.exe");
 
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwtoolset.exe");
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(options_->m_NWN_path + "/nwtoolset.exe");
 #endif
-
+    }
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
@@ -511,14 +513,16 @@ void MainWindow::launchDMClient() {
 }
 
 QString MainWindow::getDefaultNWNExe() {
-    QString exe;
+    QString exe = options_->getDefaultLoader();
+    if(exe.size() == 0 || !QFile(exe).exists()) {
 #ifdef Q_OS_WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
 #elif Q_OS_LINUX
-    exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
 #endif
+    }
 
     return exe;
 }
@@ -843,10 +847,6 @@ QPushButton * MainWindow::createSettingsButton() {
     connect(act, SIGNAL(triggered()), SLOT(launchDMClient()));
     settings_button_menu_->addAction(act);
 
-    act = new QAction("Configure NWN", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
-    settings_button_menu_->addAction(act);
-
     settings_button_menu_->addSeparator();
 
     act = new QAction("Check for updates...", settings_button_menu_);
@@ -892,5 +892,10 @@ void MainWindow::about() {
 }
 
 void MainWindow::openSettings() {
-    errorMessage("Not yet implemented...");
+    int bl_size = options_->getBlacklist().size();
+    NeverrunSettingsDialog dlg(options_, this);
+    dlg.exec();
+    if (bl_size != options_->getBlacklist().size()) {
+        server_table_widget_->updateBlacklist();
+    }
 }

@@ -20,8 +20,9 @@
 #include <QDir>
 #include <QSettings>
 #include <QStringList>
-
+#include <boost/property_tree/ini_parser.hpp>
 #include "options.h"
+#include "util.h"
 
 static const char* MARKDOWN_CONVERTER = "general/converter";
 static const char* FONT_FAMILY_DEFAULT = "Monospace";
@@ -186,33 +187,6 @@ void Options::setProxyPassword(const QString &password)
     m_proxyPassword = password;
 }
 
-static bool FileConvert20ToSpace(QString filename) {
-    QFile file;
-    file.setFileName(filename);
-    if (file.open(QIODevice::ReadWrite) == false)
-        return false;
-
-    QList<QByteArray> bytearrayList;
-    while(!file.atEnd()) {
-        QByteArray line = file.readLine();
-        line.replace("%20", " ");
-        bytearrayList.append(line);
-    }
-    file.close();
-    QFile savefile;
-    savefile.setFileName(filename);
-    if (savefile.open(QIODevice::WriteOnly) == false)
-        return false;
-
-    while(!bytearrayList.empty()) {
-        QByteArray &line = bytearrayList.front();
-        savefile.write(line);
-        bytearrayList.pop_front();
-    }
-    savefile.close();
-    return true;
-}
-
 void Options::addDirectConnect(const QString& addr) {
     if(addr.size() == 0) { return; }
     direct_connect_.removeAll(addr);
@@ -298,6 +272,10 @@ void Options::addToBlacklist(const QString &ip)
         return;
     }
     blacklist_ << ip;
+}
+
+void Options::removeFromBlacklist(const QString &ip) {
+    blacklist_.removeAll(ip);
 }
 
 void Options::setCurrentUserName(QString un) {
@@ -521,6 +499,33 @@ void Options::readSettings()
     m_showSpecialCharactersEnabled = settings.value(SHOWSPECIALCHARACTERS_ENABLED, false).toBool();
     m_wordWrapEnabled = settings.value(WORDWRAP_ENABLED, true).toBool();
 
+    update_background_ = settings.value("general/update_background", false).toBool();
+
+    default_loader_ = settings.value("general/default_loader", "").toString();
+    if(default_loader_.size() == 0) {
+        QString exe;
+#ifdef Q_OS_WIN32
+        exe = QDir::cleanPath(m_NWN_path + "/NWNCX_Loader.exe");
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(m_NWN_path + "/nwmain.exe");
+#elif Q_OS_LINUX
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
+#endif
+        default_loader_ = exe;
+    }
+
+    default_toolset_ = settings.value("general/default_toolset", "").toString();
+    if(default_toolset_.size() == 0) {
+        QString exe;
+#if _WIN32
+        exe = QDir::cleanPath(m_NWN_path + "/NWNCdsafafX_Loader.exe");
+
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(m_NWN_path + "/nwtoolset.exe");
+#endif
+        default_toolset_ = exe;
+    }
+
     settings.beginGroup("DMPasswords");
     QStringList keys = settings.allKeys();
     foreach (QString key, keys) {
@@ -679,6 +684,9 @@ void Options::writeSettings()
     settings.setValue(SHOWSPECIALCHARACTERS_ENABLED, m_showSpecialCharactersEnabled);
     settings.setValue(WORDWRAP_ENABLED, m_wordWrapEnabled);
 
+    settings.setValue("general/update_background", update_background_);
+    settings.setValue("general/default_loader", default_loader_);
+    settings.setValue("general/default_toolset", default_toolset_);
 
     settings.beginGroup("DMPasswords");
     for (auto it = password_dm_.constBegin(); it != password_dm_.constEnd(); ++it) {

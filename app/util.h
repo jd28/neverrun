@@ -37,5 +37,9 @@ bool parseBNER(const QByteArray& data, Server& s);
 bool parseBNXR(const QByteArray& data, Server& s);
 bool readPacket(const QByteArray& data, Server& s);
 uint64_t getTickCount();
-
+bool FileConvert20ToSpace(QString filename);
+QColor getBackgroundColor(const QColor& c);
+QString getBackgroundColorSS(const QColor& color);
+QString getBackgroundColorText(const QColor& color);
+QColor getBackgroundColorFromString(const QString &col);
 #endif // UTIL_H

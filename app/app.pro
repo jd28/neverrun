@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     widgets/serverinfowidget.cpp \
     widgets/directconnectdialog.cpp \
     util.cpp \
-    Server.cpp
+    Server.cpp \
+    widgets/neverrun_settings.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
@@ -76,7 +77,8 @@ HEADERS  += mainwindow.h \
     widgets/serversettings.h \
     util.h \
     widgets/serverinfowidget.h \
-    widgets/directconnectdialog.h
+    widgets/directconnectdialog.h \
+    widgets/neverrun_settings.h
 
 RESOURCES += \
     qdarkstyle/style.qrc
@@ -131,4 +133,5 @@ FORMS += \
     widgets/listselectiondialog.ui \
     widgets/serversettings.ui \
     widgets/serverinfowidget.ui \
-    widgets/directconnectdialog.ui
+    widgets/directconnectdialog.ui \
+    widgets/neverrun_settings.ui

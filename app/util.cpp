@@ -1,4 +1,6 @@
 #include <QMessageBox>
+#include <QColorDialog>
+#include <QFile>
 #include <qt_windows.h>
 
 #include "util.h"
@@ -266,4 +268,53 @@ bool parseBNXR(const QByteArray &data, Server &s) {
 
     return updated;
 #undef S
+}
+
+bool FileConvert20ToSpace(QString filename) {
+    QFile file;
+    file.setFileName(filename);
+    if (file.open(QIODevice::ReadWrite) == false)
+        return false;
+
+    QList<QByteArray> bytearrayList;
+    while(!file.atEnd()) {
+        QByteArray line = file.readLine();
+        line.replace("%20", " ");
+        bytearrayList.append(line);
+    }
+    file.close();
+    QFile savefile;
+    savefile.setFileName(filename);
+    if (savefile.open(QIODevice::WriteOnly) == false)
+        return false;
+
+    while(!bytearrayList.empty()) {
+        QByteArray &line = bytearrayList.front();
+        savefile.write(line);
+        bytearrayList.pop_front();
+    }
+    savefile.close();
+    return true;
+}
+
+QColor getBackgroundColor(const QColor& c) {
+    QColorDialog dlg;
+    QColor color = dlg.getColor(c);
+    return color;
+}
+
+QString getBackgroundColorSS(const QColor& color) {
+    return QString("background-color: #%1").arg(color.rgb(), 1, 16);
+}
+
+QString getBackgroundColorText(const QColor& color) {
+    return QString("%1,%2,%3").arg(QString::number(color.red()),
+                                   QString::number(color.green()),
+                                   QString::number(color.blue()));
+}
+
+
+QColor getBackgroundColorFromString(const QString& col) {
+    QStringList cs = col.split(',');
+    return QColor(cs[0].toInt(), cs[1].toInt(), cs[2].toInt());
 }

@@ -91,7 +91,7 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     connect(server_settings_dlg_, SIGNAL(accepted()), SLOT(onSettingsChanged()));
 
-    act_blacklist_ = new QAction("Blacklist", this);
+    act_blacklist_ = new QAction("Hide IP Address", this);
     connect(act_blacklist_, SIGNAL(triggered()), SLOT(onBlacklist()));
 
     SetupDialogs();
@@ -227,7 +227,7 @@ static std::vector<Server> GetAllServers(QStringList history){
 }
 
 void ServerTableWidget::GetServerList(int room, bool force) {
-    if(!force && !isVisible()) { return; }
+    if(!options_->getUpdateBackground() && !force && !isVisible()) { return; }
     requested_room_ = room;
     QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, options_->getCategoryIPs("History"));
     connect(&watcher_, SIGNAL(finished()), this, SLOT(finished()));
@@ -301,6 +301,10 @@ void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
 
 bool ServerTableWidget::canUpdate() {
     static bool locked = false;
+    if(options_->getUpdateBackground()) {
+        locked = false;
+        return true;
+    }
     if ( !isVisible() || !isActiveWindow() || parentWidget()->isMinimized()) {
         locked = true;
         return false;
@@ -407,6 +411,10 @@ void ServerTableWidget::requestChangeServerSettings() {
 void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
     current_cat_ = cat;
     proxy_model_->SetServerAddressFilter(ips);
+}
+
+void ServerTableWidget::updateBlacklist() {
+    proxy_model_->SetServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::requestUpdates() {
