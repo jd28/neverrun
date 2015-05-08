@@ -120,7 +120,7 @@ void ServerTableWidget::onBlacklist() {
     auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
     QString address = model()->data(idx, Qt::UserRole + 6).toString();
     options_->addToBlacklist(address);
-    proxy_model_->SetServerBlacklist(options_->getBlacklist());
+    proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::SetupDialogs() {
@@ -260,7 +260,7 @@ void ServerTableWidget::finished(){
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
-        pm->SetServerBlacklist(options_->getBlacklist());
+        pm->setServerBlacklist(options_->getBlacklist());
         model_->bindUpdSocket(options_->getClientPort() + 100);
         setBNXR();
         setBNDR();
@@ -410,11 +410,11 @@ void ServerTableWidget::requestChangeServerSettings() {
 
 void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
     current_cat_ = cat;
-    proxy_model_->SetServerAddressFilter(ips);
+    proxy_model_->setServerAddressFilter(ips);
 }
 
 void ServerTableWidget::updateBlacklist() {
-    proxy_model_->SetServerBlacklist(options_->getBlacklist());
+    proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::requestUpdates() {

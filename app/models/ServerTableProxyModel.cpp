@@ -19,12 +19,12 @@
 
 #include "ServerTableProxyModel.h"
 
-void ServerTableProxyModel::SetServerAddressFilter(const QStringList &ips) {
+void ServerTableProxyModel::setServerAddressFilter(const QStringList &ips) {
     ip_filter_ = ips;
     invalidateFilter();
 }
 
-void ServerTableProxyModel::SetServerBlacklist(const QStringList &ips)
+void ServerTableProxyModel::setServerBlacklist(const QStringList &ips)
 {
     blacklist_ = ips;
     invalidateFilter();

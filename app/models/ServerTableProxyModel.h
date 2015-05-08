@@ -97,8 +97,8 @@ public:
 
     void resetFilter() { invalidateFilter(); }
 
-    void SetServerAddressFilter(const QStringList& ips);
-    void SetServerBlacklist(const QStringList& ips);
+    void setServerAddressFilter(const QStringList& ips);
+    void setServerBlacklist(const QStringList& ips);
 private:
     QStringList ip_filter_;
     QStringList blacklist_;
