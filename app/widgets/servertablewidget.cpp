@@ -238,6 +238,7 @@ void ServerTableWidget::LoadServers(int room, bool force) {
     if (model_->rowCount(QModelIndex()) > 0) {
         ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
         pm->setCurrentRoom(room);
+        model_->setCurrentRoom(room);
         return;
     }
     GetServerList(-1, force);
@@ -410,6 +411,7 @@ void ServerTableWidget::requestChangeServerSettings() {
 
 void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
     current_cat_ = cat;
+    model_->setServerAddressFilter(ips);
     proxy_model_->setServerAddressFilter(ips);
 }
 

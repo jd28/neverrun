@@ -69,6 +69,8 @@ public:
     void setBNES(const QByteArray& bnes) { bnes_ = bnes; }
     void setLastActive(int64_t last_active) { last_active_ = last_active; }
     void sweepOfflineServers();
+    void setServerAddressFilter(const QStringList& ips);
+    void setCurrentRoom(int room) { current_room_ = room; }
 
 public slots:
     void addServer(const QString &addr);
@@ -86,6 +88,8 @@ private:
     QByteArray bnds_;
     QByteArray bnes_;
     int64_t last_active_;
+    QStringList ip_filter_;
+    int current_room_;
 };
 
 #endif // SERVERTABLEMODEL_H
