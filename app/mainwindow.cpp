@@ -378,6 +378,14 @@ void MainWindow::requestDirectConnect() {
     direct_connect_dlg_->show();
 }
 
+void MainWindow::launchBiowareForums() {
+    QDesktopServices::openUrl(QUrl("http://forum.bioware.com/forum/43-neverwinter-nights/"));
+}
+
+void MainWindow::launchNeverwinterVault() {
+    QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
+}
+
 void MainWindow::HandleServerSelectionChange(QModelIndex current, QModelIndex previous) {
     Q_UNUSED(previous);
     if(!current.isValid()) { return; }
@@ -846,6 +854,17 @@ QPushButton * MainWindow::createSettingsButton() {
     act->setShortcut(Qt::Key_D | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchDMClient()));
     settings_button_menu_->addAction(act);
+    settings_button_menu_->addSeparator();
+
+    QMenu *community_menu = new QMenu("Community", this);
+    act = new QAction("Neverwinter Vault", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNeverwinterVault()));
+    community_menu->addAction(act);
+    act = new QAction("Bioware Forums", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchBiowareForums()));
+    community_menu->addAction(act);
+    settings_button_menu_->addMenu(community_menu);
+
 
     settings_button_menu_->addSeparator();
 

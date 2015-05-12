@@ -119,6 +119,8 @@ private slots:
     void runUpdater();
     void switchStack();
     void requestDirectConnect();
+    void launchBiowareForums();
+    void launchNeverwinterVault();
 
 public slots:
     void addServer(QString addr);
