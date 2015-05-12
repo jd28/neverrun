@@ -121,6 +121,9 @@ private slots:
     void requestDirectConnect();
     void launchBiowareForums();
     void launchNeverwinterVault();
+    void launchNWNLexicon();
+    void launchNWNWiki();
+    void launchGOGForums();
 
 public slots:
     void addServer(QString addr);

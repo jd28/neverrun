@@ -386,6 +386,18 @@ void MainWindow::launchNeverwinterVault() {
     QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
 }
 
+void MainWindow::launchNWNLexicon() {
+    QDesktopServices::openUrl(QUrl("http://www.nwnlexicon.com/"));
+}
+
+void MainWindow::launchNWNWiki() {
+    QDesktopServices::openUrl(QUrl("http://nwn.wikia.com/wiki/Main_Page"));
+}
+
+void MainWindow::launchGOGForums() {
+    QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
+}
+
 void MainWindow::HandleServerSelectionChange(QModelIndex current, QModelIndex previous) {
     Q_UNUSED(previous);
     if(!current.isValid()) { return; }
@@ -857,11 +869,20 @@ QPushButton * MainWindow::createSettingsButton() {
     settings_button_menu_->addSeparator();
 
     QMenu *community_menu = new QMenu("Community", this);
+    act = new QAction("Bioware Forums", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchBiowareForums()));
+    community_menu->addAction(act);
+    act = new QAction("GOG NWN Forums", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchGOGForums()));
+    community_menu->addAction(act);
     act = new QAction("Neverwinter Vault", community_menu);
     connect(act, SIGNAL(triggered()), SLOT(launchNeverwinterVault()));
     community_menu->addAction(act);
-    act = new QAction("Bioware Forums", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchBiowareForums()));
+    act = new QAction("NWN Lexicon", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNWNLexicon()));
+    community_menu->addAction(act);
+    act = new QAction("NWN Wiki", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNWNWiki()));
     community_menu->addAction(act);
     settings_button_menu_->addMenu(community_menu);
 
