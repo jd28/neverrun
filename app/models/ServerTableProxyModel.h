@@ -29,12 +29,14 @@
 
 class ServerTableProxyModel : public QSortFilterProxyModel {
     int current_room_;
+    QStringList ip_filter_;
+    QStringList blacklist_;
+
 public:
     ServerTableProxyModel(QObject *parent)
-        : QSortFilterProxyModel(parent)
-    {
-        current_room_ = -1;
-    }
+        : current_room_(-1),
+          QSortFilterProxyModel(parent)
+    {}
 
     void reset() { resetInternalData(); }
 
@@ -99,10 +101,6 @@ public:
 
     void setServerAddressFilter(const QStringList& ips);
     void setServerBlacklist(const QStringList& ips);
-private:
-    QStringList ip_filter_;
-    QStringList blacklist_;
-
 };
 
 

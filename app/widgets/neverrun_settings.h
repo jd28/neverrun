@@ -2,7 +2,9 @@
 #define NeverrunSettingsDIALOG_H
 
 #include <QDialog>
+#ifndef Q_MOC_RUN
 #include <boost/property_tree/ini_parser.hpp>
+#endif
 
 class QMessageBox;
 class QSettings;
@@ -48,11 +50,11 @@ private slots:
     void on_cppDisableSpellSlotsInPolymorphHook_toggled(bool checked);
 
     void on_nrUpdateInBackground_toggled(bool checked);
+    void on_nrBlacklistRemoveBtn_clicked();
 
     void on_nwnShoutColorBtn_clicked();
     void on_nwnFriendlyColorBtn_clicked();
     void on_nwnHostileColorBtn_clicked();
-    void on_nrBlacklistRemoveBtn_clicked();
     void on_nwnTalkColorBtn_clicked();
     void on_nwnTellColorBtn_clicked();
     void on_nwnWhisperColorBtn_clicked();
@@ -71,9 +73,7 @@ private slots:
     void on_nwnDisableIntroMovies_toggled(bool checked);
     void on_nwnEnameDialogZoom_toggled(bool checked);
     void on_nwnEnableScreenEdgeCameraTurn_toggled(bool checked);
-
     void on_nwnPatchAddBtn_clicked();
-
     void on_nwnPatchRemoveBtn_clicked();
 
 private:
