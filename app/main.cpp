@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     QApplication::setOrganizationName("neverrun");
     QApplication::setOrganizationDomain("none");
     QApplication::setApplicationName("neverrun");
-    QApplication::setApplicationVersion("0.5");
+    QApplication::setApplicationVersion("0.6");
 
     auto runFirst = [&argc, &argv, &a] () {
         log_file.setFileName("neverrun.log");
