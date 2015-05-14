@@ -46,7 +46,9 @@ SOURCES += main.cpp\
     widgets/directconnectdialog.cpp \
     util.cpp \
     Server.cpp \
-    widgets/neverrun_settings.cpp
+    widgets/neverrun_settings.cpp \
+    SingleApplication/long-lived-lock-file.cpp \
+    SingleApplication/single-application.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
@@ -78,7 +80,9 @@ HEADERS  += mainwindow.h \
     util.h \
     widgets/serverinfowidget.h \
     widgets/directconnectdialog.h \
-    widgets/neverrun_settings.h
+    widgets/neverrun_settings.h \
+    SingleApplication/long-lived-lock-file.h \
+    SingleApplication/single-application.h
 
 RESOURCES += \
     qdarkstyle/style.qrc

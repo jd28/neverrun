@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "options.h"
 #include "widgets/setdmpassworddialog.h"
+#include "SingleApplication/single-application.h"
 
 QFile log_file;
 
@@ -46,43 +47,52 @@ void log(QtMsgType type, const QMessageLogContext &context, const QString &msg) 
 }
 
 int main(int argc, char *argv[]) {
-    log_file.setFileName("neverrun.log");
-    log_file.open(QFile::WriteOnly);
-    qInstallMessageHandler(log);
-
     QApplication a(argc, argv);
-
     // Prerequisite for the Fervor updater
     QApplication::setOrganizationName("neverrun");
     QApplication::setOrganizationDomain("none");
     QApplication::setApplicationName("neverrun");
     QApplication::setApplicationVersion("0.5");
 
-    QFile f(":/qdarkstyle/style.qss");
-    f.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(f.readAll());
-    a.setStyleSheet(styleSheet);
+    auto runFirst = [&argc, &argv, &a] () {
+        log_file.setFileName("neverrun.log");
+        log_file.open(QFile::WriteOnly);
+        qInstallMessageHandler(log);
 
-    MainWindow w;
-    w.readSettings();
+        QFile f(":/qdarkstyle/style.qss");
+        f.open(QFile::ReadOnly);
+        QString styleSheet = QLatin1String(f.readAll());
+        a.setStyleSheet(styleSheet);
 
-#ifndef QT_DEBUG
-    auto updater = new FvUpdater();
-    w.setUpdater(updater);
+        MainWindow w;
+        w.readSettings();
 
-    // Set feed URL before doing anything else
-    updater->SetFeedURL("https://raw.githubusercontent.com/jd28/neverrun/master/appcast_neverrun.xml");
-    // Finish Up old Updates
-    updater->finishUpdate();
+    #ifndef QT_DEBUG
+        auto updater = new FvUpdater();
+        w.setUpdater(updater);
 
-    // Check for updates automatically
-    updater->CheckForUpdatesSilent();
-#endif
+        // Set feed URL before doing anything else
+        updater->SetFeedURL("https://raw.githubusercontent.com/jd28/neverrun/master/appcast_neverrun.xml");
+        // Finish Up old Updates
+        updater->finishUpdate();
 
-    if(!w.AddServers()){
-        qDebug() << "Failed to load servers...";
-    }
-    w.show();
+        // Check for updates automatically
+        updater->CheckForUpdatesSilent();
+    #endif
 
-    return a.exec();
+        if(!w.AddServers()){
+            qDebug() << "Failed to load servers...";
+        }
+        w.show();
+
+        a.exec();
+    };
+
+    SingleApplication app(
+                "neverrun",
+                runFirst,
+                [](SingleApplication &) -> void { return; },
+                [](const QString& s) { qDebug() << s; });
+
+
 }
