@@ -72,6 +72,7 @@ class ServerTableWidget : public QTableView {
     QAction *act_remove_from_;
     QAction *act_remove_from_cat_;
     QAction *act_settings_;
+    QAction *act_blacklist_;
     QFutureWatcher<std::vector<Server>> watcher_;
     QString current_cat_;
     QTimer *timer_;
@@ -80,6 +81,7 @@ class ServerTableWidget : public QTableView {
     ServerSettingsDialog *server_settings_dlg_;
     ServerTableModel *model_;
     ServerTableProxyModel *proxy_model_;
+    bool error_loading_;
 
     bool canUpdate();
     void setBNXR();
@@ -96,6 +98,7 @@ public:
     void LoadServers(int room, bool force = false);
     const ServerTableModel *getServerTableModel() const;
     void SetServerAddressFilter(const QStringList &ips, const QString &cat);
+    void updateBlacklist();
 
 signals:
     void PasswordChanged(QString address, QString pass, bool is_dm);
@@ -122,6 +125,7 @@ private slots:
     void requestChangeServerSettings();
     void requestUpdates();
     void sweepOfflineServers();
+    void onBlacklist();
 
 };
 

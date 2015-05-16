@@ -248,6 +248,10 @@ void ServerTableModel::sweepOfflineServers() {
 
 }
 
+void ServerTableModel::setServerAddressFilter(const QStringList &ips) {
+    ip_filter_ = ips;
+}
+
 void ServerTableModel::bindUpdSocket(int port) {
     udp_socket_ = new QUdpSocket(this);
     bool res = udp_socket_->bind(port);
@@ -267,8 +271,20 @@ void ServerTableModel::requestUpdate(const Server& s) {
 }
 
 void ServerTableModel::requestUpdates() {
-    servers_[current_update_index_].last_query = getTickCount();
-    requestUpdate(servers_[current_update_index_]);
-    if ( ++current_update_index_ == servers_.size() )
+    if ( current_update_index_ == servers_.size() )
         current_update_index_ = 0;
+    Server& s = servers_[current_update_index_];
+    QString add = s.address + ":" + QString::number(s.port);
+    if(ip_filter_.size() > 0 && !ip_filter_.contains(add)) {
+        //qDebug() << "Skipping: " << add << " not on IP Filter List";
+    }
+    else if (current_room_ >= 0 && current_room_ != s.gametype) {
+        //qDebug() << "Skipping: " << add << " not correct gametype.";
+    }
+    else {
+        servers_[current_update_index_].last_query = getTickCount();
+        requestUpdate(servers_[current_update_index_]);
+    }
+
+    ++current_update_index_;
 }

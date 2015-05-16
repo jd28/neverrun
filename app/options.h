@@ -122,7 +122,6 @@ public:
     QString getServerUpdater(const QString &addr) const;
     void setServerUpdater(const QString &addr, const QString& file);
 
-
     QStringList getCategoriesFromServer(const QString& address);
     QStringList getCategoriesFromModule(const QString& mod);
 signals:
@@ -135,6 +134,7 @@ public:
     QString player_name;
     QString m_NWN_path;
 
+    QString getNWNPath() { return m_NWN_path; }
     void addDirectConnect(const QString &addr);
     QString getPassword(QString address, bool is_dm) const;
     QStringList getCategoryIPs(const QString &cat) const;
@@ -150,6 +150,17 @@ public:
     void removeModuleCategory(const QString &cat);
     void removeModuleFromCategory(const QString& cat, const QString& addr);
     void removeUserName(const QString& name);
+    QStringList getBlacklist();
+    void addToBlacklist(const QString& ip);
+    void removeFromBlacklist(const QString& ip);
+
+    QString getDefaultLoader() { return default_loader_; }
+    QString getDefaultToolset() { return default_toolset_; }
+    void setDefaultLoader(const QString& val) { default_loader_ = val; }
+    void setDefaultToolset(const QString& val) { default_toolset_ = val; }
+
+    bool getUpdateBackground() { return update_background_; }
+    void setUpdateBackground(bool val) { update_background_ = val; }
 
 private:
     QFont font;
@@ -176,6 +187,7 @@ private:
     QString current_username_;
     QStringList usernames_;
     QStringList direct_connect_;
+    QStringList blacklist_;
     QMap<QString, QStringList> server_categories_;
     QMap<QString, QStringList> module_categories_;
     QMap<QString, QString> password_dm_;
@@ -183,6 +195,10 @@ private:
     QMap<QString, QString> server_loader_;
     QMap<QString, QString> server_updater_;
     int client_port_;
+
+    QString default_loader_;
+    QString default_toolset_;
+    bool update_background_;
 
 };
 

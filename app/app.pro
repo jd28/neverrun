@@ -19,7 +19,7 @@ unix {
   CONFIG += link_pkgconfig
 }
 
-win32:INCLUDEPATH += $(BOOST_ROOT)
+win32:INCLUDEPATH += "$(BOOST_ROOT)/include"
 
 SOURCES += main.cpp\
     mainwindow.cpp \
@@ -45,7 +45,10 @@ SOURCES += main.cpp\
     widgets/serverinfowidget.cpp \
     widgets/directconnectdialog.cpp \
     util.cpp \
-    Server.cpp
+    Server.cpp \
+    widgets/neverrun_settings.cpp \
+    SingleApplication/long-lived-lock-file.cpp \
+    SingleApplication/single-application.cpp
 
 HEADERS  += mainwindow.h \
     soap/soapH.h \
@@ -76,7 +79,10 @@ HEADERS  += mainwindow.h \
     widgets/serversettings.h \
     util.h \
     widgets/serverinfowidget.h \
-    widgets/directconnectdialog.h
+    widgets/directconnectdialog.h \
+    widgets/neverrun_settings.h \
+    SingleApplication/long-lived-lock-file.h \
+    SingleApplication/single-application.h
 
 RESOURCES += \
     qdarkstyle/style.qrc
@@ -131,4 +137,5 @@ FORMS += \
     widgets/listselectiondialog.ui \
     widgets/serversettings.ui \
     widgets/serverinfowidget.ui \
-    widgets/directconnectdialog.ui
+    widgets/directconnectdialog.ui \
+    widgets/neverrun_settings.ui

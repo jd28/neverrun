@@ -73,7 +73,7 @@ void ServerSettingsDialog::setUpdater(const QString &l) {
 
 void ServerSettingsDialog::openLoaderDialog() {
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Set Custom Loader", ".", "Executables (*.exe *bat)");
+                                                    "Set Custom Loader", ".", "Executables (*.exe *.bat)");
     ui->loader->setText(fileName);
 }
 

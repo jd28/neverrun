@@ -29,12 +29,14 @@
 
 class ServerTableProxyModel : public QSortFilterProxyModel {
     int current_room_;
+    QStringList ip_filter_;
+    QStringList blacklist_;
+
 public:
     ServerTableProxyModel(QObject *parent)
-        : QSortFilterProxyModel(parent)
-    {
-        current_room_ = -1;
-    }
+        : current_room_(-1),
+          QSortFilterProxyModel(parent)
+    {}
 
     void reset() { resetInternalData(); }
 
@@ -77,24 +79,28 @@ public:
     bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const {
         QModelIndex i = sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent);
         bool online = sourceModel()->data(i, Qt::UserRole + 5).toBool();
+        QString address = sourceModel()->data(i, Qt::UserRole + 3).toString();
+        QString ip = sourceModel()->data(i, Qt::UserRole + 6).toString();
+        if(blacklist_.contains(ip)) {
+            return false;
+        }
         if (current_room_ == -3) {
-            return ip_filter_.contains(sourceModel()->data(i, Qt::UserRole + 3).toString());
+            return ip_filter_.contains(address);
         }
         else if (current_room_ == -2) {
-            return ip_filter_.contains(sourceModel()->data(i, Qt::UserRole + 3).toString()) && online;
+            return ip_filter_.contains(address) && online;
         }
         else if (current_room_ == -1) {
             return online;
         }
-        return online && sourceModel()->data(sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent), Qt::UserRole + 1).toInt() == current_room_;
+        return online && sourceModel()->data(sourceModel()->index(source_row, ServerTableModel::COLUMN_SERVER_NAME, source_parent),
+                                             Qt::UserRole + 1).toInt() == current_room_;
     }
 
     void resetFilter() { invalidateFilter(); }
 
-    void SetServerAddressFilter(const QStringList& ips);
-private:
-    QStringList ip_filter_;
-
+    void setServerAddressFilter(const QStringList& ips);
+    void setServerBlacklist(const QStringList& ips);
 };
 
 

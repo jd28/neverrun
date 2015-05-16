@@ -45,6 +45,7 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
     , requested_room_(-1)
     , server_settings_dlg_(new ServerSettingsDialog(this))
     , options_(options)
+    , error_loading_(false)
 {
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -90,6 +91,9 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     connect(server_settings_dlg_, SIGNAL(accepted()), SLOT(onSettingsChanged()));
 
+    act_blacklist_ = new QAction("Hide IP Address", this);
+    connect(act_blacklist_, SIGNAL(triggered()), SLOT(onBlacklist()));
+
     SetupDialogs();
 }
 
@@ -108,6 +112,15 @@ void ServerTableWidget::onRemoveFromCat() {
     QString address = model()->data(idx, Qt::UserRole + 3).toString();
     options_->removeServerFromCategory(current_cat_, address);
     SetServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
+}
+
+void ServerTableWidget::onBlacklist() {
+    auto selections = selectedIndexes();
+    if (selections.size() == 0) { return; }
+    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
+    QString address = model()->data(idx, Qt::UserRole + 6).toString();
+    options_->addToBlacklist(address);
+    proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::SetupDialogs() {
@@ -154,7 +167,7 @@ static std::vector<Server> GetAllServers(QStringList history){
         serv.module_name = servers->NWGameServer[i]->ModuleName;
         serv.server_name = sanitizeName(servers->NWGameServer[i]->ServerName);
         if (serv.server_name.size() == 0)
-            serv.server_name = "Unamed Server";
+            serv.server_name = "Unnamed Server";
 
         QRegExp rx("(\\:)");
         QStringList query = add.split(rx);
@@ -214,7 +227,7 @@ static std::vector<Server> GetAllServers(QStringList history){
 }
 
 void ServerTableWidget::GetServerList(int room, bool force) {
-    if(!force && !isVisible()) { return; }
+    if(!options_->getUpdateBackground() && !force && !isVisible()) { return; }
     requested_room_ = room;
     QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, options_->getCategoryIPs("History"));
     connect(&watcher_, SIGNAL(finished()), this, SLOT(finished()));
@@ -225,6 +238,7 @@ void ServerTableWidget::LoadServers(int room, bool force) {
     if (model_->rowCount(QModelIndex()) > 0) {
         ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
         pm->setCurrentRoom(room);
+        model_->setCurrentRoom(room);
         return;
     }
     GetServerList(-1, force);
@@ -236,12 +250,18 @@ void ServerTableWidget::finished(){
 
     std::vector<Server> res(std::move(watcher_.result()));
     if ( res.size() == 0) {
-        errorMessage("Error loading server list!");
+        if (!error_loading_) {
+            errorMessage("Error loading server list!", this);
+        }
+        error_loading_ = true;
+        return;
     }
 
+    error_loading_ = false;
     if(model_->rowCount(QModelIndex()) == 0) {
         model_ = new ServerTableModel(std::move(res), this);
         pm->setSourceModel(model_);
+        pm->setServerBlacklist(options_->getBlacklist());
         model_->bindUpdSocket(options_->getClientPort() + 100);
         setBNXR();
         setBNDR();
@@ -282,6 +302,10 @@ void ServerTableWidget::onModelDataChanged(QModelIndex,QModelIndex) {
 
 bool ServerTableWidget::canUpdate() {
     static bool locked = false;
+    if(options_->getUpdateBackground()) {
+        locked = false;
+        return true;
+    }
     if ( !isVisible() || !isActiveWindow() || parentWidget()->isMinimized()) {
         locked = true;
         return false;
@@ -341,11 +365,14 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
 
     menu.addAction(act_add_to_);
     menu.addAction(act_remove_from_);
+
     if(current_cat_.size() > 0) {
         act_remove_from_cat_->setText("Remove from " + current_cat_);
         menu.addAction(act_remove_from_cat_);
     }
 
+    menu.addSeparator();
+    menu.addAction(act_blacklist_);
     menu.addSeparator();
     menu.addAction(act_settings_);
 
@@ -384,7 +411,12 @@ void ServerTableWidget::requestChangeServerSettings() {
 
 void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
     current_cat_ = cat;
-    proxy_model_->SetServerAddressFilter(ips);
+    model_->setServerAddressFilter(ips);
+    proxy_model_->setServerAddressFilter(ips);
+}
+
+void ServerTableWidget::updateBlacklist() {
+    proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
 
 void ServerTableWidget::requestUpdates() {

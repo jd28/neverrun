@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QByteArray>
+#include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QStackedWidget>
 #include <QDebug>
@@ -54,6 +55,7 @@
 #include "widgets/listselectiondialog.h"
 #include "widgets/usernamebutton.h"
 #include "widgets/directconnectdialog.h"
+#include "widgets/neverrun_settings.h"
 
 #include "models/moduletablemodel.h"
 #include "widgets/setdmpassworddialog.h"
@@ -223,8 +225,15 @@ bool MainWindow::AddServers() {
 
 void MainWindow::readSettings() {
     QSettings settings(QDir::homePath() + "/.neverrun/neverrun.ini", QSettings::IniFormat);
-    restoreGeometry(settings.value("geometry", saveGeometry()).toByteArray());
-    restoreState(settings.value("windowState", saveState()).toByteArray());
+    QByteArray geom = settings.value("geometry", saveGeometry()).toByteArray();
+    QByteArray state = settings.value("windowState", saveState()).toByteArray();
+    if (geom.length() > 0 ) {
+        restoreGeometry(geom);
+    }
+    else {
+        resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+    }
+    restoreState(state);
 }
 
 void MainWindow::htmlResultReady(const QString &html) {
@@ -306,8 +315,6 @@ void MainWindow::onCategoryAdded() {
     auto s = add_category_dlg_->getText();
     int cur = cat_stack_->currentIndex();
 
-    qDebug() << s << " " << cur;
-
     switch(cur) {
     default: return;
     case STACK_INDEX_SERVER:
@@ -369,6 +376,26 @@ void MainWindow::switchStack() {
 void MainWindow::requestDirectConnect() {
     direct_connect_dlg_->ensureFocus();
     direct_connect_dlg_->show();
+}
+
+void MainWindow::launchBiowareForums() {
+    QDesktopServices::openUrl(QUrl("http://forum.bioware.com/forum/43-neverwinter-nights/"));
+}
+
+void MainWindow::launchNeverwinterVault() {
+    QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
+}
+
+void MainWindow::launchNWNLexicon() {
+    QDesktopServices::openUrl(QUrl("http://www.nwnlexicon.com/"));
+}
+
+void MainWindow::launchNWNWiki() {
+    QDesktopServices::openUrl(QUrl("http://nwn.wikia.com/wiki/Main_Page"));
+}
+
+void MainWindow::launchGOGForums() {
+    QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
 }
 
 void MainWindow::HandleServerSelectionChange(QModelIndex current, QModelIndex previous) {
@@ -458,6 +485,7 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
     HWND hwnd  = (HWND)QGuiApplication::platformNativeInterface()->nativeResourceForWindow(QByteArrayLiteral("handle"),
                                                                                            this->windowHandle());
 
+    qDebug() << "Executing program: " << exe << "\n    Parameters: " << args << "\n    Working Directory: " << dir;
     int result = (int)ShellExecute(hwnd,
                                    NULL,
                                    reinterpret_cast<const WCHAR*>(exe.utf16()),
@@ -473,14 +501,15 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
 }
 
 void MainWindow::launchToolset() {
-    QString exe;
+    QString exe = options_->getDefaultToolset();
+    if(exe.size() == 0 || !QFile(exe).exists()) {
 #if _WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNTX Loader.exe");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNTX Loader.exe");
 
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwtoolset.exe");
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(options_->m_NWN_path + "/nwtoolset.exe");
 #endif
-
+    }
     QString ps = QFileInfo(exe).canonicalFilePath();
     QString dir = QFileInfo(exe).canonicalPath();
 
@@ -504,24 +533,23 @@ void MainWindow::launchDMClient() {
 }
 
 QString MainWindow::getDefaultNWNExe() {
-    QString exe;
+    QString exe = options_->getDefaultLoader();
+    if(exe.size() == 0 || !QFile(exe).exists()) {
 #ifdef Q_OS_WIN32
-    exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
-    if (!QFile(exe).exists())
-        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCX_Loader.exe");
+        if (!QFile(exe).exists())
+            exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain.exe");
 #elif Q_OS_LINUX
-    exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
+        exe = QDir::cleanPath(options_->m_NWN_path + "/nwmain");
 #endif
+    }
 
     return exe;
 }
 
 void MainWindow::PlayModule(QString module, bool dm) {
-    qDebug() << "Attempting to run NWN";
-
     QStringList arguments;
-    if (dm) { return;
-    }
+    if (dm) { return; }
 
     arguments << "+LoadNewModule"
               << module;
@@ -537,7 +565,6 @@ void MainWindow::PlayModule(QString module, bool dm) {
 void MainWindow::playServer(QString address, QString password, bool dm) {
     if(!isValidServerAddress(address, true)) { return; }
 
-    qDebug() << "Attempting to run NWN";
     options_->addServerToCategory("History", address);
 
     QStringList arguments;
@@ -839,10 +866,26 @@ QPushButton * MainWindow::createSettingsButton() {
     act->setShortcut(Qt::Key_D | Qt::CTRL);
     connect(act, SIGNAL(triggered()), SLOT(launchDMClient()));
     settings_button_menu_->addAction(act);
+    settings_button_menu_->addSeparator();
 
-    act = new QAction("Configure NWN", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
-    settings_button_menu_->addAction(act);
+    QMenu *community_menu = new QMenu("Community", this);
+    act = new QAction("Bioware Forums", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchBiowareForums()));
+    community_menu->addAction(act);
+    act = new QAction("GOG NWN Forums", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchGOGForums()));
+    community_menu->addAction(act);
+    act = new QAction("Neverwinter Vault", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNeverwinterVault()));
+    community_menu->addAction(act);
+    act = new QAction("NWN Lexicon", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNWNLexicon()));
+    community_menu->addAction(act);
+    act = new QAction("NWN Wiki", community_menu);
+    connect(act, SIGNAL(triggered()), SLOT(launchNWNWiki()));
+    community_menu->addAction(act);
+    settings_button_menu_->addMenu(community_menu);
+
 
     settings_button_menu_->addSeparator();
 
@@ -889,5 +932,10 @@ void MainWindow::about() {
 }
 
 void MainWindow::openSettings() {
-    errorMessage("Not yet implemented...");
+    int bl_size = options_->getBlacklist().size();
+    NeverrunSettingsDialog dlg(options_, this);
+    dlg.exec();
+    if (bl_size != options_->getBlacklist().size()) {
+        server_table_widget_->updateBlacklist();
+    }
 }

@@ -175,6 +175,14 @@ QAbstractScrollArea
     border: 1px solid #3A3939;
 }
 
+QScrollArea {
+    border: none;
+}
+
+QScrollArea:focus {
+    border: none;
+}
+
 QScrollBar:horizontal
 {
     height: 15px;
@@ -587,15 +595,11 @@ QAbstractSpinBox {
 QAbstractSpinBox:up-button
 {
     background-color: transparent;
-    subcontrol-origin: border;
-    subcontrol-position: center right;
 }
 
 QAbstractSpinBox:down-button
 {
     background-color: transparent;
-    subcontrol-origin: border;
-    subcontrol-position: center left;
 }
 
 QAbstractSpinBox::up-arrow,QAbstractSpinBox::up-arrow:disabled,QAbstractSpinBox::up-arrow:off {
@@ -772,7 +776,7 @@ QTabBar::tab:right:!selected
 {
     color: #b1b1b1;
     margin-left: 3px;
-        background-color: #302F2F;
+    background-color: #302F2F;
 }
 
 QTabBar::tab:right:selected
@@ -871,6 +875,14 @@ QListView::item:!selected:hover, QListView::item:!selected:hover, QTreeView::ite
 QListView::item:selected:hover, QListView::item:selected:hover, QTreeView::item:selected:hover  {
     background: #78879b;;
     color: #FFFFFF;
+}
+
+QListView::item {
+   background: #302F2F;
+}
+
+QComboBox QListView {
+  background: #302F2F;
 }
 
 QSlider::groove:horizontal {

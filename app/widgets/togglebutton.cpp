@@ -112,6 +112,7 @@ ToggleButton::ToggleButton(QString left, QString right, QWidget *parent) :
 }
 
 void ToggleButton::OnLeftClicked(bool checked) {
+    Q_UNUSED(checked);
     if(is_left_) {
         left_->setChecked(true);
         return;
@@ -121,8 +122,8 @@ void ToggleButton::OnLeftClicked(bool checked) {
     emit ButtonChanged(Left);
 }
 
-void ToggleButton::OnRightClicked(bool checked)
-{
+void ToggleButton::OnRightClicked(bool checked) {
+    Q_UNUSED(checked);
     if(!is_left_) {
         right_->setChecked(true);
         return;
