@@ -251,7 +251,7 @@ void ServerTableWidget::finished(){
     std::vector<Server> res(std::move(watcher_.result()));
     if ( res.size() == 0) {
         if (!error_loading_) {
-            errorMessage("Error loading server list!");
+            errorMessage("Error loading server list!", this);
         }
         error_loading_ = true;
         return;

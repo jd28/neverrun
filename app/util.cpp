@@ -128,8 +128,8 @@ QString sanitizeName(const QString &str) {
     return s;
 }
 
-void errorMessage(const QString &err) {
-    QMessageBox dlFailedMsgBox;
+void errorMessage(const QString &err, QWidget *parent) {
+    QMessageBox dlFailedMsgBox(parent);
     dlFailedMsgBox.setIcon(QMessageBox::Critical);
     dlFailedMsgBox.setModal(true);
     dlFailedMsgBox.setWindowFlags(Qt::SplashScreen);

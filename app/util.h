@@ -23,7 +23,7 @@
 
 #include "server.h"
 
-void errorMessage(const QString& err);
+void errorMessage(const QString& err, QWidget *parent = 0);
 QString findUrl(const QString& str);
 QString getPlayerCountFromDatagram(const QList<QByteArray> &datagram);
 Server getServerFromDatagram(const QList<QByteArray> &datagram);
