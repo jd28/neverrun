@@ -28,7 +28,7 @@
 
 			<!-- Windows version. -->
 			<enclosure
-				url="http://neverwintervault.org/sites/all/modules/pubdlcnt/pubdlcnt.php?file=http://neverwintervault.org/sites/neverwintervault.org/files/project/3996/files/neverrun_windows_update_v0.6.zip&nid=3996"
+				url="http://neverwintervault.org/sites/neverwintervault.org/files/project/3996/files/neverrun_windows_update_v0.6.zip"
 				fervor:version="0.6"
 				fervor:platform="Q_OS_WIN32"
 				length="4305881"
