@@ -9,274 +9,329 @@
 	<meta name="robots" content="anchors" />
 	<style type="text/css" media="all"><!--
 
-	body {
-		margin: 12px;
-	}
+   body {
+    margin: 12px;
+  }
 
-	h1 {
-		font-size: 11pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		margin-bottom: 0
-	}
+  h1 {
+    font-size: 11pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    margin-bottom: 0
+  }
 
-	h2 {
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		margin-top: 0;
-		margin-bottom: -10px
-	}
+  h2 {
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    margin-top: 0;
+    margin-bottom: -10px
+  }
 
-	h3 {
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		font-weight: bold;
-		margin-top: -4px;
-		margin-bottom: -4px
-	}
+  h3 {
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    font-weight: bold;
+    margin-top: -4px;
+    margin-bottom: -4px
+  }
 
-	p {
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		line-height: 12pt;
-		text-decoration: none
-	}
+  p {
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    line-height: 12pt;
+    text-decoration: none
+  }
 
-	ol {
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		line-height: 12pt;
-		list-style-position: outside;
-		margin-top: 12px;
-		margin-bottom: 12px;
-		margin-left: -18px;
-		padding-left: 40px
-	}
+  ol {
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    line-height: 12pt;
+    list-style-position: outside;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    margin-left: -18px;
+    padding-left: 40px
+  }
 
-	ol li {
-		margin-top: 6px;
-		margin-bottom: 6px
-	}
+  ol li {
+    margin-top: 6px;
+    margin-bottom: 6px
+  }
 
-	ol p {
-		margin-top: 6px;
-		margin-bottom: 6px
-	}
+  ol p {
+    margin-top: 6px;
+    margin-bottom: 6px
+  }
 
-	ul {
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		line-height: 12pt;
-		list-style-type: square;
-		list-style-position: outside;
-		margin-top: 12px;
-		margin-bottom: 12px;
-		margin-left: -24px;
-		padding-left: 40px
-	}
+  ul {
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    line-height: 12pt;
+    list-style-type: square;
+    list-style-position: outside;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    margin-left: -24px;
+    padding-left: 40px
+  }
 
-	ul li {
-		margin-top: 6px;
-		margin-bottom: 6px
-	}
+  ul li {
+    margin-top: 6px;
+    margin-bottom: 6px
+  }
 
-	ul p {
-		margin-top: 6px;
-		margin-bottom: 6px
-	}
+  ul p {
+    margin-top: 6px;
+    margin-bottom: 6px
+  }
 
-	a {
-		color: #00f;
-		font-size: 9pt;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		line-height: 12pt;
-		text-decoration: none
-	}
+  a {
+    color: #00f;
+    font-size: 9pt;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    line-height: 12pt;
+    text-decoration: none
+  }
 
-	a:hover {
-		color: #00f;
-		font-family: "Lucida Grande", Arial, sans-serif;
-		text-decoration: underline
-	}
+  a:hover {
+    color: #00f;
+    font-family: "Lucida Grande", Arial, sans-serif;
+    text-decoration: underline
+  }
 
-	hr {
-		text-decoration: none;
-		border: solid 1px #bfbfbf
-	}
+  hr {
+    text-decoration: none;
+    border: solid 1px #bfbfbf
+  }
 
-	td {
-		padding: 6px
-	}
+  td {
+    padding: 6px
+  }
 
-	#banner {
-		background-color: #f2f2f2;
-		background-repeat: no-repeat;
-		padding: -2px 6px 0;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 1.2em;
-		float: left;
-		border: solid 1px #bfbfbf;
-	}
+  #banner {
+    background-color: #f2f2f2;
+    background-repeat: no-repeat;
+    padding: -2px 6px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1.2em;
+    float: left;
+    border: solid 1px #bfbfbf;
+  }
 
-	#caticon {
-		margin-top: 3px;
-		margin-bottom: -3px;
-		margin-right: 5px;
-		float: left;
-	}
+  #caticon {
+    margin-top: 3px;
+    margin-bottom: -3px;
+    margin-right: 5px;
+    float: left;
+  }
 
-	#pagetitle {
-		margin-top: 12px;
-		margin-bottom: 0px;
-		margin-left: 40px;
-		width: 88%;
-		border: solid 1px #fff
-	}
+  #pagetitle {
+    margin-top: 12px;
+    margin-bottom: 0px;
+    margin-left: 40px;
+    width: 88%;
+    border: solid 1px #fff
+  }
 
-	#mainbox {
-		margin-top: 2349px;
-		padding-right: 6px
-	}
+  #mainbox {
+    margin-top: 2349px;
+    padding-right: 6px
+  }
 
-	#taskbox {
-		background-color: #e6edff;
-		list-style-type: decimal;
-		list-style-position: outside;
-		margin: 12px 0;
-		padding: 2px 12px;
-		border: solid 1px #bfbfbf
-	}
+  #taskbox {
+    background-color: #e6edff;
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 12px 0;
+    padding: 2px 12px;
+    border: solid 1px #bfbfbf
+  }
 
-	#taskbox h2 {
-		margin-top: 8;
-		margin-bottom: -4px
-	}
+  #taskbox h2 {
+    margin-top: 8;
+    margin-bottom: -4px
+  }
 
-	#machelp {
-		position: absolute;
-		top: 2px;
-		left: 10px;
-	}
+  #machelp {
+    position: absolute;
+    top: 2px;
+    left: 10px;
+  }
 
-	#index {
-		background-color: #f2f2f2;
-		padding-right: 25px;
-		top: 2px;
-		right: 12px;
-		width: auto;
-		float: right
-	}
+  #index {
+    background-color: #f2f2f2;
+    padding-right: 25px;
+    top: 2px;
+    right: 12px;
+    width: auto;
+    float: right
+  }
 
-	#next {
-		position: absolute;
-		top: 49px;
-		left: 88%
-	}
+  #next {
+    position: absolute;
+    top: 49px;
+    left: 88%
+  }
 
-	#asindent {
-		margin-left: 22px;
-		font-size: 9pt;
-		font-family: Verdana, Courier, sans-serif;
-	}
+  #asindent {
+    margin-left: 22px;
+    font-size: 9pt;
+    font-family: Verdana, Courier, sans-serif;
+  }
 
-	.bread {
-		color: #00f;
-		font-size: 8pt;
-		margin: -9px 0 -6px
-	}
+  .bread {
+    color: #00f;
+    font-size: 8pt;
+    margin: -9px 0 -6px
+  }
 
-	.leftborder {
-		color: #00f;
-		font-size: 8pt;
-		margin: -9px 0 -6px;
-		padding-top: 2px;
-		padding-bottom: 3px;
-		padding-left: 8px;
-		border-left: 1px solid #bfbfbf
-	}
+  .leftborder {
+    color: #00f;
+    font-size: 8pt;
+    margin: -9px 0 -6px;
+    padding-top: 2px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    border-left: 1px solid #bfbfbf
+  }
 
-	.mult {
-		margin-top: -8px
-	}
+  .mult {
+    margin-top: -8px
+  }
 
-	.type_bugfix {
-		background-color: #ffe6e6;
-        color: black;
-		margin-top: -3px;
-		margin-bottom: -3px;
-		padding-top: -3px;
-		padding-bottom: -3px
-	}
+  .type_bugfix {
+    background-color: #ffe6e6;
+    color: black;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    padding-top: -3px;
+    padding-bottom: -3px
+  }
 
-	.type_feature {
-        color: black;
-		background-color: #e6ffe6;
-		margin-top: -3px;
-		margin-bottom: -3px;
-		padding-top: -3px;
-		padding-bottom: -3px
-	}
+  .type_feature {
+    color: black;
+    background-color: #e6ffe6;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    padding-top: -3px;
+    padding-bottom: -3px
+  }
 
-	.type_other {
-        color: black;
-		background-color: #e6e6ff;
-		margin-top: -3px;
-		margin-bottom: -3px;
-		padding-top: -3px;
-		padding-bottom: -3px
-	}
+  .type_other {
+    color: black;
+    background-color: #e6e6ff;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    padding-top: -3px;
+    padding-bottom: -3px
+  }
 
-	.rightfloater {
-		float: right;
-		margin-left: 15px;
-	}
+  .rightfloater {
+    float: right;
+    margin-left: 15px;
+  }
 
-	.rules {
-		border-bottom: 1px dotted #ccc
-	}
+  .rules {
+    border-bottom: 1px dotted #ccc
+  }
 
-	.dots {
-		border: dotted 1px #ccc
-	}
+  .dots {
+    border: dotted 1px #ccc
+  }
 
-	.seealso {
-		margin-top: 4px;
-		margin-bottom: 4px
-	}
+  .seealso {
+    margin-top: 4px;
+    margin-bottom: 4px
+  }
 
-	code {
-		color: black;
-		font-size: 9pt;
-		font-family: Verdana, Courier, sans-serif;
-	}
+  code {
+    color: black;
+    font-size: 9pt;
+    font-family: Verdana, Courier, sans-serif;
+  }
 
-	--></style>
+--></style>
 </head>
 
 <body>
+  <a name="v0.6"></a>
+  <p><h4>v0.6</h2></p>
 
-<a name="v0.5"></a>
-<p><h4>v0.5</h2></p>
+  <table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
 
-<table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
-
-  <!-- Bugfix -->
-  <tr>
-	<td class="type_bugfix">
-	  <h3>Bugfix:</h3>
-	</td>
+    <!-- Bugfixes -->
+    <tr>
+      <td class="type_bugfix">
+        <h3>Bugfixes:</h3>
+      </td>
+    </tr>
+    <tr>
+     <td valign="top">
+      <ul>
+        <li>
+          Fix issue with being able to run multiple instances of neverrun.
+        </li>
+        <li>
+          Fix error messages opening more than once and sometimes getting hidden
+          behind the main window.
+        </li>
+        <li>
+          Fix issue with first run window size being to large for some smaller
+          screen resolutions.
+        </li>
+      </ul>
+    </td>
   </tr>
-  <tr>
-	<td valign="top">
+
+    <!-- Feature -->
+    <tr>
+      <td class="type_feature">
+        <h3>Features:</h3>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top">
+        <ul>
+          <li>
+            Add settings panel for Neverrun, some NWN, and some Community Patch settings.
+          </li>
+          <li>
+            Modify server updates to only update those servers that are in the current
+            category.
+          </li>
+          <li>
+            Add community links to the settings menu.
+          </li>
+          <li>
+            Add the ability to hide servers by IP address.
+          </li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <a name="v0.5"></a>
+  <p><h4>v0.5</h2></p>
+
+  <table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
+
+    <!-- Bugfixes -->
+    <tr>
+     <td class="type_bugfix">
+       <h3>Bugfixes:</h3>
+     </td>
+   </tr>
+   <tr>
+     <td valign="top">
       <ul>
         <li>
           Fix how servers are considered off line so that the entire
           server table doesn't have to be rebuilt.
         </li>
-      </<ul>
-	</td>
+      </ul>
+    </td>
   </tr>
 
 </table>
@@ -286,71 +341,71 @@
 
 <table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
 
-  <!-- Bugfix -->
+  <!-- Bugfixes -->
   <tr>
-	<td class="type_bugfix">
-	  <h3>Bugfix:</h3>
-	</td>
-  </tr>
-  <tr>
-	<td valign="top">
-      <ul>
-        <li>
-          Fix syncing between NWN/neverrun History / Favorites list.
-        </li>
-        <li>
-          Direct connect hostname/ip-address was fixed to follow NWN
-          behavior: is there is no port assume the port is 5121.
-        </li>
-      </<ul>
-	</td>
-  </tr>
+   <td class="type_bugfix">
+     <h3>Bugfixes:</h3>
+   </td>
+ </tr>
+ <tr>
+   <td valign="top">
+    <ul>
+      <li>
+        Fix syncing between NWN/neverrun History / Favorites list.
+      </li>
+      <li>
+        Direct connect hostname/ip-address was fixed to follow NWN
+        behavior: is there is no port assume the port is 5121.
+      </li>
+    </ul>
+  </td>
+</tr>
 
-  <!-- Feature -->
-  <tr>
+<!-- Feature -->
+<tr>
 	<td class="type_feature">
-	  <h3>Feature:</h3>
-	</td>
-  </tr>
-  <tr>
+   <h3>Feature:</h3>
+ </td>
+</tr>
+<tr>
 	<td valign="top">
-      <ul>
-        <li>
-          A new menu entry has been added to the context menu to
-          remove the server / module from the current custom category,
-          History, or Favorites.
-        </li>
-        <li>
-          The settings button menu has been expanded to allow
-          launching the DM client.  Shortcut keys were also added.
-          This remains a work in progress.
-        </li>
-        <li>
-          Ping column added to the server list.
-        </li>
-      </ul>
-	</td>
-  </tr>
+    <ul>
+      <li>
+        A new menu entry has been added to the context menu to
+        remove the server / module from the current custom category,
+        History, or Favorites.
+      </li>
+      <li>
+        The settings button menu has been expanded to allow
+        launching the DM client.  Shortcut keys were also added.
+        This remains a work in progress.
+      </li>
+      <li>
+        Ping column added to the server list.
+      </li>
+    </ul>
+  </td>
+</tr>
 
-  <!-- Other -->
-  <tr>
+<!-- Other -->
+<tr>
 	<td class="type_other">
-	  <h3>Other:</h3>
-	</td>
-  </tr>
-  <tr>
+   <h3>Other:</h3>
+ </td>
+</tr>
+<tr>
 	<td valign="top">
-      <ul>
-        <li>
-          Major overhaul of how servers are pinged for updated
-          information.  Rather than using the old GameSpy message I've
-          replaced that with Bioware messages.  This should make
-          things more ammenable to LAN servers that do not have
-          GameSpy activated.
-        </li>
-      </ul>
-	</td>
-  </tr>
+    <ul>
+      <li>
+        Major overhaul of how servers are pinged for updated
+        information.  Rather than using the old GameSpy message I've
+        replaced that with Bioware messages.  This should make
+        things more ammenable to LAN servers that do not have
+        GameSpy activated.
+      </li>
+    </ul>
+  </td>
+</tr>
 
 </table>
 
@@ -359,68 +414,68 @@
 
 <table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
 
-  <!-- Bugfix -->
+  <!-- Bugfixes -->
   <tr>
-	<td class="type_bugfix">
-	  <h3>Bugfix:</h3>
-	</td>
-  </tr>
-  <tr>
-	<td valign="top">
-	</td>
-  </tr>
+   <td class="type_bugfix">
+     <h3>Bugfixes:</h3>
+   </td>
+ </tr>
+ <tr>
+   <td valign="top">
+   </td>
+ </tr>
 
-  <!-- Feature -->
-  <tr>
-	<td class="type_feature">
-	  <h3>Feature:</h3>
-	</td>
-  </tr>
-  <tr>
-	<td valign="top">
-      <ul>
-        <li>
-          Added an auto-updater for all future updates.
-        </li>
-        <li>
-          Servers will no be pinged by the application to update
-          player counts.  Note: this will require that permission is
-          given to the application to access the network.
-        </li>
-        <li>
-          Added Direct Connect button, which also has the option
-          of trying to add the server to Skywing's master server listing.
-        </li>
-        <li>
-          Favorites and History will be imported every time the
-          application is launched.
-        </li>
-        <li>
-          Add Settings button menu with the options to: Launch NWN,
-          Launch the Toolset (this will attempt to run NWNTX first),
-          Exit the application, check for updates, about dialog.  Settings
-          themselves still remain to be implemented.
-        </li>
-      </ul>
-	</td>
-  </tr>
+ <!-- Feature -->
+ <tr>
+   <td class="type_feature">
+     <h3>Feature:</h3>
+   </td>
+ </tr>
+ <tr>
+   <td valign="top">
+    <ul>
+      <li>
+        Added an auto-updater for all future updates.
+      </li>
+      <li>
+        Servers will no be pinged by the application to update
+        player counts.  Note: this will require that permission is
+        given to the application to access the network.
+      </li>
+      <li>
+        Added Direct Connect button, which also has the option
+        of trying to add the server to Skywing's master server listing.
+      </li>
+      <li>
+        Favorites and History will be imported every time the
+        application is launched.
+      </li>
+      <li>
+        Add Settings button menu with the options to: Launch NWN,
+        Launch the Toolset (this will attempt to run NWNTX first),
+        Exit the application, check for updates, about dialog.  Settings
+        themselves still remain to be implemented.
+      </li>
+    </ul>
+  </td>
+</tr>
 
-  <!-- Other -->
-  <tr>
+<!-- Other -->
+<tr>
 	<td class="type_other">
-	  <h3>Other:</h3>
-	</td>
-  </tr>
-  <tr>
+   <h3>Other:</h3>
+ </td>
+</tr>
+<tr>
 	<td valign="top">
-      <ul>
-        <li>
-          Double clicking a server will try to connect you to the
-          server as a player.
-        </li>
-      </ul>
-	</td>
-  </tr>
+    <ul>
+      <li>
+        Double clicking a server will try to connect you to the
+        server as a player.
+      </li>
+    </ul>
+  </td>
+</tr>
 
 </table>
 
@@ -429,64 +484,64 @@
 
 <table class="dots" width="100%" border="0" cellspacing="0" cellpadding="0" summary="Two column table with heading">
 
-  <!-- Bugfix -->
+  <!-- Bugfixes -->
   <tr>
-	<td class="type_bugfix">
-	  <h3>Bugfix:</h3>
-	</td>
-  </tr>
-  <tr>
-	<td valign="top">
-      <ul>
-        <li>Added missing Arena server category.</li>
-        <li>Fixed issue with adding new categories.</li>
-      </ul>
-	</td>
-  </tr>
+   <td class="type_bugfix">
+     <h3>Bugfixes:</h3>
+   </td>
+ </tr>
+ <tr>
+   <td valign="top">
+    <ul>
+      <li>Added missing Arena server category.</li>
+      <li>Fixed issue with adding new categories.</li>
+    </ul>
+  </td>
+</tr>
 
-  <!-- Feature -->
-  <tr>
+<!-- Feature -->
+<tr>
 	<td class="type_feature">
-	  <h3>Feature:</h3>
-	</td>
-  </tr>
-  <tr>
+   <h3>Feature:</h3>
+ </td>
+</tr>
+<tr>
 	<td valign="top">
-      <ul>
-        <li>
-          Added Server Settings dialog.  Custom loaders, updaters
-          can be set on a per server basis.  This replaces Set
-          Player/DM Password in the server table context menu.
-        </li>
-        <li>
-          Properly look up NWN installation directory from
-          Windows Registry.
-        </li>
-        <li>
-          Window size/location will be restored when application
-          is reopened.
-        </li>
-      </ul>
-	</td>
-  </tr>
+    <ul>
+      <li>
+        Added Server Settings dialog.  Custom loaders, updaters
+        can be set on a per server basis.  This replaces Set
+        Player/DM Password in the server table context menu.
+      </li>
+      <li>
+        Properly look up NWN installation directory from
+        Windows Registry.
+      </li>
+      <li>
+        Window size/location will be restored when application
+        is reopened.
+      </li>
+    </ul>
+  </td>
+</tr>
 
-  <!-- Other -->
-  <tr>
+<!-- Other -->
+<tr>
 	<td class="type_other">
-	  <h3>Other:</h3>
-	</td>
-  </tr>
-  <tr>
+   <h3>Other:</h3>
+ </td>
+</tr>
+<tr>
 	<td valign="top">
-      <ul>
-        <li>
-          The interface for the Server Info has change, a close
-          button has been added instead of the button switching to
-          "Server List".
-        </li>
-      </ul>
-	</td>
-  </tr>
+    <ul>
+      <li>
+        The interface for the Server Info has change, a close
+        button has been added instead of the button switching to
+        "Server List".
+      </li>
+    </ul>
+  </td>
+</tr>
 </table>
 
 </body>
