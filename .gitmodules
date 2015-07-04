@@ -1,0 +1,3 @@
+[submodule "3rdparty/hoedown"]
+	path = 3rdparty/hoedown
+	url = https://github.com/hoedown/hoedown/
