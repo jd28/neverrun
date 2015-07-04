@@ -280,6 +280,7 @@ bool FileConvert20ToSpace(QString filename) {
     while(!file.atEnd()) {
         QByteArray line = file.readLine();
         line.replace("%20", " ");
+        line.replace(", ", ",");
         bytearrayList.append(line);
     }
     file.close();
