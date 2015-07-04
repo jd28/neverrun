@@ -6,7 +6,7 @@ neverwintervault.org entry for details
 
 ### 3rd Party libraries/code/resources:
 * [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet)
-* [discount](https://github.com/Orc/discount)
-* [yaml-cpp](https://code.google.com/p/yaml-cpp/)
 * [CuteMarkEd](https://github.com/cloose/CuteMarkEd) - Markdown converter.
+* [hoedown](https://github.com/hoedown/hoedown)
 * [Fervor](https://github.com/pypt/fervor) - Auto-updater.
+* [yaml-cpp](https://code.google.com/p/yaml-cpp/)
