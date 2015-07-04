@@ -7,15 +7,12 @@
 TEMPLATE = subdirs
 
 win32 {
-    SUBDIRS = 3rdparty \
-        app \
-
-    app.depends = 3rdparty app-static
+    SUBDIRS = app
+    app.depends = app-static
 }
 
 unix {
     SUBDIRS = app
-
     app.depends = app-static
 }
 
