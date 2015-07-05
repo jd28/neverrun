@@ -311,11 +311,6 @@ void ServerTableWidget::UpdateServers() {
     if (canUpdate()) { GetServerList(-1); }
 }
 
-void ServerTableWidget::HandleSelectionChange(QModelIndex current, QModelIndex previous) {
-    Q_UNUSED(current);
-    Q_UNUSED(previous);
-}
-
 void ServerTableWidget::addServer(const QString& addr) {
     model_->addServer(addr);
 }
@@ -326,8 +321,6 @@ void ServerTableWidget::onSettingsChanged() {
     options_->setServerUpdater(address, server_settings_dlg_->getUpdater());
     options_->setPassword(address, server_settings_dlg_->getDMPassword(), true);
     options_->setPassword(address, server_settings_dlg_->getPassword(), false);
-
-    emit serverSettingsChanged();
 }
 
 void ServerTableWidget::customMenuRequested(QPoint pos) {

@@ -101,7 +101,6 @@ signals:
     void requestAddTo();
     void requestRemoveFrom();
     void RunNWN(QString address, bool dm);
-    void serverSettingsChanged();
     void ServerInfoRequest(ServerInfoTypes type);
     void dm();
     void play();
@@ -110,7 +109,6 @@ signals:
 public slots:
     void addServer(const QString &addr);
     void finished();
-    void HandleSelectionChange(QModelIndex current, QModelIndex previous);
     void onSettingsChanged();
     void UpdateServers();
 
