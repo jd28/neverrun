@@ -217,9 +217,9 @@ void MainWindow::readSettings() {
 void MainWindow::htmlResultReady(const QString &html) {
     //qDebug() << html;
     server_info_widget_->webview()->page()->networkAccessManager()->setCache(diskCache);
-
-    // remember scrollbar position
-    //scrollBarPos = ui->plainTextEdit->verticalScrollBar()->value();
+    server_info_widget_->webview()->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
+    server_info_widget_->webview()->page()->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    server_info_widget_->webview()->page()->settings()->setAttribute(QWebSettings::WebGLEnabled, false);
 
     QString fileName;
     // show html preview
