@@ -142,9 +142,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
             SLOT(setModuleFilter(const QStringList&, const QString&)));
 
-    connect(server_table_widget_, SIGNAL(RunNWN(QString,bool)),
-            SLOT(RunNWN(QString,bool)));
-
+    connect(server_table_widget_, &ServerTableWidget::RunNWN, this, &MainWindow::RunNWN);
+    connect(server_table_widget_, &ServerTableWidget::ServerInfoRequest, this, &MainWindow::onRequestServerInfo);
+    connect(server_table_widget_, &ServerTableWidget::play, this, &MainWindow::play);
+    connect(server_table_widget_, &ServerTableWidget::dm, this, &MainWindow::dm);
+    connect(server_table_widget_, &ServerTableWidget::update, this, &MainWindow::runUpdater);
     connect(server_table_widget_, SIGNAL(PasswordChanged(QString,QString,bool)),
             SLOT(OnPasswordChanged(QString,QString,bool)));
 
