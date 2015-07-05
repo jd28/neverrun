@@ -50,8 +50,8 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(customMenuRequested(QPoint)));
+    connect(this, &ServerTableWidget::customContextMenuRequested,
+            this, &ServerTableWidget::customMenuRequested);
 
     setHorizontalHeader(new HeaderView(Qt::Horizontal, this));
     auto image_delegate = new ImageDelegate(this);
@@ -77,25 +77,15 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     timer_ = new QTimer(this);
     timer_->start(60000);
-    connect(timer_, SIGNAL(timeout()), SLOT(UpdateServers()));
+    connect(timer_, &QTimer::timeout, [this](){ if (canUpdate()) { getServerList(-1); }});
 
-    connect(server_settings_dlg_, SIGNAL(accepted()), SLOT(onSettingsChanged()));
-
-    SetupDialogs();
-}
-
-void ServerTableWidget::onAddTo() {
-    emit requestAddTo();
-}
-
-void ServerTableWidget::onRemoveFrom() {
-    emit requestRemoveFrom();
+    connect(server_settings_dlg_, &ServerSettingsDialog::accepted, this, &ServerTableWidget::onSettingsChanged);
 }
 
 void ServerTableWidget::onRemoveFromCat() {
     QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
     options_->removeServerFromCategory(current_cat_, address);
-    SetServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
+    setServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
 }
 
 void ServerTableWidget::onBlacklist() {
@@ -104,21 +94,11 @@ void ServerTableWidget::onBlacklist() {
     proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
 
-void ServerTableWidget::SetupDialogs() {
-    connect(server_settings_dlg_, SIGNAL(accepted()),
-            SLOT(onSettingsChanged()));
-
-}
-
 QVariant ServerTableWidget::getSelectedServerInfo(ServerTableModel::UserRoles role) {
     auto selections = selectedIndexes();
     if (selections.size() == 0) { return QVariant(); }
     auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
     return model()->data(idx, role);
-}
-
-const ServerTableModel* ServerTableWidget::getServerTableModel() const {
-    return model_;
 }
 
 static std::vector<Server> GetAllServers(QStringList history){
@@ -214,22 +194,22 @@ static std::vector<Server> GetAllServers(QStringList history){
     return s;
 }
 
-void ServerTableWidget::GetServerList(int room, bool force) {
+void ServerTableWidget::getServerList(int room, bool force) {
     if(!options_->getUpdateBackground() && !force && !isVisible()) { return; }
     requested_room_ = room;
     QFuture<std::vector<Server>> future = QtConcurrent::run(GetAllServers, options_->getCategoryIPs("History"));
-    connect(&watcher_, SIGNAL(finished()), this, SLOT(finished()));
+    connect(&watcher_, &ServerFutureWatcher::finished, this, &ServerTableWidget::finished);
     watcher_.setFuture(future);
 }
 
-void ServerTableWidget::LoadServers(int room, bool force) {
+void ServerTableWidget::loadServers(int room, bool force) {
     if (model_->rowCount(QModelIndex()) > 0) {
         ServerTableProxyModel* pm = reinterpret_cast<ServerTableProxyModel*>(model());
         pm->setCurrentRoom(room);
         model_->setCurrentRoom(room);
         return;
     }
-    GetServerList(-1, force);
+    getServerList(-1, force);
 }
 
 void ServerTableWidget::finished(){
@@ -254,14 +234,13 @@ void ServerTableWidget::finished(){
         setBNXR();
         setBNDR();
         setBNERU();
-        connect(model_,SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
+        connect(model_, &ServerTableModel::dataChanged, this, &ServerTableWidget::onModelDataChanged);
         ping_timer_ = new QTimer(this);
-        connect(ping_timer_, SIGNAL(timeout()), SLOT(requestUpdates()));
+        connect(ping_timer_, &QTimer::timeout, this, &ServerTableWidget::requestUpdates);
         ping_timer_->start(15000/model_->rowCount(QModelIndex()));
 
         offline_timer_ = new QTimer(this);
-        connect(offline_timer_, SIGNAL(timeout()), SLOT(sweepOfflineServers()));
+        connect(offline_timer_, &QTimer::timeout, this, &ServerTableWidget::sweepOfflineServers);
         offline_timer_->start(15000);
 
     }
@@ -307,10 +286,6 @@ bool ServerTableWidget::canUpdate() {
     return true;
 }
 
-void ServerTableWidget::UpdateServers() {
-    if (canUpdate()) { GetServerList(-1); }
-}
-
 void ServerTableWidget::addServer(const QString& addr) {
     model_->addServer(addr);
 }
@@ -338,25 +313,25 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
     menu.addSeparator();
 
     act = menu.addAction("Description");
-    connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_DESCRIPTION); });
+    connect(act, &QAction::triggered, [this]() { emit serverInfoRequest(SERVER_INFO_TYPE_DESCRIPTION); });
 
     QMenu *community_menu = menu.addMenu("Community");
 
     act = community_menu->addAction("Website");
     if(getSelectedServerInfo(ServerTableModel::USER_ROLE_WEBPAGE).toString().size() > 0) {
-        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_WEBSITE); });
+        connect(act, &QAction::triggered, [this]() { emit serverInfoRequest(SERVER_INFO_TYPE_WEBSITE); });
     }
     else { act->setDisabled(true); }
 
     act = community_menu->addAction("Forum");
     if(getSelectedServerInfo(ServerTableModel::USER_ROLE_FORUM).toString().size() > 0) {
-        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_FORUM); });
+        connect(act, &QAction::triggered, [this]() { emit serverInfoRequest(SERVER_INFO_TYPE_FORUM); });
     }
     else { act->setDisabled(true); }
 
     act = community_menu->addAction("Web Chat");
     if(getSelectedServerInfo(ServerTableModel::USER_ROLE_CHAT).toString().size() > 0) {
-        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_CHAT); });
+        connect(act, &QAction::triggered, [this]() { emit serverInfoRequest(SERVER_INFO_TYPE_CHAT); });
     }
     else { act->setDisabled(true); }
 
@@ -371,9 +346,10 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
     menu.addSeparator();
 
     act = menu.addAction("Add to...");
-    connect(act, &QAction::triggered, this, &ServerTableWidget::onAddTo);
+    connect(act, &QAction::triggered, [this] () { emit requestAddTo(); });
+
     act = menu.addAction("Remove from...");
-    connect(act, &QAction::triggered, this, &ServerTableWidget::onRemoveFrom);
+    connect(act, &QAction::triggered, [this]() { emit requestRemoveFrom(); });
 
     if(current_cat_.size() > 0) {
         act = menu.addAction("Remove from " + current_cat_);
@@ -403,7 +379,7 @@ void ServerTableWidget::requestChangeServerSettings() {
     server_settings_dlg_->show();
 }
 
-void ServerTableWidget::SetServerAddressFilter(const QStringList& ips, const QString& cat) {
+void ServerTableWidget::setServerAddressFilter(const QStringList& ips, const QString& cat) {
     current_cat_ = cat;
     model_->setServerAddressFilter(ips);
     proxy_model_->setServerAddressFilter(ips);

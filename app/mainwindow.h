@@ -120,7 +120,6 @@ public slots:
     void LoadServers(int room);
     void onAddUserName(QString name);
     void onChangeUserName(QString name);
-    void OnPasswordChanged(QString address, QString password, bool is_dm);
     void onRequestAddToDialog();
     void onRequestRemoveFromDialog();
     void openURL(const QUrl& url);

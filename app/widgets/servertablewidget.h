@@ -65,10 +65,12 @@ private:
 class ServerTableWidget : public QTableView {
     Q_OBJECT
 
+    typedef QFutureWatcher<std::vector<Server>> ServerFutureWatcher;
+
     int current_room_;
     int requested_room_;
     Options *options_;
-    QFutureWatcher<std::vector<Server>> watcher_;
+    ServerFutureWatcher watcher_;
     QString current_cat_;
     QTimer *timer_;
     QTimer *ping_timer_;
@@ -82,26 +84,20 @@ class ServerTableWidget : public QTableView {
     void setBNXR();
     void setBNDR();
     void setBNERU();
-    void SetupDialogs();
-    void UpdatePlayerCounts();
-    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
 
 public:
     explicit ServerTableWidget(Options *options, QWidget *parent = 0);
 
-    void GetServerList(int room, bool force = false);
-    const ServerTableProxyModel *proxyModel() { return proxy_model_; }
-    void LoadServers(int room, bool force = false);
-    const ServerTableModel *getServerTableModel() const;
-    void SetServerAddressFilter(const QStringList &ips, const QString &cat);
+    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
+    void getServerList(int room, bool force = false);
+    void loadServers(int room, bool force = false);
+    void setServerAddressFilter(const QStringList &ips, const QString &cat);
     void updateBlacklist();
 
 signals:
-    void PasswordChanged(QString address, QString pass, bool is_dm);
     void requestAddTo();
     void requestRemoveFrom();
-    void RunNWN(QString address, bool dm);
-    void ServerInfoRequest(ServerInfoTypes type);
+    void serverInfoRequest(ServerInfoTypes type);
     void dm();
     void play();
     void update();
@@ -110,13 +106,10 @@ public slots:
     void addServer(const QString &addr);
     void finished();
     void onSettingsChanged();
-    void UpdateServers();
 
 private slots:
     void customMenuRequested(QPoint pos);
-    void onAddTo();
     void onModelDataChanged(QModelIndex, QModelIndex);
-    void onRemoveFrom();
     void onRemoveFromCat();
     void requestChangeServerSettings();
     void requestUpdates();

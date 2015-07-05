@@ -142,13 +142,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
             SLOT(setModuleFilter(const QStringList&, const QString&)));
 
-    connect(server_table_widget_, &ServerTableWidget::RunNWN, this, &MainWindow::RunNWN);
-    connect(server_table_widget_, &ServerTableWidget::ServerInfoRequest, this, &MainWindow::onRequestServerInfo);
+    connect(server_table_widget_, &ServerTableWidget::serverInfoRequest, this, &MainWindow::onRequestServerInfo);
     connect(server_table_widget_, &ServerTableWidget::play, this, &MainWindow::play);
     connect(server_table_widget_, &ServerTableWidget::dm, this, &MainWindow::dm);
     connect(server_table_widget_, &ServerTableWidget::update, this, &MainWindow::runUpdater);
-    connect(server_table_widget_, SIGNAL(PasswordChanged(QString,QString,bool)),
-            SLOT(OnPasswordChanged(QString,QString,bool)));
 
     connect(direct_connect_dlg_, SIGNAL(addServer(QString)),
             SLOT(addServer(QString)));
@@ -179,10 +176,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 QVariant MainWindow::getSelectedServerInfo(ServerTableModel::UserRoles column)
 {
-    auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-    if (selections.size() == 0) { return QVariant(); }
-    auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    return server_table_widget_->model()->data(idx, column);
+    return server_table_widget_->getSelectedServerInfo(column);
 }
 
 void MainWindow::changeStack(ToggleButton::Button button) {
@@ -337,7 +331,7 @@ void MainWindow::openURL(const QUrl &url) {
 }
 
 void MainWindow::LoadServers(int room) {
-    server_table_widget_->LoadServers(room, true);
+    server_table_widget_->loadServers(room, true);
 }
 
 void MainWindow::LoadModules(int room){
@@ -345,7 +339,7 @@ void MainWindow::LoadModules(int room){
 }
 
 void MainWindow::SetServerAddressFilter(const QStringList &ips, const QString &cat) {
-    server_table_widget_->SetServerAddressFilter(ips, cat);
+    server_table_widget_->setServerAddressFilter(ips, cat);
     server_table_widget_->selectionModel()->clear();
 }
 
@@ -491,10 +485,6 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
 
 void MainWindow::RunNWN(QString address, bool dm) {
     playServer(address, options_->getPassword(address, dm), dm);
-}
-
-void MainWindow::OnPasswordChanged(QString address, QString password, bool is_dm) {
-    options_->setPassword(address, password, is_dm);
 }
 
 void MainWindow::onAddUserName(QString name) {
