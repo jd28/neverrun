@@ -81,9 +81,7 @@ class ServerTableWidget : public QTableView {
     bool error_loading_;
 
     bool canUpdate();
-    void setBNXR();
-    void setBNDR();
-    void setBNERU();
+    void setPackets();
 
 public:
     explicit ServerTableWidget(Options *options, QWidget *parent = 0);

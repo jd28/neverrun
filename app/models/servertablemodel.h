@@ -69,12 +69,13 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-   // bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
     bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
-    void setBNXI(const QByteArray& bnxi) { bnxi_ = bnxi; }
-    void setBNDS(const QByteArray& bnds) { bnds_ = bnds; }
-    void setBNES(const QByteArray& bnes) { bnes_ = bnes; }
+
+    void setPackets(const QByteArray& bnxi, const QByteArray& bnds, const QByteArray& bnes) {
+        bnxi_ = bnxi; bnds_ = bnds; bnes_ = bnes;
+    }
+
     void setLastActive(int64_t last_active) { last_active_ = last_active; }
     void sweepOfflineServers();
     void setServerAddressFilter(const QStringList& ips);

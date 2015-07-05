@@ -231,9 +231,7 @@ void ServerTableWidget::finished(){
         pm->setSourceModel(model_);
         pm->setServerBlacklist(options_->getBlacklist());
         model_->bindUpdSocket(options_->getClientPort() + 100);
-        setBNXR();
-        setBNDR();
-        setBNERU();
+        setPackets();
         connect(model_, &ServerTableModel::dataChanged, this, &ServerTableWidget::onModelDataChanged);
         ping_timer_ = new QTimer(this);
         connect(ping_timer_, &QTimer::timeout, this, &ServerTableWidget::requestUpdates);
@@ -397,30 +395,19 @@ void ServerTableWidget::sweepOfflineServers() {
     if (canUpdate()) { model_->sweepOfflineServers(); }
 }
 
-void ServerTableWidget::setBNXR() {
+void ServerTableWidget::setPackets() {
+    uint16_t p = options_->getClientPort() + 100;
+    char res[2];
+    qToBigEndian(p, (uchar*)&res);
+
     QByteArray bnxi("BNXI");
-    uint16_t p = options_->getClientPort() + 100;
-    char res[2];
-    qToBigEndian(p, (uchar*)&res);
     bnxi.append(res, 2);
-    model_->setBNXI(bnxi);
-}
 
-void ServerTableWidget::setBNDR() {
-    QByteArray bnxi("BNDS");
-    uint16_t p = options_->getClientPort() + 100;
-    char res[2];
-    qToBigEndian(p, (uchar*)&res);
-    bnxi.append(res, 2);
-    model_->setBNDS(bnxi);
-}
+    QByteArray bnds("BNDS");
+    bnds.append(res, 2);
 
-void ServerTableWidget::setBNERU() {
-    QByteArray bnxi("BNES");
-    uint16_t p = options_->getClientPort() + 100;
-    char res[2];
-    qToBigEndian(p, (uchar*)&res);
-    bnxi.append(res, 2);
-    model_->setBNES(bnxi);
-}
+    QByteArray bnes("BNES");
+    bnes.append(res, 2);
 
+    model_->setPackets(bnxi, bnds, bnes);
+}
