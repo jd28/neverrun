@@ -123,22 +123,21 @@ MainWindow::MainWindow(QWidget *parent)
     main_grid->setLayout(main_grid_layout_);
 
     main_grid->setProperty("central", true);
-    //w->setStyleSheet("background-image: url(:/nwn/nwn.png)");
 
     list_selection_dlg_ = new ListSelectionDialog(this);
     connect(list_selection_dlg_, SIGNAL(accepted()), SLOT(onListSelectionAccepted()));
 
     setCentralWidget(main_grid);
 
-    connect(server_category_, SIGNAL(LoadAllServers(int)),
-            SLOT(LoadServers(int)));
+    connect(server_category_, &ServerCategoryWidget::loadAllServers,
+            this, &MainWindow::loadServers);
+    connect(server_category_, &ServerCategoryWidget::updateFilter,
+            this, &MainWindow::setServerAddressFilter);
+    connect(server_category_, &ServerCategoryWidget::requestAddCategory,
+            this, &MainWindow::addCategory);
 
     connect(module_category_, SIGNAL(LoadModules(int)),
             SLOT(LoadModules(int)));
-
-    connect(server_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
-            SLOT(SetServerAddressFilter(const QStringList&, const QString&)));
-
     connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
             SLOT(setModuleFilter(const QStringList&, const QString&)));
 
@@ -146,6 +145,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server_table_widget_, &ServerTableWidget::play, this, &MainWindow::play);
     connect(server_table_widget_, &ServerTableWidget::dm, this, &MainWindow::dm);
     connect(server_table_widget_, &ServerTableWidget::update, this, &MainWindow::runUpdater);
+    connect(server_table_widget_, &ServerTableWidget::requestAddTo, this, &MainWindow::onRequestAddToDialog);
+    connect(server_table_widget_, &ServerTableWidget::requestRemoveFrom, this, &MainWindow::onRequestRemoveFromDialog);
+    connect(server_table_widget_, &ServerTableWidget::doubleClicked, [this](QModelIndex idx) { Q_UNUSED(idx); play(); });
 
     connect(direct_connect_dlg_, SIGNAL(addServer(QString)),
             SLOT(addServer(QString)));
@@ -154,10 +156,6 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(onAddUserName(QString)));
     connect(name_label_, SIGNAL(userNameChanged(QString)),
             SLOT(onChangeUserName(QString)));
-
-    connect(server_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
-    connect(server_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
-    connect(server_table_widget_, &ServerTableWidget::doubleClicked, [this](QModelIndex idx) { Q_UNUSED(idx); play(); });
 
     connect(modules_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
     connect(modules_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
@@ -168,6 +166,9 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(playServer(QString,QString,bool)));
 
     setupUi();
+
+    add_category_dlg_ = new TextBoxDialog(TextBoxDialog::MODE_ADD_CATEGORY, this);
+    connect(add_category_dlg_, &TextBoxDialog::accepted, this, &MainWindow::onCategoryAdded);
 
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     diskCache->setCacheDirectory(cacheDir);
@@ -194,12 +195,9 @@ void MainWindow::changeStack(ToggleButton::Button button) {
 }
 
 bool MainWindow::AddServers() {
-    server_category_->SelectAll();
+    server_category_->selectAllCategory();
     module_category_->SelectAll();
-    generator_->markdownTextChanged(
-                ""
-                );
-
+    generator_->markdownTextChanged("");
     return true;
 }
 
@@ -330,7 +328,7 @@ void MainWindow::openURL(const QUrl &url) {
     QDesktopServices::openUrl(url);
 }
 
-void MainWindow::LoadServers(int room) {
+void MainWindow::loadServers(int room) {
     server_table_widget_->loadServers(room, true);
 }
 
@@ -338,7 +336,7 @@ void MainWindow::LoadModules(int room){
     modules_table_widget_->loadModules(room);
 }
 
-void MainWindow::SetServerAddressFilter(const QStringList &ips, const QString &cat) {
+void MainWindow::setServerAddressFilter(const QStringList &ips, const QString &cat) {
     server_table_widget_->setServerAddressFilter(ips, cat);
     server_table_widget_->selectionModel()->clear();
 }
@@ -394,6 +392,7 @@ void MainWindow::openProcess(const QString& exe, const QString& args, const QStr
                                    reinterpret_cast<const WCHAR*>(args.utf16()),
                                    reinterpret_cast<const WCHAR*>(dir.utf16()),
                                    SW_SHOWNORMAL);
+    Q_UNUSED(result);
 #else
     QProcess *nwn = new QProcess(this);
     nwn->setWorkingDirectory(dir);
@@ -466,12 +465,10 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
     }
 
     if (password.size() > 0){
-        arguments << "+password"
-                  << password;
+        arguments << "+password" << password;
     }
 
-    arguments << "+connect"
-              << address;
+    arguments << "+connect" << address;
 
     QString exe = options_->getServerLoader(address);
     if(exe.size() == 0 || !QFile(exe).exists())
@@ -530,7 +527,7 @@ void MainWindow::onListSelectionAccepted() {
                 options_->removeServerFromCategory(i, add);
                 auto sel = server_category_->selectionModel()->selectedRows();
                 if (i == sel[0].data()) {
-                    SetServerAddressFilter(options_->getCategoryIPs(i), i);
+                    setServerAddressFilter(options_->getCategoryIPs(i), i);
                 }
             }
 
@@ -655,7 +652,7 @@ void MainWindow::addServer(QString addr) {
     if (it.size() == 0) { return; }
 
     if (it[0].data().toString() == "History") {
-        SetServerAddressFilter(options_->getCategoryIPs("History"), "History");
+        setServerAddressFilter(options_->getCategoryIPs("History"), "History");
     }
 }
 
@@ -671,14 +668,6 @@ void MainWindow::setupHtmlPreview() {
     server_info_widget_->webview()->page()->settings()->setUserStyleSheetUrl(QUrl("qrc:/web/styles/clearness-dark.css"));
     server_info_widget_->webview()->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect( server_info_widget_->webview()->page(), SIGNAL(linkClicked(const QUrl&)),this, SLOT(openURL(const QUrl&)));
-
-    // add our objects everytime JavaScript environment is cleared
-    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
-    //        this, SLOT(addJavaScriptObject()));
-
-    // restore scrollbar position after content size changed
-    //connect(server_info_widget_->webview()->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
-    //        this, SLOT(htmlContentSizeChanged()));
 
     // load HTML template for live preview from resources
     QFile f(":/web/template.html");

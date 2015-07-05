@@ -28,6 +28,12 @@ class ServerSettingsDialog : public QDialog
 {
     Q_OBJECT
 
+    Ui::ServerSettingsDialog *ui;
+
+private slots:
+    void openLoaderDialog();
+    void openUpdaterDialog();
+
 public:
     explicit ServerSettingsDialog(QWidget *parent = 0);
     ~ServerSettingsDialog();
@@ -41,14 +47,7 @@ public:
     void setDMPassword(const QString &pass);
     void setLoader(const QString& l);
     void setUpdater(const QString& l);
-
     void setCancelFocus();
-private slots:
-    void openLoaderDialog();
-    void openUpdaterDialog();
-private:
-    Ui::ServerSettingsDialog *ui;
-    bool loader_file_;
 };
 
 #endif // SERVERSETTINGS_H

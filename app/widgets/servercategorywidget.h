@@ -28,22 +28,20 @@ class ServerCategoryWidget : public QTableWidget {
 
     Options *options_;
 
-    void removeCategory(const QString& cat);
+private slots:
+    void changeServerList();
+    void customMenuRequested(QPoint pos);
+    void onRemoveCategory();
 
 public:
     ServerCategoryWidget(Options *settings, QWidget *parent = 0);
-    void SelectAll();
+    void selectAllCategory();
     void addCategory(const QString& cat);
 
 signals:
-    void LoadAllServers(int room);
-    void UpdateFilter(const QStringList& ips, const QString& name);
-
-public slots:
-    void ChangeServerList();
-private slots:
-    void customMenuRequested(QPoint pos);
-    void onRemoveCategory();
+    void loadAllServers(int room);
+    void updateFilter(const QStringList& ips, const QString& name);
+    void requestAddCategory();
 };
 
 #endif // SERVERCATEGORYWIDGET_H

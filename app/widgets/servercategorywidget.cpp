@@ -123,12 +123,12 @@ ServerCategoryWidget::ServerCategoryWidget(Options *options, QWidget *parent) :
     setSelectionMode(QAbstractItemView::SingleSelection);
 
     connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            SLOT(ChangeServerList()));
+            SLOT(changeServerList()));
 
 #undef add_row
 }
 
-void ServerCategoryWidget::SelectAll() {
+void ServerCategoryWidget::selectAllCategory() {
     selectRow(0);
 }
 
@@ -150,8 +150,6 @@ void ServerCategoryWidget::addCategory(const QString &cat) {
             }
         }
 
-        qDebug() << row;
-
         QTableWidgetItem *item = new QTableWidgetItem(cat);
         item->setData(Qt::UserRole+2, true);
         item->setFlags(item->flags() ^ Qt::ItemIsEditable);
@@ -165,13 +163,13 @@ void ServerCategoryWidget::addCategory(const QString &cat) {
     }
 }
 
-void ServerCategoryWidget::ChangeServerList()
+void ServerCategoryWidget::changeServerList()
 {
     foreach(QTableWidgetItem *x, selectedItems()) {
         QStringList ips;
         QString cat;
         if (x->text() == "All") {
-            emit LoadAllServers(-1);
+            emit loadAllServers(-1);
         }
         else {
             int res = RoomToGameType(x->text());
@@ -179,16 +177,16 @@ void ServerCategoryWidget::ChangeServerList()
                 cat = x->text();
                 ips = options_->getCategoryIPs(x->text());
                 if(cat == "History") {
-                    emit LoadAllServers(-3);
+                    emit loadAllServers(-3);
                 }
                 else {
-                    emit LoadAllServers(-2);
+                    emit loadAllServers(-2);
                 }
             }
             else {
-                emit LoadAllServers(res);
+                emit loadAllServers(res);
             }
         }
-        emit UpdateFilter(ips, cat);
+        emit updateFilter(ips, cat);
     }
 }

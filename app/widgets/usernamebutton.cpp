@@ -34,34 +34,29 @@ UserNameButton::UserNameButton(Options *options, const QString& current, const Q
 
     setText(current);
     setStyleSheet("font-size: 30px;");
-    qDebug() << current << " " << QFontMetrics(font()).boundingRect(current).width();
     setMinimumWidth( QFontMetrics(font()).boundingRect(current).width() );
     name_menu_ = new QMenu(this);
     name_menu_->setStyleSheet("font-size: 16px; text-align: center;");
     for (int i = 0; i < all.size(); ++i) {
         name_menu_->addAction(all[i]);
     }
-    connect(name_menu_, SIGNAL(triggered(QAction*)),
-            this, SLOT(changeUserName(QAction*)));
-
-
+    connect(name_menu_, &QMenu::triggered, this, &UserNameButton::changeUserName);
 
     list_selection_dlg_ = new ListSelectionDialog(this);
-    connect(list_selection_dlg_, SIGNAL(accepted()), SLOT(onRemoveUserNames()));
+    connect(list_selection_dlg_, &ListSelectionDialog::accepted, this, &UserNameButton::onRemoveUserNames);
 
     name_menu_->addSeparator();
 
     auto act = new QAction("Add User Name", this);
-    connect(act, SIGNAL(triggered()), SLOT(showAddUserName()));
+    connect(act, &QAction::triggered, this, &UserNameButton::showAddUserName);
     name_menu_->addAction(act);
     act->setProperty("NAME_LABEL_NOT_NAME", true);
 
     act = new QAction("Remove User Name(s)", this);
-    connect(act, SIGNAL(triggered()), SLOT(showRemoveUserNames()));
+    connect(act, &QAction::triggered, this, &UserNameButton::showRemoveUserNames);
     act->setProperty("NAME_LABEL_NOT_NAME", true);
 
     name_menu_->addAction(act);
-    //setPopupMode(QToolButton::InstantPopup);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     add_user_ = new TextBoxDialog(TextBoxDialog::MODE_USER_NAME, this);
@@ -128,7 +123,6 @@ void UserNameButton::addUserName() {
     setText(u);
     emit userNameChanged(u);
 }
-
 
 void UserNameButton::changeUserName(QAction *action) {
     if (action->property("NAME_LABEL_NOT_NAME").toBool()) {

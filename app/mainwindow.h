@@ -95,7 +95,6 @@ class MainWindow : public QMainWindow {
 
 private slots:
     void about();
-    void addCategory();
     void checkForUpdates();
     void dm();
     void htmlResultReady(const QString &html);
@@ -114,10 +113,11 @@ private slots:
     void launchGOGForums();
 
 public slots:
+    void addCategory();
     void addServer(QString addr);
     void changeStack(ToggleButton::Button button);
     void LoadModules(int room);
-    void LoadServers(int room);
+    void loadServers(int room);
     void onAddUserName(QString name);
     void onChangeUserName(QString name);
     void onRequestAddToDialog();
@@ -125,7 +125,7 @@ public slots:
     void openURL(const QUrl& url);
     void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
-    void SetServerAddressFilter(const QStringList &ips, const QString& cat);
+    void setServerAddressFilter(const QStringList &ips, const QString& cat);
     void setModuleFilter(const QStringList &mods, const QString &cat);
     void onRequestServerInfo(ServerInfoTypes type);
 

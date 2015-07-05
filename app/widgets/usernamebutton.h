@@ -34,15 +34,6 @@ class UserNameButton : public QPushButton
     QMenu *name_menu_;
     TextBoxDialog *add_user_;
     ListSelectionDialog *list_selection_dlg_;
-public:
-    UserNameButton(Options *options, const QString &current, const QStringList &all, QWidget *parent = 0);
-
-signals:
-    void userNameChanged(QString username);
-    void addUserName(QString username);
-    void requestRemoveUserNames();
-
-public slots:
 
 private slots:
     void showAddUserName();
@@ -52,7 +43,14 @@ private slots:
     void onRemoveUserNames();
 
 protected:
-protected:
-    virtual void paintEvent( QPaintEvent * );};
+    virtual void paintEvent( QPaintEvent * );
+
+public:
+    UserNameButton(Options *options, const QString &current, const QStringList &all, QWidget *parent = 0);
+
+signals:
+    void userNameChanged(QString username);
+    void addUserName(QString username);
+};
 
 #endif // USERNAMEBUTTON_H

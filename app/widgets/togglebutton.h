@@ -29,6 +29,11 @@ class ToggleButton : public QWidget
     QPushButton *left_;
     QPushButton *right_;
     bool is_left_;
+
+private slots:
+    void OnLeftClicked(bool checked);
+    void OnRightClicked(bool checked);
+
 public:
     ToggleButton(QString left, QString right, QWidget *parent = 0);
 
@@ -36,13 +41,9 @@ public:
         Left,
         Right
     };
+
 signals:
     void ButtonChanged(ToggleButton::Button);
-
-private slots:
-    void OnLeftClicked(bool checked);
-    void OnRightClicked(bool checked);
-
 };
 
 #endif // TOGGLEBUTTON_H

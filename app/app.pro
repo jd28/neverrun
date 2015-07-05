@@ -70,7 +70,6 @@ HEADERS  += mainwindow.h \
     widgets/setdmpassworddialog.h \
     widgets/usernamebutton.h \
     delegates/TableSeperatorDelegate.h \
-    delegates/imagedelegate.h \
     widgets/moduletablewidget.h \
     models/moduletableproxymodel.h \
     models/moduletablemodel.h \
