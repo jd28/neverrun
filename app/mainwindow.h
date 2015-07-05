@@ -90,6 +90,7 @@ class MainWindow : public QMainWindow {
     void setupHtmlPreview();
     void setupUi();
     void ToolsetModule(QString module);
+    void launchNWN(bool dm);
     QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
 
 private slots:
@@ -99,8 +100,6 @@ private slots:
     void dm();
     void htmlResultReady(const QString &html);
     void play();
-    void launchDMClient();
-    void launchNWN();
     void launchToolset();
     void onCategoryAdded();
     void onDoubleClickServer(QModelIndex idx);
