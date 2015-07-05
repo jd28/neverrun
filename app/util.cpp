@@ -2,6 +2,8 @@
 #include <QColorDialog>
 #include <QFile>
 #include <qt_windows.h>
+#include <QDebug>
+#include <yaml-cpp/yaml.h>
 
 #include "util.h"
 
@@ -174,7 +176,6 @@ bool parseBNDR(const QByteArray &data, Server &s) {
 
     bool updated = false;
     int offset = 6;
-    QString url;
 
     uint32_t sdesc_size = 0;
     memcpy(&sdesc_size, d + offset, 4);
@@ -182,11 +183,34 @@ bool parseBNDR(const QByteArray &data, Server &s) {
     if ( sdesc_size != 0 ) {
         if ( sdesc_size != s.serv_description.size() ) {
             s.serv_description = data.mid(offset, sdesc_size);
+            auto lines = s.serv_description.split(QRegExp("\n|\r\n|\r"));
 
-            url = findUrl(s.serv_description);
-            if (url.size() > 0) {
-                if ( url.endsWith(".nrl", Qt::CaseInsensitive)) { s.nrl = url; }
-                else { s.homepage = url; }
+            QString yaml;
+            if (lines[0].startsWith("---")) {
+                for(int i = 1; i < lines.size(); ++i) {
+                    if(lines[i].startsWith("---")) {
+                        lines.erase(lines.begin(), lines.begin()+i+1);
+                        s.serv_description = lines.join("");
+                        break;
+                    }
+                    yaml += lines[i] + "\n";
+                }
+            }
+
+            YAML::Node node;
+            if(yaml.size() > 0) {
+                try {
+                    node = YAML::Load(yaml.toUtf8());
+                    if(node["website"]) {
+                        s.homepage = QString::fromStdString(node["website"].as<std::string>());
+                    }
+                    if(node["forum"]) {
+                        s.forum = QString::fromStdString(node["forum"].as<std::string>());
+                    }
+                }
+                catch(...) {
+                    qDebug() << "Failed to load yaml for server.";
+                }
             }
             updated = true;
         }
@@ -199,7 +223,7 @@ bool parseBNDR(const QByteArray &data, Server &s) {
     if ( mdesc_size != 0 ) {
         if ( mdesc_size != s.mod_description.size() ) {
             s.mod_description = data.mid(offset, mdesc_size);
-            if ( url.size() == 0 ) {
+            if ( s.homepage.size() == 0 ) {
                 QString url = findUrl(s.mod_description);
                 if (url.size() > 0) {
                     if ( url.endsWith(".nrl", Qt::CaseInsensitive)) { s.nrl = url; }

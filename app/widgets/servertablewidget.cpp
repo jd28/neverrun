@@ -164,13 +164,8 @@ static std::vector<Server> GetAllServers(QStringList history){
             url = findUrl(serv.mod_description);
         }
         if (url.size() > 0) {
-            if ( url.endsWith(".nrl", Qt::CaseInsensitive)) {
-                serv.nrl = url;
-            }
-            else {
                 serv.homepage = url;
             }
-        }
         serv.serv_description = desc;
         serv.serv_description.replace(QRegExp("[\\n\\r]+"), "\n\n");
         s.push_back(serv);
