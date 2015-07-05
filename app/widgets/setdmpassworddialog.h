@@ -36,17 +36,20 @@ public:
         MODE_ADD_CATEGORY
     };
 
+private:
+    Mode mode_;
+    Ui::SetDMPasswordDialog *ui;
+
+public:
     explicit TextBoxDialog(QWidget *parent = 0);
     TextBoxDialog(Mode mode, QWidget *parent = 0);
     ~TextBoxDialog();
 
-    void setEntryMode(Mode mode);
     Mode getEntryMode() const;
     QString getText() const;
+    void setEntryMode(Mode mode);
     void setText(const QString& text);
-private:
-    Mode mode_;
-    Ui::SetDMPasswordDialog *ui;
+
 };
 
 #endif // SETDMPASSWORDDIALOG_H

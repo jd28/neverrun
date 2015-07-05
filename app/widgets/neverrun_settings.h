@@ -19,9 +19,17 @@ class NeverrunSettingsDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit NeverrunSettingsDialog(Options *opts, QWidget *parent = 0);
-    ~NeverrunSettingsDialog();
+    Ui::NeverrunSettings *ui;
+    Options *options_;
+    bool loading_;
+
+    void loadCPPSettings(const boost::property_tree::ptree& nwn_settings);
+    void loadNWNChatColorSettings(const boost::property_tree::ptree& nwn_settings);
+    void loadNWNTrapColorSettings(const boost::property_tree::ptree& nwn_settings);
+    void loadNWNGameOptions(const boost::property_tree::ptree& nwn_settings);
+    void loadNWNiniSettings();
+    void loadNWNPatchIniSettings();
+    void loadNWNControlOptions(const boost::property_tree::ptree& nwn_settings);
 
 private slots:
     void on_cppDisableLoadModuleFinishHook_toggled(bool checked);
@@ -76,18 +84,10 @@ private slots:
     void on_nwnPatchAddBtn_clicked();
     void on_nwnPatchRemoveBtn_clicked();
 
-private:
-    Ui::NeverrunSettings *ui;
-    Options *options_;
-    bool loading_;
+public:
+    explicit NeverrunSettingsDialog(Options *opts, QWidget *parent = 0);
+    ~NeverrunSettingsDialog();
 
-    void loadCPPSettings(const boost::property_tree::ptree& nwn_settings);
-    void loadNWNChatColorSettings(const boost::property_tree::ptree& nwn_settings);
-    void loadNWNTrapColorSettings(const boost::property_tree::ptree& nwn_settings);
-    void loadNWNGameOptions(const boost::property_tree::ptree& nwn_settings);
-    void loadNWNiniSettings();
-    void loadNWNPatchIniSettings();
-    void loadNWNControlOptions(const boost::property_tree::ptree& nwn_settings);
 };
 
 #endif // NeverrunSettingsDIALOG_H

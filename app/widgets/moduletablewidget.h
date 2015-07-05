@@ -33,6 +33,20 @@ class TextBoxDialog;
 class ModuleTableWidget : public QTableView {
     Q_OBJECT
 
+    QAction               *act_add_to_;
+    QAction               *act_remove_from_;
+    QAction               *act_remove_from_cat_;
+    QString                current_cat_;
+    ModuleTableModel      *model_;
+    ModuleTableProxyModel *proxy_model_;
+    Options               *options_;
+
+private slots:
+    void customMenuRequested(QPoint pos);
+    void onAddTo();
+    void onRemoveFrom();
+    void onRemoveFromCat();
+
 public:
     explicit ModuleTableWidget(Options *options, QWidget *parent = 0);
     const ModuleTableProxyModel *proxyModel() {
@@ -42,27 +56,14 @@ public:
     void setModuleFilter(const QStringList &mods, const QString &cat);
     const ModuleTableModel *getModuleTableModel() const;
     void loadModules(int room);
-signals:
-    void requestAddTo();
-    void requestRemoveFrom();
 
 public slots:
     void HandleSelectionChange(QModelIndex current, QModelIndex previous);
 
-private slots:
-    void customMenuRequested(QPoint pos);
-    void onAddTo();
-    void onRemoveFrom();
-    void onRemoveFromCat();
+signals:
+    void requestAddTo();
+    void requestRemoveFrom();
 
-private:
-    QAction               *act_add_to_;
-    QAction               *act_remove_from_;
-    QAction               *act_remove_from_cat_;
-    QString                current_cat_;
-    ModuleTableModel      *model_;
-    ModuleTableProxyModel *proxy_model_;
-    Options               *options_;
 };
 
 #endif // MODULETABLEWIDGET_H

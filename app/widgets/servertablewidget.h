@@ -92,27 +92,27 @@ public:
     void setServerAddressFilter(const QStringList &ips, const QString &cat);
     void updateBlacklist();
 
-signals:
-    void requestAddTo();
-    void requestRemoveFrom();
-    void serverInfoRequest(ServerInfoTypes type);
-    void dm();
-    void play();
-    void update();
-
 public slots:
     void addServer(const QString &addr);
     void finished();
     void onSettingsChanged();
 
+signals:
+    void dm();
+    void play();
+    void requestAddTo();
+    void requestRemoveFrom();
+    void serverInfoRequest(ServerInfoTypes type);
+    void update();
+
 private slots:
     void customMenuRequested(QPoint pos);
+    void onBlacklist();
     void onModelDataChanged(QModelIndex, QModelIndex);
     void onRemoveFromCat();
     void requestChangeServerSettings();
     void requestUpdates();
     void sweepOfflineServers();
-    void onBlacklist();
 
 };
 

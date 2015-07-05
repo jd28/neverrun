@@ -30,6 +30,11 @@ class ServerInfoWidget : public QWidget
 {
     Q_OBJECT
 
+    Ui::ServerInfoWidget *ui;
+
+private slots:
+    void onCloseInfo();
+
 public:
     explicit ServerInfoWidget(QWidget *parent = 0);
     ~ServerInfoWidget();
@@ -39,11 +44,6 @@ public:
 signals:
     void closeInfo();
 
-private slots:
-    void onCloseInfo();
-
-private:
-    Ui::ServerInfoWidget *ui;
 };
 
 #endif // SERVERINFOWIDGET_H

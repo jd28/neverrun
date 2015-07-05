@@ -15,6 +15,16 @@ class DirectConnectDialog : public QDialog
 {
     Q_OBJECT
 
+    Ui::DirectConnectDialog *ui;
+    Options *options_;
+    QMessageBox *error_;
+
+    void doServer(const QString &addr, const QString &pass, bool dm);
+
+private slots:
+    void play();
+    void dm();
+
 public:
     explicit DirectConnectDialog(Options *opts, QWidget *parent = 0);
     ~DirectConnectDialog();
@@ -24,16 +34,7 @@ public:
 signals:
     void requestPlayServer(QString address, QString password, bool dm);
     void addServer(QString address);
-private slots:
-    void play();
-    void dm();
 
-private:
-    Ui::DirectConnectDialog *ui;
-    Options *options_;
-    QMessageBox *error_;
-
-    void doServer(const QString &addr, const QString &pass, bool dm);
 };
 
 #endif // DIRECTCONNECTDIALOG_H

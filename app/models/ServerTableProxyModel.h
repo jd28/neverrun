@@ -38,8 +38,6 @@ public:
           QSortFilterProxyModel(parent)
     {}
 
-    void reset() { resetInternalData(); }
-
     void setCurrentRoom(int room) {
         current_room_ = room;
         invalidateFilter();

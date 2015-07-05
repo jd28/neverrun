@@ -39,13 +39,13 @@ public:
     ~ServerSettingsDialog();
 
     QString getLoader() const;
-    QString getPassword() const;
     QString getDMPassword() const;
+    QString getPassword() const;
     QString getUpdater() const;
 
-    void setPassword(const QString &pass);
-    void setDMPassword(const QString &pass);
     void setLoader(const QString& l);
+    void setDMPassword(const QString &pass);
+    void setPassword(const QString &pass);
     void setUpdater(const QString& l);
     void setCancelFocus();
 };

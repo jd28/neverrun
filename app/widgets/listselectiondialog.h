@@ -36,18 +36,20 @@ public:
         MODE_REMOVE_USERNAME
     };
 
+private:
+    Mode mode_;
+    Ui::ListSelectionDialog *ui;
+
+public:
     explicit ListSelectionDialog(QWidget *parent = 0);
     ~ListSelectionDialog();
 
     Mode getMode() const { return mode_; }
     QStringList getSelectedItems() const;
 
-    void setListItems(const QStringList& list);
     void setLabel(const QString& name);
+    void setListItems(const QStringList& list);
     void setMode(Mode mode) { mode_ = mode; }
-private:
-    Mode mode_;
-    Ui::ListSelectionDialog *ui;
 };
 
 #endif // LISTSELECTIONDIALOG_H
