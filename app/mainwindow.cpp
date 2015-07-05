@@ -97,16 +97,12 @@ MainWindow::MainWindow(QWidget *parent)
     cat_stack_->addWidget(module_category_);
     main_grid_layout_->addWidget(cat_stack_, 1, 0);
 
-    main_grid_layout_->addWidget(createAddCategoryWidget(), 2, 0);
-
     list_stack_ = new QStackedWidget(this);
     list_stack_->addWidget(server_table_widget_);
     modules_table_widget_ = new ModuleTableWidget(options_, this);
     list_stack_->addWidget(modules_table_widget_);
     list_stack_->addWidget(server_info_widget_);
     main_grid_layout_->addWidget(list_stack_, 1, 1);
-
-    main_grid_layout_->addWidget(CreateInfoButtonBar(), 2, 1);
 
     main_grid_layout_->setColumnStretch(0, 1);
     main_grid_layout_->setColumnStretch(1,5);
@@ -145,16 +141,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
             SLOT(setModuleFilter(const QStringList&, const QString&)));
-
-    connect(server_table_widget_->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(HandleServerSelectionChange(QModelIndex,QModelIndex)));
-
-    connect(server_table_widget_, SIGNAL(serverSettingsChanged()), SLOT(onServerSettingsChanged()));
-
-    connect(modules_table_widget_->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(HandleModuleSelectionChange(QModelIndex,QModelIndex)));
-
-    connect(website_button_, SIGNAL(clicked()), SLOT(HandleOpenWebsite()));
 
     connect(server_table_widget_, SIGNAL(RunNWN(QString,bool)),
             SLOT(RunNWN(QString,bool)));
@@ -195,20 +181,10 @@ void MainWindow::changeStack(ToggleButton::Button button) {
     case ToggleButton::Left:
         cat_stack_->setCurrentIndex(STACK_INDEX_SERVER);
         list_stack_->setCurrentIndex(STACK_INDEX_SERVER);
-        website_button_->setText("Website");
-        info_button_->setEnabled(true);
-        dm_button_->setEnabled(true);
-        website_button_->setEnabled(current_website_.size() > 0);
-        update_button_->setEnabled(current_server_updater_.size() > 0);
         break;
     case ToggleButton::Right:
         cat_stack_->setCurrentIndex(STACK_INDEX_MODULE);
         list_stack_->setCurrentIndex(STACK_INDEX_MODULE);
-        website_button_->setText("Toolset");
-        website_button_->setEnabled(true);
-        info_button_->setEnabled(false);
-        dm_button_->setEnabled(false);
-        update_button_->setEnabled(false);
         break;
     }
 }
@@ -254,56 +230,6 @@ void MainWindow::htmlResultReady(const QString &html) {
 
     server_info_widget_->webview()->setHtml(html, baseUrl);
 
-}
-
-QWidget *MainWindow::CreateInfoButtonBar() {
-    QWidget *bw = new QWidget(this);
-    QHBoxLayout *bl = new QHBoxLayout();
-
-    direct_connect_ = new QPushButton("Direct Connect", this);
-    connect(direct_connect_, SIGNAL(clicked()), SLOT(requestDirectConnect()));
-
-    play_button_ = new QPushButton("Play", this);
-    connect(play_button_, SIGNAL(clicked()), SLOT(play()));
-    dm_button_ = new QPushButton("DM", this);
-    connect(dm_button_, SIGNAL(clicked()), SLOT(dm()));
-
-    info_button_ = new QPushButton("Info", this);
-    connect(info_button_, SIGNAL(clicked()), this, SLOT(switchStack()));
-
-    website_button_ = new QPushButton("Website", this);
-    website_button_->setEnabled(false);
-    website_button_->setMinimumHeight(25);
-
-    bl->addWidget(play_button_);
-    bl->addWidget(dm_button_);
-    bl->addWidget(direct_connect_);
-    bl->addWidget(website_button_);
-    bl->addWidget(info_button_);
-
-    update_button_ = new QPushButton("Update", this);
-    update_button_->setEnabled(false);
-    bl->addWidget(update_button_);
-    connect(update_button_, SIGNAL(clicked()), SLOT(runUpdater()));
-
-    bw->setLayout(bl);
-    bw->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    return bw;
-}
-
-QWidget *MainWindow::createAddCategoryWidget() {
-    add_category_dlg_ = new TextBoxDialog(TextBoxDialog::MODE_ADD_CATEGORY, this);
-    connect(add_category_dlg_, SIGNAL(accepted()), SLOT(onCategoryAdded()));
-
-    auto w = new QWidget(this);
-    auto l = new QHBoxLayout();
-    auto add_cat_button = new QPushButton("Add Category", this);
-    connect(add_cat_button, SIGNAL(clicked()), SLOT(addCategory()));
-
-    l->addWidget(add_cat_button);
-    w->setLayout(l);
-
-    return w;
 }
 
 void MainWindow::addCategory() {
@@ -352,7 +278,6 @@ void MainWindow::switchStack() {
     int cur = list_stack_->currentIndex();
     if ( cur == STACK_INDEX_INFO ) {
         list_stack_->setCurrentIndex(cat_stack_->currentIndex());
-        info_button_->setEnabled(true);
     }
     else {
         int idx = cat_stack_->currentIndex();
@@ -368,7 +293,6 @@ void MainWindow::switchStack() {
                    .arg(data[9], data[10], data[11]);
             generator_->markdownTextChanged(md);
             list_stack_->setCurrentIndex(STACK_INDEX_INFO);
-            info_button_->setEnabled(false);
         }
     }
 }
@@ -398,53 +322,8 @@ void MainWindow::launchGOGForums() {
     QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
 }
 
-void MainWindow::HandleServerSelectionChange(QModelIndex current, QModelIndex previous) {
-    Q_UNUSED(previous);
-    if(!current.isValid()) { return; }
-    QModelIndex index = server_table_widget_->model()->index(current.row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = server_table_widget_->model()->data(index, Qt::UserRole + 3).toString();
-
-    current_website_ = server_table_widget_->model()->data(index, Qt::UserRole + 2).toString();
-    website_button_->setEnabled(current_website_.size() > 0);
-    current_server_loader_ = options_->getServerLoader(address);
-    current_server_updater_ = options_->getServerUpdater(address);
-    update_button_->setEnabled(current_server_updater_.size() > 0);
-    info_button_->setEnabled(true);
-}
-
-void MainWindow::HandleModuleSelectionChange(QModelIndex current, QModelIndex previous) {
-    Q_UNUSED(previous);
-    if(!current.isValid()) { return; }
-    QModelIndex index = modules_table_widget_->model()->index(current.row(), 0);
-    QVariant data = modules_table_widget_->model()->data(index);
-
-    website_button_->setEnabled(true);
-    dm_button_->setEnabled(false);
-    info_button_->setEnabled(false);
-}
-
 void MainWindow::openURL(const QUrl &url) {
     QDesktopServices::openUrl(url);
-}
-
-void MainWindow::HandleOpenWebsite() {
-    int cur = cat_stack_->currentIndex();
-    switch(cur) {
-    default: return;
-    case STACK_INDEX_SERVER:
-        openURL(QUrl(current_website_));
-        break;
-    case STACK_INDEX_MODULE: {
-        auto selections = modules_table_widget_->selectionModel()->selectedIndexes();
-        if (selections.size() == 0) { return; }
-        auto idx = modules_table_widget_->model()->index(selections[0].row(), 0);
-        QString module = modules_table_widget_->model()->data(idx).toString();
-
-        module = "\"modules/"+ module + '\"';
-        ToolsetModule(module);
-        break;
-    }
-    }
 }
 
 void MainWindow::LoadServers(int room) {
@@ -580,7 +459,7 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
     arguments << "+connect"
               << address;
 
-    QString exe = current_server_loader_;
+    QString exe = options_->getServerLoader(address);
     if(exe.size() == 0 || !QFile(exe).exists())
         exe = getDefaultNWNExe();
 
@@ -671,9 +550,6 @@ void MainWindow::onListSelectionAccepted() {
 }
 
 void MainWindow::runUpdater() {
-    if( current_server_updater_.size() == 0 ) { return; }
-    QString dir = QFileInfo(current_server_updater_).canonicalPath();
-    openProcess(current_server_updater_, "", dir);
 }
 
 void MainWindow::onRequestAddToDialog() {
@@ -726,21 +602,6 @@ void MainWindow::onRequestRemoveFromDialog() {
     list_selection_dlg_->setMode(ListSelectionDialog::MODE_REMOVE_FROM);
     list_selection_dlg_->setListItems(ls);
     list_selection_dlg_->show();
-}
-
-void MainWindow::onServerSettingsChanged() {
-    auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = server_table_widget_->model()->data(idx, Qt::UserRole + 3).toString();
-
-    current_server_loader_ = options_->getServerLoader(address);
-    current_server_updater_ = options_->getServerUpdater(address);
-
-    if (cat_stack_->currentIndex() == STACK_INDEX_SERVER) {
-        update_button_->setEnabled(current_server_updater_.size() > 0);
-    }
-
 }
 
 void MainWindow::play() {

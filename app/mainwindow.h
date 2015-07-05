@@ -68,17 +68,8 @@ class MainWindow : public QMainWindow {
     QGridLayout          *main_grid_layout_;
     QMenu                *settings_button_menu_;
     QNetworkDiskCache    *diskCache;
-    QPushButton          *website_button_;
-    QPushButton          *info_button_;
-    QPushButton          *play_button_;
-    QPushButton          *dm_button_;
-    QPushButton          *direct_connect_;
-    QPushButton          *update_button_;
     QStackedWidget       *cat_stack_;
     QStackedWidget       *list_stack_;
-    QString               current_website_;
-    QString               current_server_updater_;
-    QString               current_server_loader_;
     QSettings            *settings_;
     ServerCategoryWidget *server_category_;
     ServerInfoWidget     *server_info_widget_;
@@ -90,11 +81,8 @@ class MainWindow : public QMainWindow {
 
     // Functions
     QString getDefaultNWNExe();
-    QWidget *createAddCategoryWidget();
     QWidget *CreateCategoryWidget();
-    QWidget *CreateInfoButtonBar();
     QTableView *createModuleTable();
-    QWidget *CreatePlayButtonBar();
     QPushButton * createSettingsButton();
     void openProcess(const QString &exe, const QString &args, const QString &dir) const;
     void PlayModule(QString module, bool dm);
@@ -128,9 +116,6 @@ private slots:
 public slots:
     void addServer(QString addr);
     void changeStack(ToggleButton::Button button);
-    void HandleModuleSelectionChange(QModelIndex current, QModelIndex previous);
-    void HandleOpenWebsite();
-    void HandleServerSelectionChange(QModelIndex current, QModelIndex previous);
     void LoadModules(int room);
     void LoadServers(int room);
     void onAddUserName(QString name);
@@ -138,7 +123,6 @@ public slots:
     void OnPasswordChanged(QString address, QString password, bool is_dm);
     void onRequestAddToDialog();
     void onRequestRemoveFromDialog();
-    void onServerSettingsChanged();
     void openURL(const QUrl& url);
     void playServer(QString address, QString password, bool dm);
     void RunNWN(QString address, bool dm);
