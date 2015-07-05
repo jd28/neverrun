@@ -22,8 +22,9 @@
 #include <QSettings>
 #include <QTreeWidget>
 #include "options.h"
-
+#include "server.h"
 #include "widgets/togglebutton.h"
+#include "models/servertablemodel.h"
 
 class QGridLayout;
 class QNetworkDiskCache;
