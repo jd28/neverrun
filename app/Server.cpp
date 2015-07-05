@@ -40,9 +40,11 @@ void Server::reset() {
     local_vault = false;
     pvp = 0;
     online = false;
-    one_party = false;;
+    one_party = false;
     homepage = "";
+    forum = "";
     nrl = "";
+    chat = "";
     gametype = -1;
     last_query = 0;
     last_contact = 0;
