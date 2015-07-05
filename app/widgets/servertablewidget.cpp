@@ -106,19 +106,13 @@ void ServerTableWidget::onRemoveFrom() {
 }
 
 void ServerTableWidget::onRemoveFromCat() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 3).toString();
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
     options_->removeServerFromCategory(current_cat_, address);
     SetServerAddressFilter(options_->getCategoryIPs(current_cat_), current_cat_);
 }
 
 void ServerTableWidget::onBlacklist() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 6).toString();
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_IP).toString();
     options_->addToBlacklist(address);
     proxy_model_->setServerBlacklist(options_->getBlacklist());
 }
@@ -127,6 +121,13 @@ void ServerTableWidget::SetupDialogs() {
     connect(server_settings_dlg_, SIGNAL(accepted()),
             SLOT(onSettingsChanged()));
 
+}
+
+QVariant ServerTableWidget::getSelectedServerInfo(ServerTableModel::UserRoles role) {
+    auto selections = selectedIndexes();
+    if (selections.size() == 0) { return QVariant(); }
+    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
+    return model()->data(idx, role);
 }
 
 const ServerTableModel* ServerTableWidget::getServerTableModel() const {
@@ -333,11 +334,7 @@ void ServerTableWidget::addServer(const QString& addr) {
 }
 
 void ServerTableWidget::onSettingsChanged() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 3).toString();
-
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
     options_->setServerLoader(address, server_settings_dlg_->getLoader());
     options_->setServerUpdater(address, server_settings_dlg_->getUpdater());
     options_->setPassword(address, server_settings_dlg_->getDMPassword(), true);
@@ -396,11 +393,7 @@ void ServerTableWidget::dm() {
 }
 
 void ServerTableWidget::requestChangeServerSettings() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 3).toString();
-
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
     server_settings_dlg_->setDMPassword(options_->getPassword(address, true));
     server_settings_dlg_->setPassword(options_->getPassword(address, false));
     server_settings_dlg_->setLoader(options_->getServerLoader(address));

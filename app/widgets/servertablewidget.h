@@ -89,6 +89,7 @@ class ServerTableWidget : public QTableView {
     void setBNERU();
     void SetupDialogs();
     void UpdatePlayerCounts();
+    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
 
 public:
     explicit ServerTableWidget(Options *options, QWidget *parent = 0);
