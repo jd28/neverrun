@@ -46,7 +46,15 @@ public:
 
     enum UserRoles {
         USER_ROLE_GAMETYPE = Qt::UserRole + 1,
-        USER_ROLE_WEBPAGE = Qt::UserRole + 2
+        USER_ROLE_WEBPAGE = Qt::UserRole + 2,
+        USER_ROLE_ADDRESS = Qt::UserRole + 3,
+        USER_ROLE_TO_STRING_LIST = Qt::UserRole + 4,
+        USER_ROLE_ONLINE = Qt::UserRole + 5,
+        USER_ROLE_IP = Qt::UserRole + 6,
+        USER_ROLE_PORT = Qt::UserRole + 7,
+        USER_ROLE_FORUM = Qt::UserRole + 8,
+        USER_ROLE_CHAT = Qt::UserRole + 9,
+        USER_ROLE_UPDATE = Qt::UserRole + 10
     };
 
     explicit ServerTableModel(QObject *parent = 0);

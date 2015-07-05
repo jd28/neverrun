@@ -147,20 +147,29 @@ QVariant ServerTableModel::data(const QModelIndex &index, int role) const {
     else if (role == USER_ROLE_WEBPAGE && index.column() == COLUMN_SERVER_NAME) {
         return s.homepage;
     }
-    else if (role == Qt::UserRole + 3 && index.column() == COLUMN_SERVER_NAME) {
+    else if (role == USER_ROLE_ADDRESS && index.column() == COLUMN_SERVER_NAME) {
         return s.address + ":" + QString::number(s.port);
     }
-    else if (role == Qt::UserRole + 4 && index.column() == COLUMN_SERVER_NAME) {
+    else if (role == USER_ROLE_TO_STRING_LIST && index.column() == COLUMN_SERVER_NAME) {
         return s.toStringList();
     }
-    else if (role == Qt::UserRole + 5 && index.column() == COLUMN_SERVER_NAME) {
+    else if (role == USER_ROLE_ONLINE && index.column() == COLUMN_SERVER_NAME) {
         return !s.isOffline();
     }
-    else if (role == Qt::UserRole + 6 && index.column() == COLUMN_SERVER_NAME) {
+    else if (role == USER_ROLE_IP && index.column() == COLUMN_SERVER_NAME) {
         return s.address;
     }
-    else if (role == Qt::UserRole + 7 && index.column() == COLUMN_SERVER_NAME) {
+    else if (role == USER_ROLE_PORT && index.column() == COLUMN_SERVER_NAME) {
         return s.port;
+    }
+    else if (role == USER_ROLE_FORUM && index.column() == COLUMN_SERVER_NAME) {
+        return s.forum;
+    }
+    else if (role == USER_ROLE_UPDATE && index.column() == COLUMN_SERVER_NAME) {
+        return s.nrl;
+    }
+    else if (role == USER_ROLE_CHAT && index.column() == COLUMN_SERVER_NAME) {
+        return s.chat;
     }
     else if (role == Qt::DisplayRole) {
         switch (index.column()) {
