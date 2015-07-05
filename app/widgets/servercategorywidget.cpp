@@ -40,15 +40,15 @@
 
 void ServerCategoryWidget::customMenuRequested(QPoint pos) {
     auto it = itemAt(pos);
-    if( !it || !it->data(Qt::UserRole + 2).toBool())
-        return;
 
     QMenu menu(this);
+    QAction *act = menu.addAction("Add Category");
+    connect(act, &QAction::triggered, [this] { emit requestAddCategory(); });
 
-    auto act = new QAction("Remove Category", this);
-    connect(act, SIGNAL(triggered()), this, SLOT(onRemoveCategory()));
-    menu.addAction(act);
-
+    if( it && it->data(Qt::UserRole + 2).toBool()) {
+        act = menu.addAction("Remove Category");
+        connect(act, &QAction::triggered, this, &ServerCategoryWidget::onRemoveCategory);
+    }
     menu.exec(viewport()->mapToGlobal(pos));
 }
 
