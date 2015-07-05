@@ -158,7 +158,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(server_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
     connect(server_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
-    connect(server_table_widget_, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDoubleClickServer(QModelIndex)));
+    connect(server_table_widget_, &ServerTableWidget::doubleClicked, [this](QModelIndex idx) { Q_UNUSED(idx); play(); });
 
     connect(modules_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
     connect(modules_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
@@ -646,17 +646,6 @@ void MainWindow::addServer(QString addr) {
     if (it[0].data().toString() == "History") {
         SetServerAddressFilter(options_->getCategoryIPs("History"), "History");
     }
-}
-
-void MainWindow::onDoubleClickServer(QModelIndex idx) {
-    Q_UNUSED(idx);
-
-    auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto index = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = server_table_widget_->model()->data(index, Qt::UserRole + 3).toString();
-
-    RunNWN(address, false);
 }
 
 void MainWindow::setUpdater(FvUpdater *updater) {

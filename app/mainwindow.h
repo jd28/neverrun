@@ -102,7 +102,6 @@ private slots:
     void play();
     void launchToolset();
     void onCategoryAdded();
-    void onDoubleClickServer(QModelIndex idx);
     void onListSelectionAccepted();
     void openSettings();
     void runUpdater();
