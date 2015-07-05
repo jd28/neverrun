@@ -128,6 +128,7 @@ public slots:
     void RunNWN(QString address, bool dm);
     void SetServerAddressFilter(const QStringList &ips, const QString& cat);
     void setModuleFilter(const QStringList &mods, const QString &cat);
+    void onRequestServerInfo(ServerInfoTypes type);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

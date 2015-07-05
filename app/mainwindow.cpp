@@ -352,6 +352,25 @@ void MainWindow::setModuleFilter(const QStringList &mods, const QString& cat) {
     modules_table_widget_->selectionModel()->clear();
 }
 
+void MainWindow::onRequestServerInfo(ServerInfoTypes type)
+{
+    switch(type) {
+    default: return;
+    case SERVER_INFO_TYPE_WEBSITE:
+        openURL(QUrl(getSelectedServerInfo(ServerTableModel::USER_ROLE_WEBPAGE).toString()));
+        break;
+    case SERVER_INFO_TYPE_DESCRIPTION:
+        switchStack();
+        break;
+    case SERVER_INFO_TYPE_FORUM:
+        openURL(QUrl(getSelectedServerInfo(ServerTableModel::USER_ROLE_FORUM).toString()));
+        break;
+    case SERVER_INFO_TYPE_CHAT:
+        openURL(QUrl(getSelectedServerInfo(ServerTableModel::USER_ROLE_CHAT).toString()));
+        break;
+    }
+}
+
 void MainWindow::ToolsetModule(QString module) {
     QString exe;
 #if _WIN32
