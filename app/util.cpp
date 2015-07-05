@@ -6,21 +6,23 @@
 #include "util.h"
 
 static int GetGameTypeFromServerDatagram(const QString& s) {
-    if ( s == "274" ) { return 0; }
-    else if ( s == "363" ) { return 1; }
-    else if ( s == "364" ) { return 2; }
-    else if ( s == "275" ) { return 3; }
-    else if ( s == "276" ) { return 4; }
-    else if ( s == "365" ) { return 5; }
-    else if ( s == "366" ) { return 6; }
-    else if ( s == "277" ) { return 7; }
-    else if ( s == "279" ) { return 8; }
-    else if ( s == "278" ) { return 9; }
-    else if ( s == "367" ) { return 10; }
-    else if ( s == "368" ) { return 11; }
-    else if ( s == "370" ) { return 12; }
-
-    return -1;
+    int n = s.toInt();
+    switch(n) {
+    default: return -1;
+    case 274: return 0;
+    case 363: return 1;
+    case 364: return 2;
+    case 275: return 3;
+    case 276: return 4;
+    case 365: return 5;
+    case 366: return 6;
+    case 277: return 7;
+    case 279: return 8;
+    case 278: return 9;
+    case 367: return 10;
+    case 368: return 11;
+    case 370: return 12;
+    }
 }
 
 Server getServerFromDatagram(const QList<QByteArray> &datagram) {
