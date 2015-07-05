@@ -77,22 +77,9 @@ ServerTableWidget::ServerTableWidget(Options *options, QWidget *parent)
 
     timer_ = new QTimer(this);
     timer_->start(60000);
-
     connect(timer_, SIGNAL(timeout()), SLOT(UpdateServers()));
-    act_add_to_ = new QAction("Add to...", this);
-    connect(act_add_to_, SIGNAL(triggered()), SLOT(onAddTo()));
-    act_remove_from_ = new QAction("Remove from...", this);
-    connect(act_remove_from_, SIGNAL(triggered()), SLOT(onRemoveFrom()));
-    act_remove_from_cat_ = new QAction("Remove from", this);
-    connect(act_remove_from_cat_, SIGNAL(triggered()), SLOT(onRemoveFromCat()));
-
-    act_settings_ = new QAction("Settings", this);
-    connect(act_settings_, SIGNAL(triggered()), SLOT(requestChangeServerSettings()));
 
     connect(server_settings_dlg_, SIGNAL(accepted()), SLOT(onSettingsChanged()));
-
-    act_blacklist_ = new QAction("Hide IP Address", this);
-    connect(act_blacklist_, SIGNAL(triggered()), SLOT(onBlacklist()));
 
     SetupDialogs();
 }
@@ -349,47 +336,68 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
 
     QMenu menu(this);
 
-    auto act = new QAction("Play", &menu);
-    connect(act, SIGNAL(triggered()), this, SLOT(play()));
-    menu.addAction(act);
+    QAction *act = menu.addAction("Play");
+    connect(act, &QAction::triggered, [this]() { emit play(); });
 
-
-    act = new QAction("DM", &menu);
-    connect(act, SIGNAL(triggered()), this, SLOT(dm()));
-    menu.addAction(act);
+    act = menu.addAction("DM");
+    connect(act, &QAction::triggered, [this]() { emit dm(); });
 
     menu.addSeparator();
 
-    menu.addAction(act_add_to_);
-    menu.addAction(act_remove_from_);
+    act = menu.addAction("Description");
+    connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_DESCRIPTION); });
+
+    QMenu *community_menu = menu.addMenu("Community");
+
+    act = community_menu->addAction("Website");
+    if(getSelectedServerInfo(ServerTableModel::USER_ROLE_WEBPAGE).toString().size() > 0) {
+        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_WEBSITE); });
+    }
+    else { act->setDisabled(true); }
+
+    act = community_menu->addAction("Forum");
+    if(getSelectedServerInfo(ServerTableModel::USER_ROLE_FORUM).toString().size() > 0) {
+        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_FORUM); });
+    }
+    else { act->setDisabled(true); }
+
+    act = community_menu->addAction("Web Chat");
+    if(getSelectedServerInfo(ServerTableModel::USER_ROLE_CHAT).toString().size() > 0) {
+        connect(act, &QAction::triggered, [this]() { emit ServerInfoRequest(SERVER_INFO_TYPE_CHAT); });
+    }
+    else { act->setDisabled(true); }
+
+    act = menu.addAction("Update");
+    QString nrl = getSelectedServerInfo(ServerTableModel::USER_ROLE_UPDATE).toString();
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
+    if(nrl.size() > 0 || options_->getServerUpdater(address).size() > 0) {
+        connect(act, &QAction::triggered, [this]() { emit update(); });
+    }
+    else { act->setDisabled(true); }
+
+    menu.addSeparator();
+
+    act = menu.addAction("Add to...");
+    connect(act, &QAction::triggered, this, &ServerTableWidget::onAddTo);
+    act = menu.addAction("Remove from...");
+    connect(act, &QAction::triggered, this, &ServerTableWidget::onRemoveFrom);
 
     if(current_cat_.size() > 0) {
-        act_remove_from_cat_->setText("Remove from " + current_cat_);
-        menu.addAction(act_remove_from_cat_);
+        act = menu.addAction("Remove from " + current_cat_);
+        connect(act, &QAction::triggered, this, &ServerTableWidget::onRemoveFromCat);
     }
 
     menu.addSeparator();
-    menu.addAction(act_blacklist_);
+
+    act = menu.addAction("Hide IP Address");
+    connect(act, &QAction::triggered, this, &ServerTableWidget::onBlacklist);
+
     menu.addSeparator();
-    menu.addAction(act_settings_);
+
+    act = menu.addAction("Settings");
+    connect(act, &QAction::triggered, this, &ServerTableWidget::requestChangeServerSettings);
 
     menu.exec(viewport()->mapToGlobal(pos));
-}
-
-void ServerTableWidget::play() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 3).toString();
-    emit RunNWN(address, false);
-}
-
-void ServerTableWidget::dm() {
-    auto selections = selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = model()->data(idx, Qt::UserRole + 3).toString();
-    emit RunNWN(address, true);
 }
 
 void ServerTableWidget::requestChangeServerSettings() {

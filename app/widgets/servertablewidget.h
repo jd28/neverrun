@@ -68,11 +68,6 @@ class ServerTableWidget : public QTableView {
     int current_room_;
     int requested_room_;
     Options *options_;
-    QAction *act_add_to_;
-    QAction *act_remove_from_;
-    QAction *act_remove_from_cat_;
-    QAction *act_settings_;
-    QAction *act_blacklist_;
     QFutureWatcher<std::vector<Server>> watcher_;
     QString current_cat_;
     QTimer *timer_;
@@ -107,6 +102,10 @@ signals:
     void requestRemoveFrom();
     void RunNWN(QString address, bool dm);
     void serverSettingsChanged();
+    void ServerInfoRequest(ServerInfoTypes type);
+    void dm();
+    void play();
+    void update();
 
 public slots:
     void addServer(const QString &addr);
@@ -117,12 +116,10 @@ public slots:
 
 private slots:
     void customMenuRequested(QPoint pos);
-    void dm();
     void onAddTo();
     void onModelDataChanged(QModelIndex, QModelIndex);
     void onRemoveFrom();
     void onRemoveFromCat();
-    void play();
     void requestChangeServerSettings();
     void requestUpdates();
     void sweepOfflineServers();
