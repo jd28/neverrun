@@ -12,6 +12,10 @@ CONFIG += staticlib
         error("Unable to include hoedown.")
 }
 
+!include("yaml-cpp/yaml-cpp.pri") {
+        error("Unable to include yaml-cpp.")
+}
+
 SOURCES += \
     converter/hoedownmarkdownconverter.cpp
 

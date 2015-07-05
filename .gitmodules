@@ -1,3 +1,6 @@
 [submodule "3rdparty/hoedown"]
 	path = 3rdparty/hoedown
 	url = https://github.com/hoedown/hoedown/
+[submodule "3rdparty/yaml-cpp"]
+	path = 3rdparty/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp/
