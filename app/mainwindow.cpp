@@ -175,6 +175,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
+QVariant MainWindow::getSelectedServerInfo(ServerTableModel::UserRoles column)
+{
+    auto selections = server_table_widget_->selectionModel()->selectedIndexes();
+    if (selections.size() == 0) { return QVariant(); }
+    auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
+    return server_table_widget_->model()->data(idx, column);
+}
+
 void MainWindow::changeStack(ToggleButton::Button button) {
     switch(button) {
     default: return;
@@ -282,9 +290,9 @@ void MainWindow::switchStack() {
     else {
         int idx = cat_stack_->currentIndex();
         if (idx == STACK_INDEX_SERVER) {
-            QModelIndexList idxs = server_table_widget_->selectionModel()->selectedRows(ServerTableModel::COLUMN_SERVER_NAME);
-            if (idxs.size() == 0) { return; }
-            QStringList data = server_table_widget_->model()->data(idxs[0], Qt::UserRole + 4).toStringList();
+            QStringList data = getSelectedServerInfo(ServerTableModel::USER_ROLE_TO_STRING_LIST).toStringList();
+            if (data.size() == 0) { return; }
+
             QFile f(":/web/basic.md");
             f.open(QFile::ReadOnly);
             QString md(f.readAll());
@@ -493,9 +501,7 @@ void MainWindow::onListSelectionAccepted() {
         switch(cur) {
         default: return;
         case STACK_INDEX_SERVER: {
-            auto sel = server_table_widget_->selectionModel()->selectedRows(ServerTableModel::COLUMN_SERVER_NAME);
-            if (sel.size() == 0) { return; }
-            auto add = server_table_widget_->model()->data(sel[0], Qt::UserRole + 3).toString();
+            auto add = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
             foreach(const QString& i, list_selection_dlg_->getSelectedItems()) {
                 options_->addServerToCategory(i, add);
             }
@@ -517,9 +523,7 @@ void MainWindow::onListSelectionAccepted() {
         switch(cur) {
         default: return;
         case STACK_INDEX_SERVER: {
-            auto sel = server_table_widget_->selectionModel()->selectedRows(ServerTableModel::COLUMN_SERVER_NAME);
-            if (sel.size() == 0) { return; }
-            auto add = server_table_widget_->model()->data(sel[0], Qt::UserRole + 3).toString();
+            auto add = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
             foreach(const QString& i, list_selection_dlg_->getSelectedItems()) {
                 options_->removeServerFromCategory(i, add);
                 auto sel = server_category_->selectionModel()->selectedRows();
@@ -550,6 +554,13 @@ void MainWindow::onListSelectionAccepted() {
 }
 
 void MainWindow::runUpdater() {
+    QString nrl = getSelectedServerInfo(ServerTableModel::USER_ROLE_UPDATE).toString();
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
+    QString updater = options_->getServerUpdater(address);
+
+    if( updater.size() == 0 ) { return; }
+    QString dir = QFileInfo(updater).canonicalPath();
+    openProcess(updater, "", dir);
 }
 
 void MainWindow::onRequestAddToDialog() {
@@ -578,12 +589,8 @@ void MainWindow::onRequestRemoveFromDialog() {
     switch(cur) {
     default: return;
     case STACK_INDEX_SERVER: {
-        auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-        if (selections.size() == 0) { return; }
-        auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-        QString address = server_table_widget_->model()->data(idx, Qt::UserRole + 3).toString();
-
-        ls = options_->getCategoriesFromServer(address);
+        auto add = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
+        ls = options_->getCategoriesFromServer(add);
         break;
     }
     case STACK_INDEX_MODULE:  {
@@ -606,10 +613,7 @@ void MainWindow::onRequestRemoveFromDialog() {
 
 void MainWindow::play() {
     if (cat_stack_->currentIndex() == STACK_INDEX_SERVER) {
-        auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-        if (selections.size() == 0) { return; }
-        auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-        QString address = server_table_widget_->model()->data(idx, Qt::UserRole + 3).toString();
+        QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
         RunNWN(address, false);
     }
     else {
@@ -626,10 +630,7 @@ void MainWindow::play() {
 
 void MainWindow::dm() {
     if (cat_stack_->currentIndex() != STACK_INDEX_SERVER) { return; }
-    auto selections = server_table_widget_->selectionModel()->selectedIndexes();
-    if (selections.size() == 0) { return; }
-    auto idx = server_table_widget_->model()->index(selections[0].row(), ServerTableModel::COLUMN_SERVER_NAME);
-    QString address = server_table_widget_->model()->data(idx, Qt::UserRole + 3).toString();
+    QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
     RunNWN(address, true);
 }
 

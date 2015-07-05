@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow {
     void setupHtmlPreview();
     void setupUi();
     void ToolsetModule(QString module);
+    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
 
 private slots:
     void about();
