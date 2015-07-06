@@ -30,7 +30,7 @@ Server getServerFromDatagram(const QList<QByteArray> &datagram);
 bool isUsableModuleCategory(const QString& str);
 bool isUsableServerCategory(const QString& str);
 bool isValidServerAddress(const QString& addr, bool port);
-int RoomToGameType(const QString& room);
+int roomNameToGameType(const QString& room);
 QString sanitizeName(const QString& str);
 bool parseBNDR(const QByteArray& data, Server& s);
 bool parseBNER(const QByteArray& data, Server& s);
@@ -42,4 +42,5 @@ QColor getBackgroundColor(const QColor& c);
 QString getBackgroundColorSS(const QColor& color);
 QString getBackgroundColorText(const QColor& color);
 QColor getBackgroundColorFromString(const QString &col);
+int roomToGameType(int room);
 #endif // UTIL_H

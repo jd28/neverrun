@@ -172,7 +172,7 @@ void ServerCategoryWidget::changeServerList()
             emit loadAllServers(-1);
         }
         else {
-            int res = RoomToGameType(x->text());
+            int res = roomNameToGameType(x->text());
             if(res == -1) {
                 cat = x->text();
                 ips = options_->getCategoryIPs(x->text());

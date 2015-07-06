@@ -7,20 +7,53 @@
 
 #include "util.h"
 
-static int GetGameTypeFromServerDatagram(const QString& s) {
-    int n = s.toInt();
-    switch(n) {
-    default: return -1;
+int roomNameToGameType(const QString &room) {
+    // The room list
+    if (room == "Action") return 0;
+    if (room == "Role Play") return 3;
+    if (room == "Team") return 4;
+    if (room == "Social") return 7;
+    if (room == "PW Action") return 9;
+    if (room == "Alternative") return 8;
+    if (room == "Story") return 1;
+    if (room == "Story Lite") return 2;
+    if (room == "Melee") return 5;
+    if (room == "Arena") return 6;
+    if (room == "PW Story") return 10;
+    if (room == "Solo") return 11;
+    if (room == "Tech Support") return 12;
+
+    return -1; //Handle differently;
+}
+
+// The room list
+// Action       nRoom=274   *(c->NWGameServer[i]->GameType) = 13;
+// Roleplay     nRoom=275   *(c->NWGameServer[i]->GameType) = 3;
+// Team         nRoom=276   *(c->NWGameServer[i]->GameType) = 4;
+// Social       nRoom=277   *(c->NWGameServer[i]->GameType) = 7;
+// PW Action    nRoom=278   *(c->NWGameServer[i]->GameType) = 9;
+// Alternative  nRoom=279   *(c->NWGameServer[i]->GameType) = 8;
+// Story        nRoom=363   *(c->NWGameServer[i]->GameType) = 1;
+// Story Lite   nRoom=364   *(c->NWGameServer[i]->GameType) = 2;
+// Melee        nRoom=365   *(c->NWGameServer[i]->GameType) = 5;
+// Arena        nRoom=366   *(c->NWGameServer[i]->GameType) = 6;
+// PW Story     nRoom=367   *(c->NWGameServer[i]->GameType) = 10;
+// Solo         nRoom=368   *(c->NWGameServer[i]->GameType) = 11;
+// Tech Support nRoom=370   *(c->NWGameServer[i]->GameType) = 12;
+int roomToGameType(int room) {
+
+    switch(room) {
+    default: return 3;  // just put it in Roleplay :P
     case 274: return 0;
-    case 363: return 1;
-    case 364: return 2;
     case 275: return 3;
     case 276: return 4;
+    case 277: return 7;
+    case 278: return 9;
+    case 279: return 8;
+    case 363: return 1;
+    case 364: return 2;
     case 365: return 5;
     case 366: return 6;
-    case 277: return 7;
-    case 279: return 8;
-    case 278: return 9;
     case 367: return 10;
     case 368: return 11;
     case 370: return 12;
@@ -59,7 +92,7 @@ Server getServerFromDatagram(const QList<QByteArray> &datagram) {
     res = datagram[10];
     s.password = res == "1";
     s.serv_description = datagram[15];
-    s.gametype = GetGameTypeFromServerDatagram(datagram[16]);
+    s.gametype = roomToGameType(datagram[16].toInt());
     s.ilr = datagram[18] == "1";
     s.local_vault = datagram[19] == "1";
     s.elc = datagram[19] == "1";
@@ -96,25 +129,6 @@ bool isUsableServerCategory(const QString &str) {
                                             << "Tech Support";
 
     return !cats.contains(str);
-}
-
-int RoomToGameType(const QString &room) {
-    // The room list
-    if (room == "Action") return 0;
-    if (room == "Role Play") return 3;
-    if (room == "Team") return 4;
-    if (room == "Social") return 7;
-    if (room == "PW Action") return 9;
-    if (room == "Alternative") return 8;
-    if (room == "Story") return 1;
-    if (room == "Story Lite") return 2;
-    if (room == "Melee") return 5;
-    if (room == "Arena") return 6;
-    if (room == "PW Story") return 10;
-    if (room == "Solo") return 11;
-    if (room == "Tech Support") return 12;
-
-    return -1; //Handle differently;
 }
 
 QString findUrl(const QString &str) {

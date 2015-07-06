@@ -22,7 +22,6 @@ typedef _ns1__RegisterPendingServersResponse RegisterPendingServersResponse;
 
 #endif
 
-int RoomToSkywing(int room);
 const char * GetSoapErrorMessage(int res);
 unsigned int AddServer(const char* address);
 

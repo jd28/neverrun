@@ -12,54 +12,6 @@
 #include "soap/soapWSHttpBinding_USCOREINWNMasterServerAPIProxy.h"
 #include "soap/WSHttpBinding_USCOREINWNMasterServerAPI.nsmap"
 
-// The room list
-// Action       nRoom=274   *(c->NWGameServer[i]->GameType) = 13;
-// Roleplay     nRoom=275   *(c->NWGameServer[i]->GameType) = 3;
-// Team         nRoom=276   *(c->NWGameServer[i]->GameType) = 4;
-// Social       nRoom=277   *(c->NWGameServer[i]->GameType) = 7;
-// PW Action    nRoom=278   *(c->NWGameServer[i]->GameType) = 9;
-// Alternative  nRoom=279   *(c->NWGameServer[i]->GameType) = 8;
-// Story        nRoom=363   *(c->NWGameServer[i]->GameType) = 1;
-// Story Lite   nRoom=364   *(c->NWGameServer[i]->GameType) = 2;
-// Melee        nRoom=365   *(c->NWGameServer[i]->GameType) = 5;
-// Arena        nRoom=366   *(c->NWGameServer[i]->GameType) = 6;
-// PW Story     nRoom=367   *(c->NWGameServer[i]->GameType) = 10;
-// Solo         nRoom=368   *(c->NWGameServer[i]->GameType) = 11;
-// Tech Support nRoom=370   *(c->NWGameServer[i]->GameType) = 12;
-int RoomToSkywing(int room) {
-
-    switch(room) {
-    case 274:
-        return 0; break;
-    case 275:
-        return 3; break;
-    case 276:
-        return 4; break;
-    case 277:
-        return 7; break;
-    case 278:
-        return 9; break;
-    case 279:
-        return 8; break;
-    case 363:
-        return 1; break;
-    case 364:
-        return 2; break;
-    case 365:
-        return 5; break;
-    case 366:
-        return 6; break;
-    case 367:
-        return 10; break;
-    case 368:
-        return 11; break;
-    case 370:
-        return 12; break;
-    default:
-        return 3; break;  // just put it in Roleplay :P
-    }
-}
-
 const char * GetSoapErrorMessage(int res)
 {
 
