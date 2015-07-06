@@ -11,6 +11,8 @@ compiling, linking, and/or using OpenSSL is allowed.
 #if defined(__BORLANDC__)
 #pragma option push -w-8060
 #pragma option push -w-8004
+#elif defined(_MSC_VER)
+#pragma warning(disable: 4100)
 #endif
 
 #include "soapH.h"
