@@ -742,14 +742,12 @@ QPushButton * MainWindow::createSettingsButton() {
 
     settings_button_menu_->addSeparator();
 
-    act = new QAction("Check for updates...", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(checkForUpdates()));
-    settings_button_menu_->addAction(act);
-
-    settings_button_menu_->addSeparator();
-
     act = new QAction("Settings", settings_button_menu_);
     connect(act, SIGNAL(triggered()), SLOT(openSettings()));
+    settings_button_menu_->addAction(act);
+
+    act = new QAction("Check for updates...", settings_button_menu_);
+    connect(act, SIGNAL(triggered()), SLOT(checkForUpdates()));
     settings_button_menu_->addAction(act);
 
     act = new QAction("About neverrun", settings_button_menu_);
