@@ -58,7 +58,6 @@ class MainWindow : public QMainWindow {
         STACK_INDEX_INFO
     };
 
-    // Data Members
     Options              *options_;
     DirectConnectDialog  *direct_connect_dlg_;
     FvUpdater            *updater_;
@@ -80,19 +79,17 @@ class MainWindow : public QMainWindow {
     ToggleButton         *servers_label_;
     UserNameButton       *name_label_;
 
-    // Functions
-    QString getDefaultNWNExe();
-    QWidget *CreateCategoryWidget();
     QTableView *createModuleTable();
-    QPushButton * createSettingsButton();
+    QPushButton *createSettingsButton();
+    QString getDefaultNWNExe();
+    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
+    void launchNWN(bool dm);
     void openProcess(const QString &exe, const QString &args, const QString &dir) const;
-    void PlayModule(QString module, bool dm);
+    void playModule(const QString& module, bool dm);
     void requestDirectConnect();
     void setupHtmlPreview();
     void setupUi();
-    void ToolsetModule(QString module);
-    void launchNWN(bool dm);
-    QVariant getSelectedServerInfo(ServerTableModel::UserRoles role);
+    void toolsetModule(const QString& module);
 
 private slots:
     void about();

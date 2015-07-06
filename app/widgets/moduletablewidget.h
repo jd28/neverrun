@@ -63,7 +63,6 @@ public slots:
 signals:
     void requestAddTo();
     void requestRemoveFrom();
-
 };
 
 #endif // MODULETABLEWIDGET_H

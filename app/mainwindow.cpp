@@ -153,10 +153,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(direct_connect_dlg_, &DirectConnectDialog::addServer, this, &MainWindow::addServer);
 
-    connect(name_label_, SIGNAL(addUserName(QString)),
-            SLOT(onAddUserName(QString)));
-    connect(name_label_, SIGNAL(userNameChanged(QString)),
-            SLOT(onChangeUserName(QString)));
+    connect(name_label_, &UserNameButton::addUserName,
+            this, &MainWindow::onAddUserName);
+    connect(name_label_, &UserNameButton::userNameChanged, this, &MainWindow::onChangeUserName);
 
     connect(modules_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
     connect(modules_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
@@ -346,7 +345,7 @@ void MainWindow::onRequestServerInfo(ServerInfoTypes type)
     }
 }
 
-void MainWindow::ToolsetModule(QString module) {
+void MainWindow::toolsetModule(const QString &module) {
     QString exe;
 #if _WIN32
     exe = QDir::cleanPath(options_->m_NWN_path + "/NWNCdsafafX_Loader.exe");
@@ -420,7 +419,7 @@ QString MainWindow::getDefaultNWNExe() {
     return exe;
 }
 
-void MainWindow::PlayModule(QString module, bool dm) {
+void MainWindow::playModule(const QString &module, bool dm) {
     QStringList arguments;
     if (dm) { return; }
 
@@ -604,7 +603,7 @@ void MainWindow::play() {
         QString module = modules_table_widget_->model()->data(idx).toString();
 
         module = '\"'+ module.mid(0, module.size() - 4) + '\"';
-        PlayModule(module, false);
+        playModule(module, false);
     }
 }
 

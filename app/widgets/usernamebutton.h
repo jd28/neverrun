@@ -37,7 +37,7 @@ class UserNameButton : public QPushButton
 
 private slots:
     void showAddUserName();
-    void addUserName();
+    void addName();
     void changeUserName(QAction *action);
     void showRemoveUserNames();
     void onRemoveUserNames();

@@ -13,7 +13,7 @@ void Server::addPing(int64_t ping) {
 
 int64_t Server::getPing() const {
     if(last_contact == 0 || last_query == 0) { return -1; }
-    if((getTickCount() - last_contact) > 30000) { return -1; }
+    if(getTickCount() - last_contact > 30000) { return -1; }
 
     int64_t sum = 0;
     for(int i = 0; i < MAX_PING_HISTORY; ++i) {

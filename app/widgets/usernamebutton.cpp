@@ -60,7 +60,7 @@ UserNameButton::UserNameButton(Options *options, const QString& current, const Q
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     add_user_ = new TextBoxDialog(TextBoxDialog::MODE_USER_NAME, this);
-    connect(add_user_, SIGNAL(accepted()), SLOT(addUserName()));
+    connect(add_user_, &TextBoxDialog::accepted, this, &UserNameButton::addName);
 
     setMenu(name_menu_);
 }
@@ -92,14 +92,14 @@ void UserNameButton::onRemoveUserNames() {
 }
 
 void UserNameButton::paintEvent(QPaintEvent *) {
-    QStylePainter p( this );
+    QStylePainter p(this);
     QStyleOptionButton opt;
-    initStyleOption( & opt );
+    initStyleOption(&opt);
     opt.features &= (~ QStyleOptionButton::HasMenu);
-    p.drawControl( QStyle::CE_PushButton, opt );
+    p.drawControl(QStyle::CE_PushButton, opt);
 }
 
-void UserNameButton::addUserName() {
+void UserNameButton::addName() {
     auto u = add_user_->getText();
 
 
