@@ -1,0 +1,42 @@
+---
+website: http://google.com
+forum: http://forum.bioware.com/forum/43-neverwinter-nights/
+webchat: https://kiwiirc.com/
+---
+
+SomeServer is dedicated to providing the great role-playing experiences
+in friendly environment.
+
+
+#### Features
+
+* Weekly DM events.
+* Some other stuff!
+
+#### Custom Content
+
+Download our custom content [here](http://neverwintervault.org).
+
+You will also need to download [CEP2.6](http://neverwintervault.org/cep).
+
+Hope to see you in game!
+
+inline HTML:
+
+<img src="https://upload.wikimedia.org/wikipedia/fr/6/61/Neverwinternights_logo.jpg"
+ alt="Logo">
+
+~~strikethrough~~
+
+Tables:
+
+| Col 1 | Col 2 | Col 3 |
+|:------|:-----:| -----:|
+| Really long entry | Row 2 | Row 3 |
+
+Blocks:
+
+```
+This is a block
+of text.
+```
