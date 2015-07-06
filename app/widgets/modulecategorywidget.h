@@ -32,18 +32,19 @@ class ModuleCategoryWidget : public QTableWidget
     void removeCategory(const QString& cat);
 
 private slots:
-    void ChangeModuleList();
+    void changeModuleList();
     void customMenuRequested(QPoint pos);
     void onRemoveCategory();
 
 public:
     ModuleCategoryWidget(Options *settings, QWidget *parent = 0);
-    void SelectAll();
+    void selectAllCategory();
     void addCategory(const QString& cat);
 
 signals:
-    void LoadModules(int room);
-    void UpdateFilter(const QStringList& ips, const QString& name);
+    void loadModules(int room);
+    void updateFilter(const QStringList& ips, const QString& name);
+    void requestAddCategory();
 };
 
 #endif // MODULECATEGORYWIDGET_H

@@ -136,10 +136,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server_category_, &ServerCategoryWidget::requestAddCategory,
             this, &MainWindow::addCategory);
 
-    connect(module_category_, SIGNAL(LoadModules(int)),
-            SLOT(LoadModules(int)));
-    connect(module_category_, SIGNAL(UpdateFilter(const QStringList&, const QString&)),
-            SLOT(setModuleFilter(const QStringList&, const QString&)));
+    connect(module_category_, &ModuleCategoryWidget::loadModules,
+            this, &MainWindow::loadModules);
+    connect(module_category_, &ModuleCategoryWidget::updateFilter,
+            this, &MainWindow::setModuleFilter);
+    connect(module_category_, &ModuleCategoryWidget::requestAddCategory,
+            this, &MainWindow::addCategory);
 
     connect(server_table_widget_, &ServerTableWidget::serverInfoRequest, this, &MainWindow::onRequestServerInfo);
     connect(server_table_widget_, &ServerTableWidget::play, this, &MainWindow::play);
@@ -196,7 +198,7 @@ void MainWindow::changeStack(ToggleButton::Button button) {
 
 bool MainWindow::AddServers() {
     server_category_->selectAllCategory();
-    module_category_->SelectAll();
+    module_category_->selectAllCategory();
     generator_->markdownTextChanged("");
     return true;
 }
@@ -312,7 +314,7 @@ void MainWindow::loadServers(int room) {
     server_table_widget_->loadServers(room, true);
 }
 
-void MainWindow::LoadModules(int room){
+void MainWindow::loadModules(int room){
     modules_table_widget_->loadModules(room);
 }
 

@@ -39,15 +39,14 @@
 
 void ModuleCategoryWidget::customMenuRequested(QPoint pos) {
     auto it = itemAt(pos);
-    if( !it || !it->data(Qt::UserRole + 2).toBool())
-        return;
-
     QMenu menu(this);
+    QAction *act = menu.addAction("Add Category");
+    connect(act, &QAction::triggered, [this] { emit requestAddCategory(); });
 
-    auto act = new QAction("Remove Category", this);
-    connect(act, SIGNAL(triggered()), this, SLOT(onRemoveCategory()));
-    menu.addAction(act);
-
+    if( it && it->data(Qt::UserRole + 2).toBool()) {
+        act = menu.addAction("Remove Category");
+        connect(act, &QAction::triggered, this, &ModuleCategoryWidget::onRemoveCategory);
+    }
     menu.exec(viewport()->mapToGlobal(pos));
 }
 
@@ -108,14 +107,14 @@ ModuleCategoryWidget::ModuleCategoryWidget(Options *options, QWidget *parent) :
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
-    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            SLOT(ChangeModuleList()));
+    connect(selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &ModuleCategoryWidget::changeModuleList);
 
 
 #undef add_row
 }
 
-void ModuleCategoryWidget::SelectAll() {
+void ModuleCategoryWidget::selectAllCategory() {
     selectRow(0);
 }
 
@@ -150,19 +149,19 @@ void ModuleCategoryWidget::addCategory(const QString &cat) {
     }
 }
 
-void ModuleCategoryWidget::ChangeModuleList()
+void ModuleCategoryWidget::changeModuleList()
 {
     foreach(QTableWidgetItem *x, selectedItems()) {
         QStringList ips;
         QString cat;
         if (x->text() == "All") {
-            emit LoadModules(-1);
+            emit loadModules(-1);
         }
         else {
             ips = options_->getCategoryModules(x->text());
             cat = x->text();
-            emit LoadModules(-2);
+            emit loadModules(-2);
         }
-        emit UpdateFilter(ips, cat);
+        emit updateFilter(ips, cat);
     }
 }
