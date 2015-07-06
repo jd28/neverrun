@@ -158,8 +158,10 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::onAddUserName);
     connect(name_label_, &UserNameButton::userNameChanged, this, &MainWindow::onChangeUserName);
 
-    connect(modules_table_widget_, SIGNAL(requestAddTo()), SLOT(onRequestAddToDialog()));
-    connect(modules_table_widget_, SIGNAL(requestRemoveFrom()), SLOT(onRequestRemoveFromDialog()));
+    connect(modules_table_widget_, &ModuleTableWidget::edit, this, &MainWindow::editModule);
+    connect(modules_table_widget_, &ModuleTableWidget::play, this, &MainWindow::play);
+    connect(modules_table_widget_, &ModuleTableWidget::requestAddTo, this, &MainWindow::onRequestAddToDialog);
+    connect(modules_table_widget_, &ModuleTableWidget::requestRemoveFrom, this, &MainWindow::onRequestRemoveFromDialog);
 
     connect(server_info_widget_, SIGNAL(closeInfo()), SLOT(switchStack()));
 
@@ -193,6 +195,18 @@ void MainWindow::changeStack(ToggleButton::Button button) {
         list_stack_->setCurrentIndex(STACK_INDEX_MODULE);
         break;
     }
+}
+
+void MainWindow::editModule() {
+    if (cat_stack_->currentIndex() != STACK_INDEX_MODULE) { return; }
+
+    auto selections = modules_table_widget_->selectionModel()->selectedIndexes();
+    if (selections.size() == 0) { return; }
+    auto idx = modules_table_widget_->model()->index(selections[0].row(), 0);
+    QString module = modules_table_widget_->model()->data(idx).toString();
+
+    module = '\"'+QDir::cleanPath(options_->getNWNPath() + "modules" + QDir::separator() + module)+'\"';
+    toolsetModule(module);
 }
 
 bool MainWindow::AddServers() {

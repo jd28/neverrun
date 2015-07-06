@@ -41,8 +41,8 @@ ModuleTableWidget::ModuleTableWidget(Options *options, QWidget *parent)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(customMenuRequested(QPoint)));
+    connect(this, &ModuleTableWidget::customContextMenuRequested,
+            this, &ModuleTableWidget::customMenuRequested);
 
     proxy_model_->setSourceModel(model_);
     proxy_model_->setDynamicSortFilter(true);
@@ -57,26 +57,11 @@ ModuleTableWidget::ModuleTableWidget(Options *options, QWidget *parent)
     verticalHeader()->setVisible(false);
     horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 
-    act_add_to_ = new QAction("Add to...", this);
-    connect(act_add_to_, SIGNAL(triggered()), SLOT(onAddTo()));
-    act_remove_from_ = new QAction("Remove from...", this);
-    connect(act_remove_from_, SIGNAL(triggered()), SLOT(onRemoveFrom()));
-    act_remove_from_cat_ = new QAction("Remove from", this);
-    connect(act_remove_from_cat_, SIGNAL(triggered()), SLOT(onRemoveFromCat()));
-
 }
 
 void ModuleTableWidget::setModuleFilter(const QStringList &mods, const QString& cat) {
     current_cat_ = cat;
     proxy_model_->setModuleFilter(mods);
-}
-
-void ModuleTableWidget::onAddTo() {
-    emit requestAddTo();
-}
-
-void ModuleTableWidget::onRemoveFrom() {
-    emit requestRemoveFrom();
 }
 
 void ModuleTableWidget::onRemoveFromCat() {
@@ -92,36 +77,35 @@ const ModuleTableModel *ModuleTableWidget::getModuleTableModel() const {
     return model_;
 }
 
-void ModuleTableWidget::HandleSelectionChange(QModelIndex current, QModelIndex previous) {
-    Q_UNUSED(current);
-    Q_UNUSED(previous);
-}
-
 void ModuleTableWidget::customMenuRequested(QPoint pos) {
     QModelIndex index = indexAt(pos);
     if (!index.isValid()) { return; }
 
     QMenu menu(this);
 
-    auto act = new QAction("Play", this);
-    connect(act, SIGNAL(triggered()), this, SLOT(play()));
-    menu.addAction(act);
+    QAction *act = nullptr;
 
-    act = new QAction("DM", this);
-    connect(act, SIGNAL(triggered()), this, SLOT(dm()));
-    menu.addAction(act);
+    act = menu.addAction("Play");
+    connect(act, &QAction::triggered, [this] { emit play(); });
+
+    act = menu.addAction("Edit");
+    connect(act, &QAction::triggered, [this] { emit edit(); });
+
+    //Loading DM module not supported currently
+    //menu.addAction("DM");
+    //connect(act, &QAction::triggered, this, &ModuleTableWidget::dm);
 
     menu.addSeparator();
 
-    menu.addAction(act_add_to_);
-    menu.addAction(act_remove_from_);
+    act = menu.addAction("Add to...");
+    connect(act, &QAction::triggered, [this] { emit requestAddTo(); });
+    act = menu.addAction("Remove from...");
+    connect(act, &QAction::triggered, [this] { emit requestRemoveFrom(); });
 
     if(current_cat_.size() > 0) {
-        act_remove_from_cat_->setText("Remove from " + current_cat_);
-        menu.addAction(act_remove_from_cat_);
+        act = menu.addAction("Remove from");
+        connect(act, &QAction::triggered, this, &ModuleTableWidget::onRemoveFromCat);
     }
-
-    menu.addSeparator();
 
     menu.exec(viewport()->mapToGlobal(pos));
 }
@@ -132,3 +116,4 @@ void ModuleTableWidget::loadModules(int room) {
         pm->setCurrentRoom(room);
     }
 }
+

@@ -108,6 +108,7 @@ public slots:
     void addCategory();
     void addServer(QString addr);
     void changeStack(ToggleButton::Button button);
+    void editModule();
     void loadModules(int room);
     void loadServers(int room);
     void onAddUserName(QString name);
