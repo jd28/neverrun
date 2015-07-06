@@ -304,26 +304,6 @@ void MainWindow::requestDirectConnect() {
     direct_connect_dlg_->show();
 }
 
-void MainWindow::launchBiowareForums() {
-    QDesktopServices::openUrl(QUrl("http://forum.bioware.com/forum/43-neverwinter-nights/"));
-}
-
-void MainWindow::launchNeverwinterVault() {
-    QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
-}
-
-void MainWindow::launchNWNLexicon() {
-    QDesktopServices::openUrl(QUrl("http://www.nwnlexicon.com/"));
-}
-
-void MainWindow::launchNWNWiki() {
-    QDesktopServices::openUrl(QUrl("http://nwn.wikia.com/wiki/Main_Page"));
-}
-
-void MainWindow::launchGOGForums() {
-    QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
-}
-
 void MainWindow::openURL(const QUrl &url) {
     QDesktopServices::openUrl(url);
 }
@@ -712,22 +692,31 @@ QPushButton * MainWindow::createSettingsButton() {
 
     QMenu *community_menu = new QMenu("Community", this);
     act = new QAction("Bioware Forums", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchBiowareForums()));
+    connect(act, &QAction::triggered, []{
+        QDesktopServices::openUrl(QUrl("http://forum.bioware.com/forum/43-neverwinter-nights/"));
+    });
     community_menu->addAction(act);
     act = new QAction("GOG NWN Forums", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchGOGForums()));
+    connect(act, &QAction::triggered, []{
+        QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
+    });
     community_menu->addAction(act);
     act = new QAction("Neverwinter Vault", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchNeverwinterVault()));
+    connect(act, &QAction::triggered, []{
+        QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
+    });
     community_menu->addAction(act);
     act = new QAction("NWN Lexicon", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchNWNLexicon()));
+    connect(act, &QAction::triggered, []{
+        QDesktopServices::openUrl(QUrl("http://www.nwnlexicon.com/"));
+    });
     community_menu->addAction(act);
     act = new QAction("NWN Wiki", community_menu);
-    connect(act, SIGNAL(triggered()), SLOT(launchNWNWiki()));
+    connect(act, &QAction::triggered, []{
+        QDesktopServices::openUrl(QUrl("http://nwn.wikia.com/wiki/Main_Page"));
+    });
     community_menu->addAction(act);
     settings_button_menu_->addMenu(community_menu);
-
 
     settings_button_menu_->addSeparator();
 

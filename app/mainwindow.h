@@ -106,11 +106,6 @@ private slots:
     void runUpdater();
     void switchStack();
     void requestDirectConnect();
-    void launchBiowareForums();
-    void launchNeverwinterVault();
-    void launchNWNLexicon();
-    void launchNWNWiki();
-    void launchGOGForums();
 
 public slots:
     void addCategory();
