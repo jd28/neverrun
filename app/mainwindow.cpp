@@ -64,6 +64,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : options_(new Options(this))
+    , updater_(nullptr)
     , diskCache(new QNetworkDiskCache(this))
     , generator_(new HtmlPreviewGenerator(options_, this))
     , server_info_widget_(new ServerInfoWidget(this))
