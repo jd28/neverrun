@@ -204,7 +204,7 @@ bool parseBNDR(const QByteArray &data, Server &s) {
                 for(int i = 1; i < lines.size(); ++i) {
                     if(lines[i].startsWith("---")) {
                         lines.erase(lines.begin(), lines.begin()+i+1);
-                        s.serv_description = lines.join("");
+                        s.serv_description = lines.join("\n");
                         break;
                     }
                     yaml += lines[i] + "\n";
@@ -220,6 +220,12 @@ bool parseBNDR(const QByteArray &data, Server &s) {
                     }
                     if(node["forum"]) {
                         s.forum = QString::fromStdString(node["forum"].as<std::string>());
+                    }
+                    if(node["webchat"]) {
+                        s.chat = QString::fromStdString(node["webchat"].as<std::string>());
+                    }
+                    if(node["nrl"]) {
+                        s.nrl = QString::fromStdString(node["nrl"].as<std::string>());
                     }
                 }
                 catch(...) {

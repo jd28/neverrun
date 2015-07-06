@@ -117,22 +117,10 @@ MarkdownConverter::ConverterOptions HoedownMarkdownConverter::supportedOptions()
 
 unsigned long HoedownMarkdownConverter::translateConverterOptions(ConverterOptions options) const
 {
-    unsigned long converterOptions = HOEDOWN_EXT_FENCED_CODE | HOEDOWN_EXT_TABLES | HOEDOWN_EXT_AUTOLINK;
-
-    // strikethrough
-    if (options.testFlag(MarkdownConverter::NoStrikethroughOption)) {
-        converterOptions |= HOEDOWN_EXT_STRIKETHROUGH;
-    }
-
-    // Footnotes
-    if (options.testFlag(MarkdownConverter::ExtraFootnoteOption)) {
-        converterOptions |= HOEDOWN_EXT_FOOTNOTES;
-    }
-
-    // Superscript
-    if (options.testFlag(MarkdownConverter::NoSuperscriptOption)) {
-        converterOptions |= HOEDOWN_EXT_SUPERSCRIPT;
-    }
+    unsigned long converterOptions = (HOEDOWN_EXT_FENCED_CODE |
+                                      HOEDOWN_EXT_TABLES |
+                                      HOEDOWN_EXT_AUTOLINK |
+                                      HOEDOWN_EXT_STRIKETHROUGH);
 
     return converterOptions;
 }
