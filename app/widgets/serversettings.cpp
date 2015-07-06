@@ -30,8 +30,8 @@ ServerSettingsDialog::ServerSettingsDialog(QWidget *parent) :
     setWindowFlags(Qt::SplashScreen);
     setModal(true);
 
-    connect(ui->loaderButton, SIGNAL(clicked()), SLOT(openLoaderDialog()));
-    connect(ui->updateButton, SIGNAL(clicked()), SLOT(openUpdaterDialog()));
+    connect(ui->loaderButton, &QPushButton::clicked, this, &ServerSettingsDialog::openLoaderDialog);
+    connect(ui->updateButton, &QPushButton::clicked, this, &ServerSettingsDialog::openUpdaterDialog);
 }
 
 ServerSettingsDialog::~ServerSettingsDialog()

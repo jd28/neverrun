@@ -73,10 +73,6 @@ void ModuleTableWidget::onRemoveFromCat() {
     setModuleFilter(options_->getCategoryModules(current_cat_), current_cat_);
 }
 
-const ModuleTableModel *ModuleTableWidget::getModuleTableModel() const {
-    return model_;
-}
-
 void ModuleTableWidget::customMenuRequested(QPoint pos) {
     QModelIndex index = indexAt(pos);
     if (!index.isValid()) { return; }

@@ -73,8 +73,8 @@ ServerCategoryWidget::ServerCategoryWidget(Options *options, QWidget *parent) :
     setFont(font);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            SLOT(customMenuRequested(QPoint)));
+    connect(this, &ServerCategoryWidget::customContextMenuRequested,
+            this, &ServerCategoryWidget::customMenuRequested);
 
     QTableWidgetItem *item;
     int row = 0;
@@ -122,8 +122,8 @@ ServerCategoryWidget::ServerCategoryWidget(Options *options, QWidget *parent) :
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
-    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            SLOT(changeServerList()));
+    connect(selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &ServerCategoryWidget::changeServerList);
 
 #undef add_row
 }

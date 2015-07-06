@@ -96,11 +96,11 @@ private slots:
     void checkForUpdates();
     void dm();
     void htmlResultReady(const QString &html);
-    void play();
     void launchToolset();
     void onCategoryAdded();
     void onListSelectionAccepted();
     void openSettings();
+    void play();
     void runUpdater();
     void switchStack();
 
@@ -115,18 +115,18 @@ public slots:
     void onChangeUserName(QString name);
     void onRequestAddToDialog();
     void onRequestRemoveFromDialog();
+    void onRequestServerInfo(ServerInfoTypes type);
     void openURL(const QUrl& url);
     void playServer(QString address, QString password, bool dm);
-    void RunNWN(QString address, bool dm);
+    void runNWN(QString address, bool dm);
     void setServerAddressFilter(const QStringList &ips, const QString& cat);
     void setModuleFilter(const QStringList &mods, const QString &cat);
-    void onRequestServerInfo(ServerInfoTypes type);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool AddServers();
+    bool addServers();
     void closeEvent(QCloseEvent *event);
     Options* options() { return options_; }
     void readSettings();

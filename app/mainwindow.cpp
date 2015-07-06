@@ -83,8 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     main_grid_layout_->setSpacing(5);
 
     servers_label_ = new ToggleButton("Servers", "Modules", this);
-    connect(servers_label_, SIGNAL(ButtonChanged(ToggleButton::Button)),
-            SLOT(changeStack(ToggleButton::Button)));
+    connect(servers_label_, &ToggleButton::buttonChanged, this, &MainWindow::changeStack);
 
     main_grid_layout_->addWidget(servers_label_, 0, 0);
     server_table_widget_ = new ServerTableWidget(options_, this);
@@ -126,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
     main_grid->setProperty("central", true);
 
     list_selection_dlg_ = new ListSelectionDialog(this);
-    connect(list_selection_dlg_, SIGNAL(accepted()), SLOT(onListSelectionAccepted()));
+    connect(list_selection_dlg_, &ListSelectionDialog::accepted, this, &MainWindow::onListSelectionAccepted);
 
     setCentralWidget(main_grid);
 
@@ -153,9 +152,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server_table_widget_, &ServerTableWidget::doubleClicked, [this](QModelIndex idx) { Q_UNUSED(idx); play(); });
 
     connect(direct_connect_dlg_, &DirectConnectDialog::addServer, this, &MainWindow::addServer);
+    connect(direct_connect_dlg_, &DirectConnectDialog::requestPlayServer, this, &MainWindow::playServer);
 
-    connect(name_label_, &UserNameButton::addUserName,
-            this, &MainWindow::onAddUserName);
+    connect(name_label_, &UserNameButton::addUserName, this, &MainWindow::onAddUserName);
     connect(name_label_, &UserNameButton::userNameChanged, this, &MainWindow::onChangeUserName);
 
     connect(modules_table_widget_, &ModuleTableWidget::edit, this, &MainWindow::editModule);
@@ -163,10 +162,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(modules_table_widget_, &ModuleTableWidget::requestAddTo, this, &MainWindow::onRequestAddToDialog);
     connect(modules_table_widget_, &ModuleTableWidget::requestRemoveFrom, this, &MainWindow::onRequestRemoveFromDialog);
 
-    connect(server_info_widget_, SIGNAL(closeInfo()), SLOT(switchStack()));
+    connect(server_info_widget_, &ServerInfoWidget::closeInfo, this, &MainWindow::switchStack);
 
-    connect(direct_connect_dlg_, SIGNAL(requestPlayServer(QString,QString,bool)),
-            SLOT(playServer(QString,QString,bool)));
 
     setupUi();
 
@@ -209,7 +206,7 @@ void MainWindow::editModule() {
     toolsetModule(module);
 }
 
-bool MainWindow::AddServers() {
+bool MainWindow::addServers() {
     server_category_->selectAllCategory();
     module_category_->selectAllCategory();
     generator_->markdownTextChanged("");
@@ -438,8 +435,7 @@ void MainWindow::playModule(const QString &module, bool dm) {
     QStringList arguments;
     if (dm) { return; }
 
-    arguments << "+LoadNewModule"
-              << module;
+    arguments << "+LoadNewModule" << module;
 
     QString exe = getDefaultNWNExe();
     QString ps = QFileInfo(exe).canonicalFilePath();
@@ -475,7 +471,7 @@ void MainWindow::playServer(QString address, QString password, bool dm) {
     openProcess(ps, arguments.join(" "), dir);
 }
 
-void MainWindow::RunNWN(QString address, bool dm) {
+void MainWindow::runNWN(QString address, bool dm) {
     playServer(address, options_->getPassword(address, dm), dm);
 }
 
@@ -608,7 +604,7 @@ void MainWindow::onRequestRemoveFromDialog() {
 void MainWindow::play() {
     if (cat_stack_->currentIndex() == STACK_INDEX_SERVER) {
         QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
-        RunNWN(address, false);
+        runNWN(address, false);
     }
     else {
 
@@ -625,7 +621,7 @@ void MainWindow::play() {
 void MainWindow::dm() {
     if (cat_stack_->currentIndex() != STACK_INDEX_SERVER) { return; }
     QString address = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
-    RunNWN(address, true);
+    runNWN(address, true);
 }
 
 QTableView *MainWindow::createModuleTable() {
@@ -662,19 +658,18 @@ void MainWindow::setupUi() {
 void MainWindow::setupHtmlPreview() {
     server_info_widget_->webview()->page()->settings()->setUserStyleSheetUrl(QUrl("qrc:/web/styles/clearness-dark.css"));
     server_info_widget_->webview()->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    connect( server_info_widget_->webview()->page(), SIGNAL(linkClicked(const QUrl&)),this, SLOT(openURL(const QUrl&)));
+    connect(server_info_widget_->webview()->page(), &QWebPage::linkClicked,
+            this, &MainWindow::openURL);
 
     // load HTML template for live preview from resources
     QFile f(":/web/template.html");
     if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString htmlTemplate = f.readAll();
-        //qDebug() << "Template loaded.";
         generator_->setHtmlTemplate(htmlTemplate);
     }
 
     // start background HTML preview generator
-    connect(generator_, SIGNAL(htmlResultReady(QString)),
-            this, SLOT(htmlResultReady(QString)));
+    connect(generator_, &HtmlPreviewGenerator::htmlResultReady, this, &MainWindow::htmlResultReady);
     generator_->start();
 }
 
@@ -689,20 +684,19 @@ QPushButton * MainWindow::createSettingsButton() {
     settings_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     settings_button_menu_ = new QMenu(this);
-    auto act = new QAction("Play NWN", settings_button_menu_);
+
+    auto act = settings_button_menu_->addAction("Play NWN");
     act->setShortcut(Qt::Key_P | Qt::CTRL);
     connect(act, &QAction::triggered, [this](){ launchNWN(false); });
-    settings_button_menu_->addAction(act);
 
-    act = new QAction("Toolset", settings_button_menu_);
+    act = settings_button_menu_->addAction("Toolset");
     act->setShortcut(Qt::Key_T | Qt::CTRL);
-    connect(act, SIGNAL(triggered()), SLOT(launchToolset()));
-    settings_button_menu_->addAction(act);
+    connect(act, &QAction::triggered, this, &MainWindow::launchToolset);
 
-    act = new QAction("DM Client", settings_button_menu_);
+    act = settings_button_menu_->addAction("DM Client");
     act->setShortcut(Qt::Key_D | Qt::CTRL);
     connect(act, &QAction::triggered, [this](){ launchNWN(true); });
-    settings_button_menu_->addAction(act);
+
     settings_button_menu_->addSeparator();
 
     settings_button_menu_->addSeparator();
@@ -713,52 +707,47 @@ QPushButton * MainWindow::createSettingsButton() {
     settings_button_menu_->addSeparator();
 
     QMenu *community_menu = new QMenu("Community", this);
-    act = new QAction("Bioware Forums", community_menu);
+    act = community_menu->addAction("Bioware Forums");
     connect(act, &QAction::triggered, []{
         QDesktopServices::openUrl(QUrl("http://forum.bioware.com/forum/43-neverwinter-nights/"));
     });
-    community_menu->addAction(act);
-    act = new QAction("GOG NWN Forums", community_menu);
+
+    act = community_menu->addAction("GOG NWN Forums");
     connect(act, &QAction::triggered, []{
         QDesktopServices::openUrl(QUrl("https://www.gog.com/forum/neverwinter_nights_series#1431379668"));
     });
-    community_menu->addAction(act);
-    act = new QAction("Neverwinter Vault", community_menu);
+
+    act = community_menu->addAction("Neverwinter Vault");
     connect(act, &QAction::triggered, []{
         QDesktopServices::openUrl(QUrl("http://neverwintervault.org"));
     });
-    community_menu->addAction(act);
-    act = new QAction("NWN Lexicon", community_menu);
+
+    act = community_menu->addAction("NWN Lexicon");
     connect(act, &QAction::triggered, []{
         QDesktopServices::openUrl(QUrl("http://www.nwnlexicon.com/"));
     });
-    community_menu->addAction(act);
-    act = new QAction("NWN Wiki", community_menu);
+
+    act = community_menu->addAction("NWN Wiki");
     connect(act, &QAction::triggered, []{
         QDesktopServices::openUrl(QUrl("http://nwn.wikia.com/wiki/Main_Page"));
     });
-    community_menu->addAction(act);
     settings_button_menu_->addMenu(community_menu);
 
     settings_button_menu_->addSeparator();
 
-    act = new QAction("Settings", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(openSettings()));
-    settings_button_menu_->addAction(act);
+    act = settings_button_menu_->addAction("Settings");
+    connect(act, &QAction::triggered, this, &MainWindow::openSettings);
 
-    act = new QAction("Check for updates...", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(checkForUpdates()));
-    settings_button_menu_->addAction(act);
+    act = settings_button_menu_->addAction("Check for updates...");
+    connect(act, &QAction::triggered, this, &MainWindow::checkForUpdates);
 
-    act = new QAction("About neverrun", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(about()));
-    settings_button_menu_->addAction(act);
+    act = settings_button_menu_->addAction("About neverrun");
+    connect(act, &QAction::triggered, this, &MainWindow::about);
 
     settings_button_menu_->addSeparator();
 
-    act = new QAction("Exit", settings_button_menu_);
-    connect(act, SIGNAL(triggered()), SLOT(close()));
-    settings_button_menu_->addAction(act);
+    act = settings_button_menu_->addAction("Exit");
+    connect(act, &QAction::triggered, this, &MainWindow::close);
 
     settings_button->setMenu(settings_button_menu_);
 

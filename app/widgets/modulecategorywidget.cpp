@@ -71,8 +71,8 @@ ModuleCategoryWidget::ModuleCategoryWidget(Options *options, QWidget *parent) :
     setFont(font);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            SLOT(customMenuRequested(QPoint)));
+    connect(this, &ModuleCategoryWidget::customContextMenuRequested,
+            this, &ModuleCategoryWidget::customMenuRequested);
 
     QTableWidgetItem *item;
     int row = 0;

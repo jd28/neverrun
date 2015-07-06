@@ -38,16 +38,16 @@ public:
     explicit ServerSettingsDialog(QWidget *parent = 0);
     ~ServerSettingsDialog();
 
-    QString getLoader() const;
     QString getDMPassword() const;
+    QString getLoader() const;
     QString getPassword() const;
     QString getUpdater() const;
 
-    void setLoader(const QString& l);
+    void setCancelFocus();
     void setDMPassword(const QString &pass);
+    void setLoader(const QString& l);
     void setPassword(const QString &pass);
     void setUpdater(const QString& l);
-    void setCancelFocus();
 };
 
 #endif // SERVERSETTINGS_H

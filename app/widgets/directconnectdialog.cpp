@@ -20,9 +20,9 @@ DirectConnectDialog::DirectConnectDialog(Options *opts, QWidget *parent) :
 
     ui->address->addItems(opts->getDirectConnects());
 
-    connect(ui->playButton, SIGNAL(clicked()), SLOT(play()));
-    connect(ui->dmButton, SIGNAL(clicked()), SLOT(dm()));
-    connect(ui->cancelButton, SIGNAL(clicked()), SLOT(close()));
+    connect(ui->playButton, &QPushButton::clicked, this, &DirectConnectDialog::play);
+    connect(ui->dmButton, &QPushButton::clicked, this, &DirectConnectDialog::dm);
+    connect(ui->cancelButton, &QPushButton::clicked, this, &DirectConnectDialog::close);
 
     ui->addToMasterWiget->layout()->setContentsMargins(0, 0, 0, 0);
     ui->addToMasterWiget->layout()->setAlignment(ui->addToMaster, Qt::AlignCenter);

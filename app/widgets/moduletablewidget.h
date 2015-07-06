@@ -45,9 +45,8 @@ private slots:
 public:
     explicit ModuleTableWidget(Options *options, QWidget *parent = 0);
 
-    void setModuleFilter(const QStringList &mods, const QString &cat);
-    const ModuleTableModel *getModuleTableModel() const;
     void loadModules(int room);
+    void setModuleFilter(const QStringList &mods, const QString &cat);
 
 signals:
     void edit();

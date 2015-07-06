@@ -283,7 +283,7 @@ void Options::setCurrentUserName(QString un) {
      QSettings nwn_settings(m_NWN_path + "/nwnplayer.ini", QSettings::IniFormat);
      nwn_settings.setValue("Profile/Player Name", un);
      nwn_settings.sync();
-     FileConvert20ToSpace(m_NWN_path + "/nwnplayer.ini");
+     fileConvertPercent20ToSpace(m_NWN_path + "/nwnplayer.ini");
 }
 
 QStringList Options::getCategoriesFromServer(const QString &address) {
@@ -798,5 +798,5 @@ void Options::writeSettings()
     }
 
     nwn_settings.sync();
-    FileConvert20ToSpace(m_NWN_path + "/nwnplayer.ini");
+    fileConvertPercent20ToSpace(m_NWN_path + "/nwnplayer.ini");
 }

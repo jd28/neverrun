@@ -41,14 +41,12 @@ static const char *leftstyle = (
             "background-color: #4A4949;"
             "    border-top: 1px solid #78879b;"
             "    border-bottom: 1px solid #78879b;"
-//            "    border-right: transparent;"
             "    border-left: 1px solid #78879b;"
             "}"
             "QPushButton:checked {"
             "    background-color: #78879b;"
             "    border-top: 1px solid #78879b;"
             "    border-bottom: 1px solid #78879b;"
-//            "    border-right: transparent;"
             "    border-left: 1px solid #78879b;"
             "}"
             );
@@ -73,14 +71,12 @@ static const char *rightstyle = (
             "background-color: #4A4949;"
             "    border-top: 1px solid #78879b;"
             "    border-bottom: 1px solid #78879b;"
-//            "    border-left: transparent;"
             "    border-right: 1px solid #78879b;"
             "}"
             "QPushButton:checked {"
             "    background-color: #78879b;"
             "    border-top: 1px solid #78879b;"
             "    border-bottom: 1px solid #78879b;"
-//            "    border-left: transparent;"
             "    border-right: 1px solid #78879b;"
             "}"
             );
@@ -104,14 +100,11 @@ ToggleButton::ToggleButton(QString left, QString right, QWidget *parent) :
     setLayout(layout);
     layout->setSpacing(0);
 
-    connect(left_,SIGNAL(clicked(bool)),
-            this, SLOT(OnLeftClicked(bool)));
-    connect(right_,SIGNAL(clicked(bool)),
-            this, SLOT(OnRightClicked(bool)));
-
+    connect(left_, &QPushButton::clicked, this, &ToggleButton::onLeftClicked);
+    connect(right_, &QPushButton::clicked, this, &ToggleButton::onRightClicked);
 }
 
-void ToggleButton::OnLeftClicked(bool checked) {
+void ToggleButton::onLeftClicked(bool checked) {
     Q_UNUSED(checked);
     if(is_left_) {
         left_->setChecked(true);
@@ -119,10 +112,10 @@ void ToggleButton::OnLeftClicked(bool checked) {
     }
     is_left_ = true;
     right_->setChecked(false);
-    emit ButtonChanged(Left);
+    emit buttonChanged(Left);
 }
 
-void ToggleButton::OnRightClicked(bool checked) {
+void ToggleButton::onRightClicked(bool checked) {
     Q_UNUSED(checked);
     if(!is_left_) {
         right_->setChecked(true);
@@ -130,5 +123,5 @@ void ToggleButton::OnRightClicked(bool checked) {
     }
     is_left_ = false;
     left_->setChecked(false);
-    emit ButtonChanged(Right);
+    emit buttonChanged(Right);
 }

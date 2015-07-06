@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         updater->CheckForUpdatesSilent();
     #endif
 
-        if(!w.AddServers()){
+        if(!w.addServers()){
             qDebug() << "Failed to load servers...";
         }
         w.show();

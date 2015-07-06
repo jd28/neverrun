@@ -23,7 +23,6 @@
 class QMenu;
 class TextBoxDialog;
 class ListSelectionDialog;
-class QSignalMapper;
 class Options;
 
 class UserNameButton : public QPushButton
@@ -36,11 +35,11 @@ class UserNameButton : public QPushButton
     ListSelectionDialog *list_selection_dlg_;
 
 private slots:
-    void showAddUserName();
     void addName();
     void changeUserName(QAction *action);
-    void showRemoveUserNames();
     void onRemoveUserNames();
+    void showAddUserName();
+    void showRemoveUserNames();
 
 protected:
     virtual void paintEvent( QPaintEvent * );
@@ -49,8 +48,8 @@ public:
     UserNameButton(Options *options, const QString &current, const QStringList &all, QWidget *parent = 0);
 
 signals:
-    void userNameChanged(QString username);
     void addUserName(QString username);
+    void userNameChanged(QString username);
 };
 
 #endif // USERNAMEBUTTON_H

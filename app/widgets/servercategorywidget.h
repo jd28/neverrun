@@ -35,13 +35,14 @@ private slots:
 
 public:
     ServerCategoryWidget(Options *settings, QWidget *parent = 0);
-    void selectAllCategory();
+
     void addCategory(const QString& cat);
+    void selectAllCategory();
 
 signals:
     void loadAllServers(int room);
-    void updateFilter(const QStringList& ips, const QString& name);
     void requestAddCategory();
+    void updateFilter(const QStringList& ips, const QString& name);
 };
 
 #endif // SERVERCATEGORYWIDGET_H

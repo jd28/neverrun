@@ -265,7 +265,7 @@ void ServerTableModel::bindUpdSocket(int port) {
     udp_socket_ = new QUdpSocket(this);
     bool res = udp_socket_->bind(port);
     if (!res) { return; }
-    connect(udp_socket_, SIGNAL(readyRead()),SLOT(readDatagrams()));
+    connect(udp_socket_, &QUdpSocket::readyRead, this, &ServerTableModel::readDatagrams);
 }
 
 void ServerTableModel::requestUpdate(const Server& s) {

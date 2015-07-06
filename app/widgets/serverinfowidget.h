@@ -38,8 +38,9 @@ private slots:
 public:
     explicit ServerInfoWidget(QWidget *parent = 0);
     ~ServerInfoWidget();
-    QWebView *webview() const;
+
     void setServerLabel(const QString& label);
+    QWebView *webview() const;
 
 signals:
     void closeInfo();

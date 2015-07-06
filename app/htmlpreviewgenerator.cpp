@@ -30,8 +30,6 @@ HtmlPreviewGenerator::HtmlPreviewGenerator(Options *opt, QObject *parent) :
     document(0),
     converter(0)
 {
-    //connect(options, SIGNAL(markdownConverterChanged()),
-    //        this, SLOT(markdownConverterChanged()));
     markdownConverterChanged();
 }
 

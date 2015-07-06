@@ -26,7 +26,7 @@ ServerInfoWidget::ServerInfoWidget(QWidget *parent) :
     ui->webView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->widget->layout()->setContentsMargins(2, 0, 10, 0);
     layout()->setContentsMargins(0, 0, 0, 0);
-    connect(ui->closeButton, SIGNAL(clicked()), SLOT(onCloseInfo()));
+    connect(ui->closeButton, &QPushButton::clicked, this, &ServerInfoWidget::onCloseInfo);
 }
 
 ServerInfoWidget::~ServerInfoWidget()

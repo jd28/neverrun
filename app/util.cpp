@@ -310,7 +310,7 @@ bool parseBNXR(const QByteArray &data, Server &s) {
 #undef S
 }
 
-bool FileConvert20ToSpace(QString filename) {
+bool fileConvertPercent20ToSpace(QString filename) {
     QFile file;
     file.setFileName(filename);
     if (file.open(QIODevice::ReadWrite) == false)
