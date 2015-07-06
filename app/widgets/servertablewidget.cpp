@@ -300,8 +300,11 @@ void ServerTableWidget::customMenuRequested(QPoint pos) {
     QAction *act = menu.addAction("Play");
     connect(act, &QAction::triggered, [this]() { emit play(); });
 
+    QString addr = getSelectedServerInfo(ServerTableModel::USER_ROLE_ADDRESS).toString();
+    QString pass = options_->getPassword(addr, true);
     act = menu.addAction("DM");
     connect(act, &QAction::triggered, [this]() { emit dm(); });
+    if(pass.size() == 0) { act->setDisabled(true); }
 
     menu.addSeparator();
 
