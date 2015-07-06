@@ -87,6 +87,7 @@ class MainWindow : public QMainWindow {
     QPushButton * createSettingsButton();
     void openProcess(const QString &exe, const QString &args, const QString &dir) const;
     void PlayModule(QString module, bool dm);
+    void requestDirectConnect();
     void setupHtmlPreview();
     void setupUi();
     void ToolsetModule(QString module);
@@ -105,7 +106,6 @@ private slots:
     void openSettings();
     void runUpdater();
     void switchStack();
-    void requestDirectConnect();
 
 public slots:
     void addCategory();

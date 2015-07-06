@@ -151,8 +151,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(server_table_widget_, &ServerTableWidget::requestRemoveFrom, this, &MainWindow::onRequestRemoveFromDialog);
     connect(server_table_widget_, &ServerTableWidget::doubleClicked, [this](QModelIndex idx) { Q_UNUSED(idx); play(); });
 
-    connect(direct_connect_dlg_, SIGNAL(addServer(QString)),
-            SLOT(addServer(QString)));
+    connect(direct_connect_dlg_, &DirectConnectDialog::addServer, this, &MainWindow::addServer);
 
     connect(name_label_, SIGNAL(addUserName(QString)),
             SLOT(onAddUserName(QString)));
@@ -689,6 +688,13 @@ QPushButton * MainWindow::createSettingsButton() {
     act = new QAction("DM Client", settings_button_menu_);
     act->setShortcut(Qt::Key_D | Qt::CTRL);
     connect(act, &QAction::triggered, [this](){ launchNWN(true); });
+    settings_button_menu_->addAction(act);
+    settings_button_menu_->addSeparator();
+
+    settings_button_menu_->addSeparator();
+    act = settings_button_menu_->addAction("Direct Connect");
+    act->setShortcut(Qt::Key_C | Qt::CTRL);
+    connect(act, &QAction::triggered, [this](){ requestDirectConnect(); });
     settings_button_menu_->addAction(act);
     settings_button_menu_->addSeparator();
 
